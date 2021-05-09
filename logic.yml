@@ -659,20 +659,20 @@ ukuku-bonk-tree:
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: boots
-10-seashell-reward:
+5-seashell-reward:
   type: item
   subtype: npc
   content: heart-piece
   region: plains
   spoiler-region: ukuku-prairie
-  condition-basic: seashell:10
-20-seashell-reward:
+  condition-basic: seashell:5
+15-seashell-reward:
   type: item
   subtype: npc
   content: shell-sensor
   region: plains
   spoiler-region: ukuku-prairie
-  condition-basic: seashell:20
+  condition-basic: seashell:15
 30-seashell-reward:
   type: item
   subtype: npc
