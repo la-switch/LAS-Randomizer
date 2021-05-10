@@ -1,0 +1,327 @@
+---
+sword:
+  type: important
+  quantity: 2
+shield:
+  type: important
+  quantity: 2
+bracelet:
+  type: important
+  quantity: 2
+boots:
+  type: important
+  quantity: 1
+flippers:
+  type: important
+  quantity: 1
+feather:
+  type: important
+  quantity: 1
+shovel:
+  type: important
+  quantity: 1
+hookshot:
+  type: important
+  quantity: 1
+bow:
+  type: important
+  quantity: 1
+rod:
+  type: important
+  quantity: 1
+boomerang:
+  type: important
+  quantity: 1
+ocarina:
+  type: important
+  quantity: 1
+song-ballad:
+  type: important
+  quantity: 1
+song-soul:
+  type: important
+  quantity: 1
+yoshi-doll:
+  type: important
+  quantity: 1
+ribbon:
+  type: important
+  quantity: 1
+dog-food:
+  type: important
+  quantity: 1
+bananas:
+  type: important
+  quantity: 1
+stick:
+  type: important
+  quantity: 1
+honeycomb:
+  type: important
+  quantity: 1
+pineapple:
+  type: important
+  quantity: 1
+hibiscus:
+  type: important
+  quantity: 1
+letter:
+  type: important
+  quantity: 1
+broom:
+  type: important
+  quantity: 1
+fishing-hook:
+  type: important
+  quantity: 1
+necklace:
+  type: important
+  quantity: 1
+mermaid-scale:
+  type: important
+  quantity: 1
+magnifying-lens:
+  type: important
+  quantity: 1
+golden-leaf:
+  type: important
+  quantity: 5
+mushroom:
+  type: important
+  quantity: 1
+tail-key:
+  type: important
+  quantity: 1
+slime-key:
+  type: important
+  quantity: 1
+angler-key:
+  type: important
+  quantity: 1
+face-key:
+  type: important
+  quantity: 1
+bird-key:
+  type: important
+  quantity: 1
+seashell:
+  type: important
+  quantity: 50
+full-moon-cello:
+  type: important
+  quantity: 1
+conch-horn:
+  type: important
+  quantity: 1
+sea-lilys-bell:
+  type: important
+  quantity: 1
+surf-harp:
+  type: important
+  quantity: 1
+wind-marimba:
+  type: important
+  quantity: 1
+coral-triangle:
+  type: important
+  quantity: 1
+evening-calm-organ:
+  type: important
+  quantity: 1
+thunder-drum:
+  type: important
+  quantity: 1
+bottle:
+  type: good
+  quantity: 3
+heart-container:
+  type: good
+  quantity: 9
+bomb-capacity:
+  type: good
+  quantity: 1
+arrow-capacity:
+  type: good
+  quantity: 1
+powder-capacity:
+  type: good
+  quantity: 1
+shell-sensor:
+  type: good
+  quantity: 1
+song-mambo:
+  type: good
+  quantity: 1
+medicine:
+  type: good
+  quantity: 3
+red-tunic:
+  type: good
+  quantity: 1
+blue-tunic:
+  type: good
+  quantity: 1
+rupee-300:
+  type: good
+  quantity: 2
+heart-piece:
+  type: junk
+  quantity: 32
+rupee-50:
+  type: junk
+  quantity: 19
+rupee-100:
+  type: junk
+  quantity: 5
+chamber-stone:
+  type: junk
+  quantity: 14
+rupee-20:
+  type: junk
+  quantity: 5
+zol-trap:
+  type: junk
+  quantity: 4
+bomb:
+  type: junk
+  quantity: 1
+stalfos-note:
+  type: junk
+  quantity: 1
+nightmare-key-D1:
+  type: D1
+  quantity: 1
+key-D1:
+  type: D1
+  quantity: 3
+stone-beak-D1:
+  type: D1
+  quantity: 1
+compass-D1:
+  type: D1
+  quantity: 1
+map-D1:
+  type: D1
+  quantity: 1
+nightmare-key-D2:
+  type: D2
+  quantity: 1
+key-D2:
+  type: D2
+  quantity: 5
+stone-beak-D2:
+  type: D2
+  quantity: 1
+compass-D2:
+  type: D2
+  quantity: 1
+map-D2:
+  type: D2
+  quantity: 1
+nightmare-key-D3:
+  type: D3
+  quantity: 1
+key-D3:
+  type: D3
+  quantity: 9
+stone-beak-D3:
+  type: D3
+  quantity: 1
+compass-D3:
+  type: D3
+  quantity: 1
+map-D3:
+  type: D3
+  quantity: 1
+nightmare-key-D4:
+  type: D4
+  quantity: 1
+key-D4:
+  type: D4
+  quantity: 5
+stone-beak-D4:
+  type: D4
+  quantity: 1
+compass-D4:
+  type: D4
+  quantity: 1
+map-D4:
+  type: D4
+  quantity: 1
+nightmare-key-D5:
+  type: D5
+  quantity: 1
+key-D5:
+  type: D5
+  quantity: 3
+stone-beak-D5:
+  type: D5
+  quantity: 1
+compass-D5:
+  type: D5
+  quantity: 1
+map-D5:
+  type: D5
+  quantity: 1
+nightmare-key-D6:
+  type: D6
+  quantity: 1
+key-D6:
+  type: D6
+  quantity: 3
+stone-beak-D6:
+  type: D6
+  quantity: 1
+compass-D6:
+  type: D6
+  quantity: 1
+map-D6:
+  type: D6
+  quantity: 1
+nightmare-key-D7:
+  type: D7
+  quantity: 1
+key-D7:
+  type: D7
+  quantity: 3
+stone-beak-D7:
+  type: D7
+  quantity: 1
+compass-D7:
+  type: D7
+  quantity: 1
+map-D7:
+  type: D7
+  quantity: 1
+nightmare-key-D8:
+  type: D8
+  quantity: 1
+key-D8:
+  type: D8
+  quantity: 7
+compass-D8:
+  type: D8
+  quantity: 1
+stone-beak-D8:
+  type: D8
+  quantity: 1
+map-D8:
+  type: D8
+  quantity: 1
+nightmare-key-D0:
+  type: D0
+  quantity: 1
+key-D0:
+  type: D0
+  quantity: 3
+stone-beak-D0:
+  type: D0
+  quantity: 1
+compass-D0:
+  type: D0
+  quantity: 1
+map-D0:
+  type: D0
+  quantity: 1
+
+...

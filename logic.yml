@@ -1287,7 +1287,7 @@ D3-pairodds:
 D3-basement-north:
   type: item
   subtype: drop
-  content: d3 small key
+  content: key-D3
   region: key-cavern
   spoiler-region: key-cavern
   condition-basic: D3-3G & kill-stalfos-spear & kill-stalfos
@@ -1392,7 +1392,7 @@ D4-north-chest:
   condition-basic: D4-2D
 D4-instrument:
   type: item
-  subtype: loose item
+  subtype: standing
   content: surf-harp
   region: angler-tunnel
   spoiler-region: angler-tunnel
@@ -1421,7 +1421,7 @@ D4-east-of-puzzle:
 D4-south-of-puzzle:
   type: item
   subtype: chest
-  content: zol
+  content: zol-trap
   region: angler-tunnel
   spoiler-region: angler-tunnel
   condition-basic: D4-5C
@@ -1515,8 +1515,8 @@ D5-past-master-stalfos-3:
   condition-basic: D5-1E & break-pot
 D5-slime-eel:
   type: item
-  subtype: boss drop
-  content: heart container
+  subtype: boss
+  content: heart-container
   region: catfish-maw
   spoiler-region: catfish-maw
   condition-basic: D5-2D & kill-slime-eel
@@ -1671,7 +1671,7 @@ D6-gated-hallway-north:
 D6-southwest-chest:
   type: item
   subtype: chest
-  content: bracelet:2
+  content: bracelet
   region: face-shrine
   spoiler-region: face-shrine
   condition-basic: D6-7B
@@ -1861,7 +1861,7 @@ D8-torches:
   condition-basic: D8-5B & rod
 D8-west-vire:
   type: item
-  subtype: clear enemies
+  subtype: drop
   content: key-D8
   region: turtle-rock
   spoiler-region: turtle-rock
@@ -1890,7 +1890,7 @@ D8-sparks-chest:
 D8-middle-right-chest:
   type: item
   subtype: chest
-  content: zol
+  content: zol-trap
   region: turtle-rock
   spoiler-region: turtle-rock
   condition-basic: D8-7F
@@ -2059,7 +2059,7 @@ mr-write-house:
   condition-basic: (swamp & (feather | rooster)) | taltal-west-1 | taltal-west-2
 plains:
   type: region
-  condition-basic: (mabe & break-bush & bracelet) | river | (wasteland & bracelet)
+  condition-basic: (mabe & bracelet) | river | (wasteland & bracelet)
 pothole:
   type: region
   condition-basic: plains & golden-leaf:5
@@ -3256,6 +3256,6 @@ kill-dethl:
   condition-basic: bow | rod | boomerang
 kill-nightmare:
   type: enemy
-  condition-basic: kill-nightmare-zol & kill-nightmare-agahnim & kill-nightmare-moldorm & kill-nightmare-ganon & kill-nightmare-lanmola & kill-dethl
+  condition-basic: magnifying-lens & kill-nightmare-zol & kill-nightmare-agahnim & kill-nightmare-moldorm & kill-nightmare-ganon & kill-nightmare-lanmola & kill-dethl
 
 ...
