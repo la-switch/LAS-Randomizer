@@ -325,46 +325,49 @@ fishing-any:
   content: heart-piece
   region: mabe
   spoiler-region: mabe-village
+  condition-basic: can-farm-rupees
 fishing-50:
   type: item
   subtype: npc
   content: heart-piece
   region: mabe
   spoiler-region: mabe-village
+  condition-basic: can-farm-rupees
 fishing-100:
   type: item
   subtype: npc
   content: seashell
   region: mabe
   spoiler-region: mabe-village
-  condition-basic: wind-marimba
+  condition-basic: can-farm-rupees & wind-marimba
 fishing-150:
   type: item
   subtype: npc
   content: chamber-stone
   region: mabe
   spoiler-region: mabe-village
-  condition-basic: coral-triangle
+  condition-basic: can-farm-rupees & coral-triangle
 fishing-cheep-cheep:
   type: item
   subtype: npc
   content: seashell
   region: mabe
   spoiler-region: mabe-village
-  condition-basic: surf-harp
+  condition-basic: can-farm-rupees & surf-harp
 fishing-ol-baron:
   type: item
   subtype: npc
   content: chamber-stone
   region: mabe
   spoiler-region: mabe-village
-  condition-basic: coral-triangle
+  condition-basic: can-farm-rupees & coral-triangle
 fishing-loose:
   type: item
   subtype: standing
   content: bottle
   region: mabe
   spoiler-region: mabe-village
+  condition-basic: can-farm-rupees
 tarin:
   type: item
   subtype: npc
@@ -919,46 +922,49 @@ trendy-prize-1:
   content: yoshi-doll
   region: trendy
   spoiler-region: mabe-village
+  condition-basic: can-farm-rupees
 trendy-prize-2:
   type: item
   subtype: standing
   content: heart-piece
   region: trendy
   spoiler-region: mabe-village
+  condition-basic: can-farm-rupees
 trendy-prize-3:
   type: item
   subtype: standing
   content: seashell
   region: trendy
   spoiler-region: mabe-village
+  condition-basic: can-farm-rupees
 trendy-prize-4:
   type: item
   subtype: standing
   content: chamber-stone
   region: trendy
   spoiler-region: mabe-village
-  condition-basic: conch-horn
+  condition-basic: can-farm-rupees & conch-horn
 trendy-prize-5:
   type: item
   subtype: standing
   content: heart-piece
   region: trendy
   spoiler-region: mabe-village
-  condition-basic: sea-lilys-bell
+  condition-basic: can-farm-rupees & sea-lilys-bell
 trendy-prize-6:
   type: item
   subtype: standing
   content: seashell
   region: trendy
   spoiler-region: mabe-village
-  condition-basic: surf-harp
+  condition-basic: can-farm-rupees & surf-harp
 trendy-prize-final:
   type: item
   subtype: npc
   content: chamber-stone
   region: trendy
   spoiler-region: mabe-village
-  condition-basic: fast-trendy | (full-moon-cello & conch-horn & sea-lilys-bell & surf-harp & wind-marimba & coral-triangle & evening-calm-organ & thunder-drum)
+  condition-basic: can-farm-rupees & (fast-trendy | (full-moon-cello & conch-horn & sea-lilys-bell & surf-harp & wind-marimba & coral-triangle & evening-calm-organ & thunder-drum))
 villa-cave:
   type: item
   subtype: chest
@@ -1056,7 +1062,7 @@ diamond-island:
   content: heart-piece
   region: woods
   spoiler-region: koholint-prairie
-  condition-basic: heart-piece
+  condition-basic: feather | rooster
 
 D1-instrument:
   type: item
@@ -1985,11 +1991,13 @@ moblin-cave:
   type: follower
   content: bow-wow
   region: wasteland
+  spoiler-region: koholint-prairie
   condition-basic: kill-moblin-shield & kill-moblin-spear & kill-king-moblin & full-moon-cello
 rooster-statue:
   type: follower
   content: rooster
   region: mabe
+  spoiler-region: mabe-village
   condition-basic: bracelet:2 & song-soul & ocarina
 
 # Regions
@@ -2114,7 +2122,7 @@ turtle-rock:
   condition-basic: taltal-west-2 & song-soul & kill-turtle-rock
 wasteland:
   type: region
-  condition-basic: (woods & (feather | bracelet | rooster)) | (taltal-east-0 & (break-strange-obstacle | rooster) & bracelet) | (heights & bracelet) | (swamp & bracelet)
+  condition-basic: (woods & (feather | bracelet | rooster)) | (taltal-east-0 & (break-strange-obstacle | rooster) & bracelet) | (heights & bracelet) | (swamp & bracelet) | (plains & bracelet)
 woods:
   type: region
   condition-basic: (mabe & break-bush) | (swamp & break-bush) | (wasteland & (feather | bracelet | rooster))
@@ -2664,7 +2672,7 @@ D6-6G:
   condition-basic: D6-7G & kill-wizzrobe
 D6-7B:
   type: room
-  condition-basic: D6-8B & (kill-minimoldorm | shield:2) & kill-wizzrobe)
+  condition-basic: D6-8B & (kill-minimoldorm | shield:2) & kill-wizzrobe
 D6-7C:
   type: room
   condition-basic: (D6-8C & kill-wizzrobe) | (D6-6C & bracelet:2)
@@ -3024,13 +3032,16 @@ bomb-arrows:
   condition-basic: bombs & bow
 bombs:
   type: interaction
-  condition-basic: can-shop    # hopefully we can edit the shop to have bombs at the start
+  condition-basic: can-shop & conch-horn   # hopefully we can edit the shop to have bombs at the start
 powder:
   type: interaction
   condition-basic: (woods & mushroom) # can add more here later but this is fine for now
 can-shop:
   type: interaction
-  # don't know for sure yet what the trigger for letting you steal is so just leaving it as true until further testing
+  condition-basic: can-farm-rupees | beach
+can-farm-rupees:
+  type: interaction
+  condition-basic: break-bush | kill-octorok | shovel
 dash-jump:
   type: interaction
   condition-basic: feather & boots
@@ -3088,7 +3099,7 @@ kill-hardhat-beetle:
 kill-helmasaur:
   type: enemy
   condition-basic: sword | powder | bow | bombs | rod | boomerang
-  condition-heavy: True
+  condition-heavy: bracelet
 kill-keese:
   type: enemy
   condition-basic: sword | powder | bow | bombs | rod | boomerang
@@ -3107,6 +3118,9 @@ kill-moblin-spear:
 kill-moblin-shield:
   type: enemy
   condition-basic: sword | powder | bow | bombs | rod | boomerang
+kill-octorok:
+  type: enemy
+  condition-basic: sword | powder | bow | bombs | rod | boomerang | shield:2
 kill-orb:
   type: enemy
   condition-basic: sword | hookshot | bow | bombs | rod | boomerang
@@ -3116,11 +3130,11 @@ kill-pairodd:
 kill-pols-voice:
   type: enemy
   condition-basic: bow | bombs | rod | (ocarina & song-ballad)
-  condition-heavy: True
+  condition-heavy: bracelet
 kill-rope:
   type: enemy
   condition-basic: sword | powder | bow | bombs | rod | boomerang
-  condition-heavy: True
+  condition-heavy: bracelet
 kill-shy-guy:
   type: enemy
   condition-basic: sword | bow | bombs | rod | boomerang
@@ -3159,11 +3173,11 @@ kill-wizzrobe:
 kill-zol-green:
   type: enemy
   condition-basic: sword | powder | bow | bombs | rod | boomerang
-  condition-heavy: True
+  condition-heavy: bracelet
 kill-zol-red:
   type: enemy
   condition-basic: sword | powder | bow | bombs | rod | boomerang
-  condition-heavy: True
+  condition-heavy: bracelet
   condition-pit: shield
 
 kill-armos-knight:
@@ -3256,6 +3270,6 @@ kill-dethl:
   condition-basic: bow | rod | boomerang
 kill-nightmare:
   type: enemy
-  condition-basic: magnifying-lens & kill-nightmare-zol & kill-nightmare-agahnim & kill-nightmare-moldorm & kill-nightmare-ganon & kill-nightmare-lanmola & kill-dethl
+  condition-basic: egg & magnifying-lens & kill-nightmare-zol & kill-nightmare-agahnim & kill-nightmare-moldorm & kill-nightmare-ganon & kill-nightmare-lanmola & kill-dethl
 
 ...

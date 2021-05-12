@@ -38,6 +38,9 @@ ocarina:
 song-ballad:
   type: important
   quantity: 1
+song-mambo:
+  type: important
+  quantity: 1
 song-soul:
   type: important
   quantity: 1
@@ -104,9 +107,6 @@ face-key:
 bird-key:
   type: important
   quantity: 1
-seashell:
-  type: important
-  quantity: 50
 full-moon-cello:
   type: important
   quantity: 1
@@ -131,6 +131,9 @@ evening-calm-organ:
 thunder-drum:
   type: important
   quantity: 1
+seashell:
+  type: seashell
+  quantity: 50
 bottle:
   type: good
   quantity: 3
@@ -147,9 +150,6 @@ powder-capacity:
   type: good
   quantity: 1
 shell-sensor:
-  type: good
-  quantity: 1
-song-mambo:
   type: good
   quantity: 1
 medicine:
@@ -299,10 +299,10 @@ nightmare-key-D8:
 key-D8:
   type: D8
   quantity: 7
-compass-D8:
+stone-beak-D8:
   type: D8
   quantity: 1
-stone-beak-D8:
+compass-D8:
   type: D8
   quantity: 1
 map-D8:
