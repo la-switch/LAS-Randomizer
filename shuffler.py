@@ -62,17 +62,17 @@ def canReachLocation(toReach, placements, startingAccess, logic):
 	"""Given a set of item placements, and a starting item set, verify whether the location toReach is possible from the start of the game
 	
 	Parameters
-    ----------
-    toReach : str
-    	The name of the location to check
-    placements : dict
-    	Full of <location : str, item : str> pairs to represent items placed in locations. Currently empty locations have the value None.
-    startingAccess : dict
-    	A dict of <item : str, quantity : int> pairs. The starting item/access set to consider, i.e. all items not yet placed
-    logic : str
-    	The logic to use in verifying. 'basic', 'advanced', or 'glitched'
+	----------
+	toReach : str
+		The name of the location to check
+	placements : dict
+		Full of <location : str, item : str> pairs to represent items placed in locations. Currently empty locations have the value None.
+	startingAccess : dict
+		A dict of <item : str, quantity : int> pairs. The starting item/access set to consider, i.e. all items not yet placed
+	logic : str
+		The logic to use in verifying. 'basic', 'advanced', or 'glitched'
 
-    Returns True or False depending on whether access is eventually gained to toReach.
+	Returns True or False depending on whether access is eventually gained to toReach.
 	"""
 	access = startingAccess.copy()
 	accessAdded = True
@@ -117,17 +117,17 @@ def canReachLocation(toReach, placements, startingAccess, logic):
 def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 	"""Creates and returns a a randomized placement of items, adhering to the logic
 
-    Parameters
-    ----------
-    seed : int
-    	The seed to initialize the randomness.
-    logic : str
-    	The logic to use in verifying. 'basic', 'advanced', or 'glitched'
-    forceJunk : list
-    	A list of strings as location names, which should be forced to hold junk items.
-    forceVanilla : list
-    	A list of strings as location names, which should be forced to hold the same item they do in the normal game.
-    	forceJunk takes priority over forceVanilla
+	Parameters
+	----------
+	seed : int
+		The seed to initialize the randomness.
+	logic : str
+		The logic to use in verifying. 'basic', 'advanced', or 'glitched'
+	forceJunk : list
+		A list of strings as location names, which should be forced to hold junk items.
+	forceVanilla : list
+		A list of strings as location names, which should be forced to hold the same item they do in the normal game.
+		forceJunk takes priority over forceVanilla
 	"""
 
 	random.seed(0)
