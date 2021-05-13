@@ -188,12 +188,12 @@ bomb:
 stalfos-note:
   type: junk
   quantity: 1
-nightmare-key-D1:
-  type: D1
-  quantity: 1
 key-D1:
   type: D1
   quantity: 3
+nightmare-key-D1:
+  type: D1
+  quantity: 1
 stone-beak-D1:
   type: D1
   quantity: 1
@@ -203,12 +203,12 @@ compass-D1:
 map-D1:
   type: D1
   quantity: 1
-nightmare-key-D2:
-  type: D2
-  quantity: 1
 key-D2:
   type: D2
   quantity: 5
+nightmare-key-D2:
+  type: D2
+  quantity: 1
 stone-beak-D2:
   type: D2
   quantity: 1
@@ -218,12 +218,12 @@ compass-D2:
 map-D2:
   type: D2
   quantity: 1
-nightmare-key-D3:
-  type: D3
-  quantity: 1
 key-D3:
   type: D3
   quantity: 9
+nightmare-key-D3:
+  type: D3
+  quantity: 1
 stone-beak-D3:
   type: D3
   quantity: 1
@@ -233,12 +233,12 @@ compass-D3:
 map-D3:
   type: D3
   quantity: 1
-nightmare-key-D4:
-  type: D4
-  quantity: 1
 key-D4:
   type: D4
   quantity: 5
+nightmare-key-D4:
+  type: D4
+  quantity: 1
 stone-beak-D4:
   type: D4
   quantity: 1
@@ -248,12 +248,12 @@ compass-D4:
 map-D4:
   type: D4
   quantity: 1
-nightmare-key-D5:
-  type: D5
-  quantity: 1
 key-D5:
   type: D5
   quantity: 3
+nightmare-key-D5:
+  type: D5
+  quantity: 1
 stone-beak-D5:
   type: D5
   quantity: 1
@@ -263,12 +263,12 @@ compass-D5:
 map-D5:
   type: D5
   quantity: 1
-nightmare-key-D6:
-  type: D6
-  quantity: 1
 key-D6:
   type: D6
   quantity: 3
+nightmare-key-D6:
+  type: D6
+  quantity: 1
 stone-beak-D6:
   type: D6
   quantity: 1
@@ -278,12 +278,12 @@ compass-D6:
 map-D6:
   type: D6
   quantity: 1
-nightmare-key-D7:
-  type: D7
-  quantity: 1
 key-D7:
   type: D7
   quantity: 3
+nightmare-key-D7:
+  type: D7
+  quantity: 1
 stone-beak-D7:
   type: D7
   quantity: 1
@@ -293,12 +293,12 @@ compass-D7:
 map-D7:
   type: D7
   quantity: 1
-nightmare-key-D8:
-  type: D8
-  quantity: 1
 key-D8:
   type: D8
   quantity: 7
+nightmare-key-D8:
+  type: D8
+  quantity: 1
 stone-beak-D8:
   type: D8
   quantity: 1
@@ -308,12 +308,12 @@ compass-D8:
 map-D8:
   type: D8
   quantity: 1
-nightmare-key-D0:
-  type: D0
-  quantity: 1
 key-D0:
   type: D0
   quantity: 3
+nightmare-key-D0:
+  type: D0
+  quantity: 1
 stone-beak-D0:
   type: D0
   quantity: 1

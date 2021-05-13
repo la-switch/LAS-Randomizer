@@ -138,7 +138,7 @@ dampe-page-3:
   condition-basic: dampe-3-4
 taltal-entrance-blocks:
   type: item
-  subtype: npc
+  subtype: standing
   content: heart-piece
   region: wasteland
   spoiler-region: taltal-mountains-east

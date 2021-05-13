@@ -130,7 +130,7 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 		forceJunk takes priority over forceVanilla
 	"""
 
-	random.seed(0)
+	random.seed(seed)
 
 	# Initialize the item and location lists, and the structures for tracking placements and access
 	access = {}
@@ -189,8 +189,6 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 	random.shuffle(goodItems)
 	items = importantItems + seashellItems + goodItems + junkItems + dungeonItems
 
-	random.shuffle(locations)
-
 	# Assign vanilla contents to forceVanilla locations
 	for loc in forceVanilla:
 		# If it's not a valid location name, or already used for forceJunk, just ignore it
@@ -211,10 +209,14 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 		locationPool = list(filter((lambda s: len(s) >= 2 and s[:2] == f'D{i}'), locations))
 		random.shuffle(locationPool)
 
+		# Keep track of where we placed items. this is necessary to undo placements if we get stuck
+		placementTracker = []
+
 		# Iterate through the dungeon items for that dungeon (inherently in order of nightmare key, small keys, stone beak, compass, map)
 		while itemPool:
 			item = itemPool[0]
 			print(item+' -> ', end='')
+			firstLocationTried = locationPool[0]
 
 			# Until we make a valid placement for this item
 			validPlacement = False
@@ -230,14 +232,29 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 					access = addAccess(access, item)
 					placements[locationPool[0]] = None
 					locationPool.append(locationPool.pop(0))
+					if locationPool[0] == firstLocationTried: 
+						# If we tried every location and none work, undo the previous placement and try putting it somewhere else
+						undoLocation = placementTracker.pop(0)
+						locationPool.append(undoLocation)
+						locations.append(undoLocation)
+						items.insert(0, placements[undoLocation])
+						itemPool.insert(0, placements[undoLocation])
+						access = addAccess(access, placements[undoLocation])
+						placements[undoLocation] = None
+						print("can't place")
+						break
 
-			# After we successfully made a valid placement, remove the item and location from consideration
-			print(locationPool[0])
-			items.remove(item)
-			itemPool.remove(item)
-			locations.remove(locationPool[0])
-			locationPool.pop(0)
-			#print(placements)
+			if validPlacement:
+				# After we successfully made a valid placement, remove the item and location from consideration
+				items.remove(item)
+				itemPool.remove(item)
+				print(locationPool[0])
+				locations.remove(locationPool[0])
+				placementTracker.append(locationPool.pop(0))
+				#print(placements)
+
+	# Shuffle remaining locations
+	random.shuffle(locations)
 
 	# Place the zol traps and master stalfos note. These HAVE to go in chests so we need to do them first
 	toPlace = list(filter(lambda s: s == 'zol-trap' or s == 'stalfos-note', items))
@@ -250,10 +267,27 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 		locations.remove(chest)
 		print(chests[0])
 
+	# Next, place an item on Tarin. Since Tarin is the only check available with no items, he has to have something out of a certain subset of items
+	success = False
+	while success == False:
+		placements['tarin'] = items[0]
+		success = canReachLocation('can-farm-rupees', placements, {}, logic) or canReachLocation('break-bush', placements, {}, logic)
+		if success == False:
+			items.insert(items.index('seashell'), items.pop(0))
+
+	print(items[0]+' -> tarin')
+	access = removeAccess(access, items.pop(0))
+	locations.remove('tarin')
+
+
+	# Keep track of where we placed items. this is necessary to undo placements if we get stuck
+	placementTracker = []
+
 	# Do a very similar process for all other items
 	while items:
-		item = items.pop(0)
+		item = items[0]
 		print(item+' -> ', end='')
+		firstLocationTried = locations[0]
 
 		# Until we make a valid placement for this item
 		validPlacement = False
@@ -267,8 +301,8 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 				validPlacement = False
 			elif (item in ['zol-trap', 'stalfos-note']) and logicDefs[locations[0]]['subtype'] != 'chest':
 				validPlacement = False
-			# Check if it's reachable there. We only need to do this check for important items! good and junk items are never needed in logic
 			elif itemDefs[item]['type'] == 'important' or itemDefs[item]['type'] == 'seashell':
+				# Check if it's reachable there. We only need to do this check for important items! good and junk items are never needed in logic
 				validPlacement = canReachLocation(locations[0], placements, access, logic)
 			else:
 				validPlacement = True
@@ -280,11 +314,23 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 				#print(f'shifting locations list: {len(locations)} -> ', end='')
 				locations.append(locations.pop(0))
 				#print(len(locations))
+				if locations[0] == firstLocationTried: 
+					# If we tried every location and none work, undo the previous placement and try putting it somewhere else
+					undoLocation = placementTracker.pop(0)
+					locations.append(undoLocation)
+					items.insert(0, placements[undoLocation])
+					access = addAccess(access, placements[undoLocation])
+					placements[undoLocation] = None
+					print("can't place")
+					break
 
-		# After we successfully made a valid placement, remove the item and location from consideration
-		print(locations[0])
-		locations.pop(0)
-		#print(f'{len(items)} {len(locations)}')
+		if validPlacement:
+			# After we successfully made a valid placement, remove the item and location from consideration
+			print(locations[0])
+			items.pop(0)
+			placementTracker.append(locations.pop(0))
+			#print(f'{len(items)} {len(locations)}')
+
 	#print(access)
 	#print(canReachLocation('D0-fairy-1', placements, access, 'basic'))
 	return placements
@@ -293,21 +339,21 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 
 
 #print(parseCondition('D1-8C & kill-hardhat-beetle[pit]'))
+for i in range(20):
+	placements = makeRandomizedPlacement(i, 'basic', ['dampe-page-1-first', 'dampe-page-1-second', 'dampe-page-2', 'dampe-bottle', 'dampe-page-3'], 
+		['D1-instrument', 'D2-instrument', 'D3-instrument', 'D4-instrument', 'D5-instrument', 'D6-instrument', 'D7-instrument', 'D8-instrument',
+		'trendy-prize-1', 'mamasha', 'ciao-ciao', 'sale', 'kiki', 'tarin-ukuku', 'chef-bear', 'papahl', 'christine-trade', 'mr-write', 'grandma-yahoo', 'bay-fisherman', 'mermaid-martha', 'mermaid-cave',
+		'kanalet-crow', 'kanalet-mad-bomber', 'kanalet-kill-room', 'kanalet-bombed-guard', 'kanalet-final-guard'])
 
-placements = makeRandomizedPlacement(0, 'basic', ['dampe-page-1-first', 'dampe-page-1-second', 'dampe-page-2', 'dampe-bottle', 'dampe-page-3'], 
-	['D1-instrument', 'D2-instrument', 'D3-instrument', 'D4-instrument', 'D5-instrument', 'D6-instrument', 'D7-instrument', 'D8-instrument',
-	'trendy-prize-1', 'mamasha', 'ciao-ciao', 'sale', 'kiki', 'tarin-ukuku', 'chef-bear', 'papahl', 'christine-trade', 'mr-write', 'grandma-yahoo', 'bay-fisherman', 'mermaid-martha', 'mermaid-cave',
-	'kanalet-crow', 'kanalet-mad-bomber', 'kanalet-kill-room', 'kanalet-bombed-guard', 'kanalet-final-guard'])
+	regions = {'mabe-village': [], 'toronbo-shores': [], 'mysterious-woods': [], 'koholint-prairie': [], 'ukuku-prairie': [], 'sign-maze': [], 'goponga-swamp': [], 'taltal-heights': [], 'marthas-bay': [], 'kanalet-castle': [], 'pothole-field': [], 'animal-village': [], 'yarna-desert': [], 'ancient-ruins': [], 'rapids-ride': [], 'taltal-mountains-east': [], 'taltal-mountains-west': [], 'color-dungeon': [], 'tail-cave': [], 'bottle-grotto': [], 'key-cavern': [], 'angler-tunnel': [], 'catfish-maw': [], 'face-shrine': [], 'eagle-tower': [], 'turtle-rock': []}
 
-regions = {'mabe-village': [], 'toronbo-shores': [], 'mysterious-woods': [], 'koholint-prairie': [], 'ukuku-prairie': [], 'sign-maze': [], 'goponga-swamp': [], 'taltal-heights': [], 'marthas-bay': [], 'kanalet-castle': [], 'pothole-field': [], 'animal-village': [], 'yarna-desert': [], 'ancient-ruins': [], 'rapids-ride': [], 'taltal-mountains-east': [], 'taltal-mountains-west': [], 'color-dungeon': [], 'tail-cave': [], 'bottle-grotto': [], 'key-cavern': [], 'angler-tunnel': [], 'catfish-maw': [], 'face-shrine': [], 'eagle-tower': [], 'turtle-rock': []}
-
-for key in logicDefs:
-	if logicDefs[key]['type'] == 'item' or logicDefs[key]['type'] == 'follower':
-		regions[logicDefs[key]['spoiler-region']].append(key)
+	for key in logicDefs:
+		if logicDefs[key]['type'] == 'item' or logicDefs[key]['type'] == 'follower':
+			regions[logicDefs[key]['spoiler-region']].append(key)
 
 
-with open('output.txt', 'w') as output:
-	for key in regions:
-		output.write(f'{key}:\n')
-		for location in regions[key]:
-			output.write('  {0}: {1}\n'.format(location, placements[location]))
+	with open(f'./outputs/{i}.txt', 'w') as output:
+		for key in regions:
+			output.write(f'{key}:\n')
+			for location in regions[key]:
+				output.write('  {0}: {1}\n'.format(location, placements[location]))
