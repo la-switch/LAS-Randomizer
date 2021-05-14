@@ -106,35 +106,35 @@ dampe-page-1-first:
   subtype: npc
   content: heart-piece
   region: wasteland
-  spoiler-region: koholint-prairie
+  spoiler-region: taltal-heights
   condition-basic: dampe-1-4
 dampe-page-1-second:
   type: item
   subtype: npc
   content: seashell
   region: wasteland
-  spoiler-region: koholint-prairie
+  spoiler-region: taltal-heights
   condition-basic: dampe-1-4
 dampe-page-2:
   type: item
   subtype: npc
   content: heart-piece
   region: wasteland
-  spoiler-region: koholint-prairie
+  spoiler-region: taltal-heights
   condition-basic: dampe-2-4
 dampe-bottle:
   type: item
   subtype: npc
   content: bottle
   region: wasteland
-  spoiler-region: koholint-prairie
+  spoiler-region: taltal-heights
   condition-basic: dampe-3-2
 dampe-page-3:
   type: item
   subtype: npc
   content: heart-container
   region: wasteland
-  spoiler-region: koholint-prairie
+  spoiler-region: taltal-heights
   condition-basic: dampe-3-4
 taltal-entrance-blocks:
   type: item
@@ -162,21 +162,21 @@ wasteland-dig:
   subtype: dig
   content: seashell
   region: wasteland
-  spoiler-region: koholint-prairie
+  spoiler-region: tabahl-wasteland
   condition-basic: shovel
 north-wasteland:
   type: item
   subtype: standing
   content: heart-piece
   region: wasteland
-  spoiler-region: koholint-prairie
+  spoiler-region: tabahl-wasteland
   condition-basic: feather | hookshot | rooster
 north-of-moblin-cave:
   type: item
   subtype: hidden
   content: seashell
   region: wasteland
-  spoiler-region: koholint-prairie
+  spoiler-region: taltal-heights
   condition-basic: bracelet
 lanmola:
   type: item
@@ -395,13 +395,6 @@ shop-slot3-2nd:
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop
-shop-slot6:
-  type: item
-  subtype: shop
-  content: heart-piece
-  region: mabe
-  spoiler-region: mabe-village
-  condition-basic: can-shop
 shop-slot5-1st:
   type: item
   subtype: shop
@@ -451,6 +444,13 @@ shop-slot5-7th:
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop & (thunder-drum | free-shop)
+shop-slot6:
+  type: item
+  subtype: shop
+  content: heart-piece
+  region: mabe
+  spoiler-region: mabe-village
+  condition-basic: can-shop
 mamasha:
   type: item
   subtype: npc
@@ -1990,7 +1990,7 @@ D0-fairy-2:
 moblin-cave:
   type: follower
   content: bow-wow
-  region: wasteland
+  region: taltal-heights
   spoiler-region: koholint-prairie
   condition-basic: kill-moblin-shield & kill-moblin-spear & kill-king-moblin & full-moon-cello
 rooster-statue:
@@ -3032,13 +3032,13 @@ bomb-arrows:
   condition-basic: bombs & bow
 bombs:
   type: interaction
-  condition-basic: can-shop & conch-horn   # hopefully we can edit the shop to have bombs at the start
+  condition-basic: (mabe & boots) | (can-shop & conch-horn) | (break-pot & (kanalet-inside | D0-7E | key-cavern | D6-5B)) | (rapids & (feather | boomerang))
 powder:
   type: interaction
-  condition-basic: (woods & mushroom) # can add more here later but this is fine for now
+  condition-basic: (woods & mushroom) | (color-dungeon & (can-farm-rupees | break-pot)) | (D2-8F & feather) | (D8-7E & feather & break-pot) | (D8-2E & feather) | (D8-3G & (feather | boomerang | hookshot)) | (rapids & (feather | boomerang))
 can-shop:
   type: interaction
-  condition-basic: can-farm-rupees | beach
+  condition-basic: can-farm-rupees | beach # might need to be changed later. we don't know the exact condition for being able to steal is yet
 can-farm-rupees:
   type: interaction
   condition-basic: break-bush | kill-octorok | shovel

@@ -112,6 +112,44 @@ def canReachLocation(toReach, placements, startingAccess, logic):
 	return False
 
 
+def findReachableOpenLocations(placements, access, logic):
+	# Given a starting access set and a set of item placements, find how many item locations are reachable, but still empty.
+	locations = []
+	accessAdded = True
+
+	while accessAdded:
+		accessAdded = False
+		for key in logicDefs:
+			if key not in access:
+				#print(key)
+				if checkAccess(key, access, logic):
+					access = addAccess(access, key)
+					accessAdded = True
+
+					# if we're looking at an item or follower location, at the item it holds, if it has one
+					if (logicDefs[key]['type'] == 'item' or logicDefs[key]['type'] == 'follower') and placements[key] != None:
+						access = addAccess(access, placements[key])
+
+					if logicDefs[key]['type'] == 'item' and placements[key] == None:
+						locations.append(key)
+
+					# if we're looking at an enemy, and we CAN kill it, then we can also kill it with access to pits or heavy objects, so add those too
+					if logicDefs[key]['type'] == 'enemy':
+						access = addAccess(access, key+'[pit]')
+						access = addAccess(access, key+'[heavy]')
+				# if we can't do the thing, but it's an enemy, we might be able to use pits or heavy throwables, so check those cases independently
+				elif logicDefs[key]['type'] == 'enemy':
+					if 'condition-pit' in logicDefs[key]:
+						if checkAccess(key+'[pit]', access, logic):
+							access = addAccess(access, key)
+							accessAdded = True
+					if 'condition-heavy' in logicDefs[key]:
+						if checkAccess(key+'[heavy]', access, logic):
+							access = addAccess(access, key)
+							accessAdded = True
+
+	return locations
+
 
 
 def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
@@ -161,8 +199,11 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 		else:
 			dungeonItems += [key] * itemDefs[key]['quantity']
 
-	# First put followers in now. At first, leave vanilla. TODO: add randomization
-	placements |= {'moblin-cave': 'bow-wow', 'rooster-statue': 'rooster'}
+	# Randomly place bow-wow and the rooster
+	followers = ['bow-wow', 'rooster']
+	random.shuffle(followers)
+	placements['moblin-cave'] = followers[0]
+	placements['rooster-statue'] = followers[1]
 
 	# Assign junk into the forceJunk locations
 	random.shuffle(junkItems)
@@ -233,10 +274,11 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 					placements[locationPool[0]] = None
 					locationPool.append(locationPool.pop(0))
 					if locationPool[0] == firstLocationTried: 
-						# If we tried every location and none work, undo the previous placement and try putting it somewhere else
+						# If we tried every location and none work, undo the previous placement and try putting it somewhere else. Also rerandomize the location list to ensure things aren't placed back in the same spots
 						undoLocation = placementTracker.pop(0)
 						locationPool.append(undoLocation)
 						locations.append(undoLocation)
+						random.shuffle(locationPool)
 						items.insert(0, placements[undoLocation])
 						itemPool.insert(0, placements[undoLocation])
 						access = addAccess(access, placements[undoLocation])
@@ -271,14 +313,14 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 	success = False
 	while success == False:
 		placements['tarin'] = items[0]
-		success = canReachLocation('can-farm-rupees', placements, {}, logic) or canReachLocation('break-bush', placements, {}, logic)
+		success = canReachLocation('can-shop', placements, {}, logic) or canReachLocation('break-bush', placements, {}, logic)
 		if success == False:
-			items.insert(items.index('seashell'), items.pop(0))
+			items.insert(items.index('seashell'), items[0])
+			items.pop(0)
 
 	print(items[0]+' -> tarin')
 	access = removeAccess(access, items.pop(0))
 	locations.remove('tarin')
-
 
 	# Keep track of where we placed items. this is necessary to undo placements if we get stuck
 	placementTracker = []
@@ -288,6 +330,9 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 		item = items[0]
 		print(item+' -> ', end='')
 		firstLocationTried = locations[0]
+
+		#if item != 'seashell' and items[1] == 'seashell':
+		#	print(findReachableOpenLocations(placements, {}, logic))
 
 		# Until we make a valid placement for this item
 		validPlacement = False
@@ -316,12 +361,24 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 				#print(len(locations))
 				if locations[0] == firstLocationTried: 
 					# If we tried every location and none work, undo the previous placement and try putting it somewhere else
+					"""if item == 'seashell':
+						# If we're failing to place a seashell, that means there isn't enough space for the seashells required to get an item from seashell mansion
+						# in this case we remove every single seashell placed so far then move an important item and see if that makes enough room
+						#print(placementTracker)
+						while placements[placementTracker[-1]] == 'seashell':
+							undoLocation = placementTracker.pop()
+							items.insert(items.index('seashell'), 'seashell')
+							locations.append(undoLocation)
+							access = addAccess(access, 'seashell')
+							placements[undoLocation] = None"""
 					undoLocation = placementTracker.pop(0)
 					locations.append(undoLocation)
+					random.shuffle(locations)
 					items.insert(0, placements[undoLocation])
 					access = addAccess(access, placements[undoLocation])
 					placements[undoLocation] = None
 					print("can't place")
+					#print(placements)
 					break
 
 		if validPlacement:
@@ -329,7 +386,22 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 			print(locations[0])
 			items.pop(0)
 			placementTracker.append(locations.pop(0))
-			#print(f'{len(items)} {len(locations)}')
+
+			# If we placed the last important item (so that afterward we start placing seashells), we want to ensure there's enough available locations to place a number of seashells required.
+			# i.e., are ther 40 locations reachable without getting the 40 and 50 rewards? If not, we haven't made a valid placement, so we have to go back and undo things until this is resolved.
+			if item != 'seashell' and len(items) > 0 and items[0] == 'seashell':
+				if not ((len(findReachableOpenLocations(placements, {}, logic)) >= 5) 
+				  and (len(findReachableOpenLocations(placements, {'seashell': 5}, logic)) >= 15)
+				  and (len(findReachableOpenLocations(placements, {'seashell': 15}, logic)) >= 30)
+				  and (len(findReachableOpenLocations(placements, {'seashell': 30}, logic)) >= 40)
+				  and (len(findReachableOpenLocations(placements, {'seashell': 40}, logic)) >= 50)):
+					print('no room for shells')
+					undoLocation = placementTracker.pop(0)
+					locations.append(undoLocation)
+					random.shuffle(locations)
+					items.insert(0, placements[undoLocation])
+					access = addAccess(access, placements[undoLocation])
+					placements[undoLocation] = None
 
 	#print(access)
 	#print(canReachLocation('D0-fairy-1', placements, access, 'basic'))
@@ -339,13 +411,13 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 
 
 #print(parseCondition('D1-8C & kill-hardhat-beetle[pit]'))
-for i in range(20):
+for i in range(50):
 	placements = makeRandomizedPlacement(i, 'basic', ['dampe-page-1-first', 'dampe-page-1-second', 'dampe-page-2', 'dampe-bottle', 'dampe-page-3'], 
 		['D1-instrument', 'D2-instrument', 'D3-instrument', 'D4-instrument', 'D5-instrument', 'D6-instrument', 'D7-instrument', 'D8-instrument',
 		'trendy-prize-1', 'mamasha', 'ciao-ciao', 'sale', 'kiki', 'tarin-ukuku', 'chef-bear', 'papahl', 'christine-trade', 'mr-write', 'grandma-yahoo', 'bay-fisherman', 'mermaid-martha', 'mermaid-cave',
 		'kanalet-crow', 'kanalet-mad-bomber', 'kanalet-kill-room', 'kanalet-bombed-guard', 'kanalet-final-guard'])
 
-	regions = {'mabe-village': [], 'toronbo-shores': [], 'mysterious-woods': [], 'koholint-prairie': [], 'ukuku-prairie': [], 'sign-maze': [], 'goponga-swamp': [], 'taltal-heights': [], 'marthas-bay': [], 'kanalet-castle': [], 'pothole-field': [], 'animal-village': [], 'yarna-desert': [], 'ancient-ruins': [], 'rapids-ride': [], 'taltal-mountains-east': [], 'taltal-mountains-west': [], 'color-dungeon': [], 'tail-cave': [], 'bottle-grotto': [], 'key-cavern': [], 'angler-tunnel': [], 'catfish-maw': [], 'face-shrine': [], 'eagle-tower': [], 'turtle-rock': []}
+	regions = {'mabe-village': [], 'toronbo-shores': [], 'mysterious-woods': [], 'koholint-prairie': [], 'tabahl-wasteland': [], 'ukuku-prairie': [], 'sign-maze': [], 'goponga-swamp': [], 'taltal-heights': [], 'marthas-bay': [], 'kanalet-castle': [], 'pothole-field': [], 'animal-village': [], 'yarna-desert': [], 'ancient-ruins': [], 'rapids-ride': [], 'taltal-mountains-east': [], 'taltal-mountains-west': [], 'color-dungeon': [], 'tail-cave': [], 'bottle-grotto': [], 'key-cavern': [], 'angler-tunnel': [], 'catfish-maw': [], 'face-shrine': [], 'eagle-tower': [], 'turtle-rock': []}
 
 	for key in logicDefs:
 		if logicDefs[key]['type'] == 'item' or logicDefs[key]['type'] == 'follower':
