@@ -339,28 +339,28 @@ fishing-100:
   content: seashell
   region: mabe
   spoiler-region: mabe-village
-  condition-basic: can-farm-rupees & wind-marimba
+  condition-basic: can-farm-rupees & (wind-marimba | coral-triangle | free-fishing)
 fishing-150:
   type: item
   subtype: npc
   content: chamber-stone
   region: mabe
   spoiler-region: mabe-village
-  condition-basic: can-farm-rupees & coral-triangle
+  condition-basic: can-farm-rupees & (coral-triangle | free-fishing)
 fishing-cheep-cheep:
   type: item
   subtype: npc
   content: seashell
   region: mabe
   spoiler-region: mabe-village
-  condition-basic: can-farm-rupees & surf-harp
+  condition-basic: can-farm-rupees & (surf-harp | free-fishing)
 fishing-ol-baron:
   type: item
   subtype: npc
   content: chamber-stone
   region: mabe
   spoiler-region: mabe-village
-  condition-basic: can-farm-rupees & coral-triangle
+  condition-basic: can-farm-rupees & (coral-triangle | free-fishing)
 fishing-loose:
   type: item
   subtype: standing
@@ -943,21 +943,21 @@ trendy-prize-4:
   content: chamber-stone
   region: trendy
   spoiler-region: mabe-village
-  condition-basic: can-farm-rupees & conch-horn
+  condition-basic: can-farm-rupees & (conch-horn | fast-trendy)
 trendy-prize-5:
   type: item
   subtype: standing
   content: heart-piece
   region: trendy
   spoiler-region: mabe-village
-  condition-basic: can-farm-rupees & sea-lilys-bell
+  condition-basic: can-farm-rupees & (sea-lilys-bell | fast-trendy)
 trendy-prize-6:
   type: item
   subtype: standing
   content: seashell
   region: trendy
   spoiler-region: mabe-village
-  condition-basic: can-farm-rupees & surf-harp
+  condition-basic: can-farm-rupees & (surf-harp | fast-trendy)
 trendy-prize-final:
   type: item
   subtype: npc
@@ -1149,6 +1149,13 @@ D1-beetles:
   spoiler-region: tail-cave
   condition-basic: D1-8C & kill-hardhat-beetle[pit]
 
+D2-instrument:
+  type: item
+  subtype: standing
+  content: conch-horn
+  region: bottle-grotto
+  spoiler-region: bottle-grotto
+  condition-basic: D2-4F
 D2-boos:
   type: item
   subtype: chest
@@ -1184,13 +1191,6 @@ D2-kill-puzzle:
   region: bottle-grotto
   spoiler-region: bottle-grotto
   condition-basic: D2-3F & kill-stalfos-spear & kill-pols-voice & kill-keese
-D2-instrument:
-  type: item
-  subtype: standing
-  content: conch-horn
-  region: bottle-grotto
-  spoiler-region: bottle-grotto
-  condition-basic: D2-4F
 D2-genie:
   type: item
   subtype: boss
@@ -1248,6 +1248,13 @@ D2-pit-pegs:
   spoiler-region: bottle-grotto
   condition-basic: D2-8F & feather
 
+D3-instrument:
+  type: item
+  subtype: standing
+  content: sea-lilys-bell
+  region: key-cavern
+  spoiler-region: key-cavern
+  condition-basic: D3-6G
 D3-triple-bombites:
   type: item
   subtype: drop
@@ -1346,13 +1353,6 @@ D3-hallway-side-room:
   region: key-cavern
   spoiler-region: key-cavern
   condition-basic: D3-6C & D3-3G & hit-crystal-switch
-D3-instrument:
-  type: item
-  subtype: standing
-  content: sea-lilys-bell
-  region: key-cavern
-  spoiler-region: key-cavern
-  condition-basic: D3-6G
 D3-hallway-1:
   type: item
   subtype: chest
@@ -1382,6 +1382,13 @@ D3-pre-boss:
   spoiler-region: key-cavern
   condition-basic: D3-8G & kill-keese
 
+D4-instrument:
+  type: item
+  subtype: standing
+  content: surf-harp
+  region: angler-tunnel
+  spoiler-region: angler-tunnel
+  condition-basic: D4-3B
 D4-angler:
   type: item
   subtype: boss
@@ -1396,13 +1403,6 @@ D4-north-chest:
   region: angler-tunnel
   spoiler-region: angler-tunnel
   condition-basic: D4-2D
-D4-instrument:
-  type: item
-  subtype: standing
-  content: surf-harp
-  region: angler-tunnel
-  spoiler-region: angler-tunnel
-  condition-basic: D4-3B
 D4-east-side-north:
   type: item
   subtype: chest
@@ -1491,6 +1491,13 @@ D4-crystals:
   spoiler-region: angler-tunnel
   condition-basic: D4-8E & break-crystal & kill-water-tektite
 
+D5-instrument:
+  type: item
+  subtype: standing
+  content: wind-marimba
+  region: catfish-maw
+  spoiler-region: catfish-maw
+  condition-basic: D5-1D
 D5-master-stalfos:
   type: item
   subtype: boss
@@ -1505,13 +1512,6 @@ D5-crystal-blocks:
   region: catfish-maw
   spoiler-region: catfish-maw
   condition-basic: D5-1C & break-crystal
-D5-instrument:
-  type: item
-  subtype: standing
-  content: wind-marimba
-  region: catfish-maw
-  spoiler-region: catfish-maw
-  condition-basic: D5-1D
 D5-past-master-stalfos-3:
   type: item
   subtype: chest
@@ -1590,6 +1590,13 @@ D5-near-entrance:
   spoiler-region: catfish-maw
   condition-basic: D5-8F & hookshot
 
+D6-instrument:
+  type: item
+  subtype: standing
+  content: coral-triangle
+  region: face-shrine
+  spoiler-region: face-shrine
+  condition-basic: D6-3E
 D6-far-northwest:
   type: item
   subtype: chest
@@ -1618,13 +1625,6 @@ D6-wizzrobe-pegs:
   region: face-shrine
   spoiler-region: face-shrine
   condition-basic: D6-3D & hit-crystal-switch & kill-wizzrobe
-D6-instrument:
-  type: item
-  subtype: standing
-  content: coral-triangle
-  region: face-shrine
-  spoiler-region: face-shrine
-  condition-basic: D6-3E
 D6-pot-chest:
   type: item
   subtype: chest
@@ -1696,6 +1696,13 @@ D6-wizzrobes-ledge:
   spoiler-region: face-shrine
   condition-basic: D6-8G & D6-6B & hit-crystal-switch & feather
 
+D7-instrument:
+  type: item
+  subtype: standing
+  content: evening-calm-organ
+  region: eagle-tower
+  spoiler-region: eagle-tower
+  condition-basic: D7-2G
 D7-like-likes:
   type: item
   subtype: drop
@@ -1780,13 +1787,6 @@ D7-eagle:
   region: eagle-tower
   spoiler-region: eagle-tower
   condition-basic: D7-3F & kill-evil-eagle
-D7-instrument:
-  type: item
-  subtype: standing
-  content: evening-calm-organ
-  region: eagle-tower
-  spoiler-region: eagle-tower
-  condition-basic: D7-2G
 
 D8-instrument:
   type: item
@@ -1991,7 +1991,7 @@ moblin-cave:
   type: follower
   content: bow-wow
   region: taltal-heights
-  spoiler-region: koholint-prairie
+  spoiler-region: taltal-heights
   condition-basic: kill-moblin-shield & kill-moblin-spear & kill-king-moblin & full-moon-cello
 rooster-statue:
   type: follower
@@ -2632,7 +2632,7 @@ D6-5A:
 D6-5B: 
   type: room
   condition-basic: D6-6B
-  condition-glitched: D6-5A & [bombs | boomerang | bow | hookshot | sword:2]
+  condition-glitched: D6-5A & (bombs | boomerang | bow | hookshot | sword:2)
 D6-5C:
   type: room
   condition-basic: D6-5B & bombs
@@ -3032,7 +3032,7 @@ bomb-arrows:
   condition-basic: bombs & bow
 bombs:
   type: interaction
-  condition-basic: (mabe & boots) | (can-shop & conch-horn) | (break-pot & (kanalet-inside | D0-7E | key-cavern | D6-5B)) | (rapids & (feather | boomerang))
+  condition-basic: (mabe & boots) | (can-shop & (conch-horn | free-shop)) | (break-pot & (kanalet-inside | D0-7E | key-cavern | D6-5B)) | (rapids & (feather | boomerang))
 powder:
   type: interaction
   condition-basic: (woods & mushroom) | (color-dungeon & (can-farm-rupees | break-pot)) | (D2-8F & feather) | (D8-7E & feather & break-pot) | (D8-2E & feather) | (D8-3G & (feather | boomerang | hookshot)) | (rapids & (feather | boomerang))
@@ -3270,6 +3270,6 @@ kill-dethl:
   condition-basic: bow | rod | boomerang
 kill-nightmare:
   type: enemy
-  condition-basic: egg & magnifying-lens & kill-nightmare-zol & kill-nightmare-agahnim & kill-nightmare-moldorm & kill-nightmare-ganon & kill-nightmare-lanmola & kill-dethl
+  condition-basic: egg & (magnifying-lens | free-book) & kill-nightmare-zol & kill-nightmare-agahnim & kill-nightmare-moldorm & kill-nightmare-ganon & kill-nightmare-lanmola & kill-dethl
 
 ...

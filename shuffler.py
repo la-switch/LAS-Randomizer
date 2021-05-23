@@ -74,6 +74,11 @@ def canReachLocation(toReach, placements, startingAccess, logic):
 
 	Returns True or False depending on whether access is eventually gained to toReach.
 	"""
+
+	# if using no logic, we don't have to check if it's reachable, we just assume it is.
+	if logic == 'none':
+		return True
+
 	access = startingAccess.copy()
 	accessAdded = True
 
@@ -81,7 +86,6 @@ def canReachLocation(toReach, placements, startingAccess, logic):
 		accessAdded = False
 		for key in logicDefs:
 			if key not in access:
-				#print(key)
 				if checkAccess(key, access, logic):
 					access = addAccess(access, key)
 					accessAdded = True
@@ -112,17 +116,17 @@ def canReachLocation(toReach, placements, startingAccess, logic):
 	return False
 
 
-def findReachableOpenLocations(placements, access, logic):
+def findReachableOpenLocations(placements, startingAccess, logic):
 	# Given a starting access set and a set of item placements, find how many item locations are reachable, but still empty.
 	locations = []
+	access = startingAccess.copy()
 	accessAdded = True
 
 	while accessAdded:
 		accessAdded = False
 		for key in logicDefs:
 			if key not in access:
-				#print(key)
-				if checkAccess(key, access, logic):
+				if checkAccess(key, access, logic) or logic == 'none':
 					access = addAccess(access, key)
 					accessAdded = True
 
@@ -152,7 +156,7 @@ def findReachableOpenLocations(placements, access, logic):
 
 
 
-def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
+def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verbose=False):
 	"""Creates and returns a a randomized placement of items, adhering to the logic
 
 	Parameters
@@ -180,11 +184,19 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 	locations = []
 	placements = {}
 
+	placements['settings'] = settings
+	placements['force-junk'] = []
+	placements['force-vanilla'] = []
+
 	for key in logicDefs:
 		if logicDefs[key]['type'] == 'item':
 			locations.append(key)
 			placements[key] = None
 			access = addAccess(access, logicDefs[key]['content']) # we're going to assume the player starts with everything, then slowly loses things as they get placed into the wild
+
+	# Add the settings into the access. This affects some logic like with fast trendy, free fishing, etc.
+	settingsAccess = {setting: 1 for setting in settings}
+	access |= settingsAccess
 
 	# For each type of item in the item pool, add its quantity to the item lists
 	for key in itemDefs:
@@ -224,6 +236,8 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 		access = removeAccess(access, placements[loc])
 		locations.remove(loc)
 
+		placements['force-junk'].append(loc)
+
 	# Shuffle item and location lists
 	random.shuffle(importantItems)
 	random.shuffle(seashellItems)
@@ -241,6 +255,8 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 		items.remove(logicDefs[loc]['content'])
 		access = removeAccess(access, logicDefs[loc]['content'])
 		locations.remove(loc)
+
+		placements['force-vanilla'].append(loc)
 	
 	# Next, assign dungeon items into their own dungeons
 	# Some may have been placed already because of forceVanilla so we need to factor that in
@@ -256,7 +272,7 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 		# Iterate through the dungeon items for that dungeon (inherently in order of nightmare key, small keys, stone beak, compass, map)
 		while itemPool:
 			item = itemPool[0]
-			print(item+' -> ', end='')
+			if verbose: print(item+' -> ', end='')
 			firstLocationTried = locationPool[0]
 
 			# Until we make a valid placement for this item
@@ -283,17 +299,16 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 						itemPool.insert(0, placements[undoLocation])
 						access = addAccess(access, placements[undoLocation])
 						placements[undoLocation] = None
-						print("can't place")
+						if verbose: print("can't place")
 						break
 
 			if validPlacement:
 				# After we successfully made a valid placement, remove the item and location from consideration
 				items.remove(item)
 				itemPool.remove(item)
-				print(locationPool[0])
+				if verbose: print(locationPool[0])
 				locations.remove(locationPool[0])
 				placementTracker.append(locationPool.pop(0))
-				#print(placements)
 
 	# Shuffle remaining locations
 	random.shuffle(locations)
@@ -302,23 +317,23 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 	toPlace = list(filter(lambda s: s == 'zol-trap' or s == 'stalfos-note', items))
 	chests = list(filter(lambda s: logicDefs[s]['subtype'] == 'chest', locations))
 	for item in toPlace:
-		print(item+' -> ', end='')
+		if verbose: print(item+' -> ', end='')
 		chest = chests.pop(0)
 		placements[chest] = item
 		items.remove(item)
 		locations.remove(chest)
-		print(chests[0])
+		if verbose: print(chests[0])
 
 	# Next, place an item on Tarin. Since Tarin is the only check available with no items, he has to have something out of a certain subset of items
 	success = False
 	while success == False:
 		placements['tarin'] = items[0]
-		success = canReachLocation('can-shop', placements, {}, logic) or canReachLocation('break-bush', placements, {}, logic)
+		success = canReachLocation('can-shop', placements, settingsAccess, logic) or canReachLocation('break-bush', placements, settingsAccess, logic)
 		if success == False:
 			items.insert(items.index('seashell'), items[0])
 			items.pop(0)
 
-	print(items[0]+' -> tarin')
+	if verbose: print(items[0]+' -> tarin')
 	access = removeAccess(access, items.pop(0))
 	locations.remove('tarin')
 
@@ -328,11 +343,8 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 	# Do a very similar process for all other items
 	while items:
 		item = items[0]
-		print(item+' -> ', end='')
+		if verbose: print(item+' -> ', end='')
 		firstLocationTried = locations[0]
-
-		#if item != 'seashell' and items[1] == 'seashell':
-		#	print(findReachableOpenLocations(placements, {}, logic))
 
 		# Until we make a valid placement for this item
 		validPlacement = False
@@ -356,46 +368,33 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 			if validPlacement == False:
 				access = addAccess(access, item)
 				placements[locations[0]] = None
-				#print(f'shifting locations list: {len(locations)} -> ', end='')
 				locations.append(locations.pop(0))
-				#print(len(locations))
 				if locations[0] == firstLocationTried: 
 					# If we tried every location and none work, undo the previous placement and try putting it somewhere else
-					"""if item == 'seashell':
-						# If we're failing to place a seashell, that means there isn't enough space for the seashells required to get an item from seashell mansion
-						# in this case we remove every single seashell placed so far then move an important item and see if that makes enough room
-						#print(placementTracker)
-						while placements[placementTracker[-1]] == 'seashell':
-							undoLocation = placementTracker.pop()
-							items.insert(items.index('seashell'), 'seashell')
-							locations.append(undoLocation)
-							access = addAccess(access, 'seashell')
-							placements[undoLocation] = None"""
 					undoLocation = placementTracker.pop(0)
 					locations.append(undoLocation)
 					random.shuffle(locations)
 					items.insert(0, placements[undoLocation])
 					access = addAccess(access, placements[undoLocation])
 					placements[undoLocation] = None
-					print("can't place")
-					#print(placements)
+					if verbose: print("can't place")
 					break
 
 		if validPlacement:
 			# After we successfully made a valid placement, remove the item and location from consideration
-			print(locations[0])
+			if verbose: print(locations[0])
 			items.pop(0)
 			placementTracker.append(locations.pop(0))
 
 			# If we placed the last important item (so that afterward we start placing seashells), we want to ensure there's enough available locations to place a number of seashells required.
 			# i.e., are ther 40 locations reachable without getting the 40 and 50 rewards? If not, we haven't made a valid placement, so we have to go back and undo things until this is resolved.
 			if item != 'seashell' and len(items) > 0 and items[0] == 'seashell':
-				if not ((len(findReachableOpenLocations(placements, {}, logic)) >= 5) 
-				  and (len(findReachableOpenLocations(placements, {'seashell': 5}, logic)) >= 15)
-				  and (len(findReachableOpenLocations(placements, {'seashell': 15}, logic)) >= 30)
-				  and (len(findReachableOpenLocations(placements, {'seashell': 30}, logic)) >= 40)
-				  and (len(findReachableOpenLocations(placements, {'seashell': 40}, logic)) >= 50)):
-					print('no room for shells')
+				if not ((len(findReachableOpenLocations(placements, settingsAccess, logic)) >= 5) 
+				  and (len(findReachableOpenLocations(placements, settingsAccess | {'seashell': 5}, logic)) >= 15)
+				  and (len(findReachableOpenLocations(placements, settingsAccess | {'seashell': 15}, logic)) >= 30)
+				  and (len(findReachableOpenLocations(placements, settingsAccess | {'seashell': 30}, logic)) >= 40)
+				  and (len(findReachableOpenLocations(placements, settingsAccess | {'seashell': 40}, logic)) >= 50)):
+					if verbose: print('no room for shells')
 					undoLocation = placementTracker.pop(0)
 					locations.append(undoLocation)
 					random.shuffle(locations)
@@ -403,29 +402,4 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla):
 					access = addAccess(access, placements[undoLocation])
 					placements[undoLocation] = None
 
-	#print(access)
-	#print(canReachLocation('D0-fairy-1', placements, access, 'basic'))
 	return placements
-
-
-
-
-#print(parseCondition('D1-8C & kill-hardhat-beetle[pit]'))
-for i in range(50):
-	placements = makeRandomizedPlacement(i, 'basic', ['dampe-page-1-first', 'dampe-page-1-second', 'dampe-page-2', 'dampe-bottle', 'dampe-page-3'], 
-		['D1-instrument', 'D2-instrument', 'D3-instrument', 'D4-instrument', 'D5-instrument', 'D6-instrument', 'D7-instrument', 'D8-instrument',
-		'trendy-prize-1', 'mamasha', 'ciao-ciao', 'sale', 'kiki', 'tarin-ukuku', 'chef-bear', 'papahl', 'christine-trade', 'mr-write', 'grandma-yahoo', 'bay-fisherman', 'mermaid-martha', 'mermaid-cave',
-		'kanalet-crow', 'kanalet-mad-bomber', 'kanalet-kill-room', 'kanalet-bombed-guard', 'kanalet-final-guard'])
-
-	regions = {'mabe-village': [], 'toronbo-shores': [], 'mysterious-woods': [], 'koholint-prairie': [], 'tabahl-wasteland': [], 'ukuku-prairie': [], 'sign-maze': [], 'goponga-swamp': [], 'taltal-heights': [], 'marthas-bay': [], 'kanalet-castle': [], 'pothole-field': [], 'animal-village': [], 'yarna-desert': [], 'ancient-ruins': [], 'rapids-ride': [], 'taltal-mountains-east': [], 'taltal-mountains-west': [], 'color-dungeon': [], 'tail-cave': [], 'bottle-grotto': [], 'key-cavern': [], 'angler-tunnel': [], 'catfish-maw': [], 'face-shrine': [], 'eagle-tower': [], 'turtle-rock': []}
-
-	for key in logicDefs:
-		if logicDefs[key]['type'] == 'item' or logicDefs[key]['type'] == 'follower':
-			regions[logicDefs[key]['spoiler-region']].append(key)
-
-
-	with open(f'./outputs/{i}.txt', 'w') as output:
-		for key in regions:
-			output.write(f'{key}:\n')
-			for location in regions[key]:
-				output.write('  {0}: {1}\n'.format(location, placements[location]))
