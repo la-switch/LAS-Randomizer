@@ -2064,7 +2064,7 @@ mabe:
   type: region
 mr-write-house:
   type: region
-  condition-basic: (swamp & (feather | rooster)) | taltal-west-1 | taltal-west-2
+  condition-basic: (swamp & (feather | rooster | hookshot)) | taltal-west-1 | taltal-west-2
 plains:
   type: region
   condition-basic: (mabe & bracelet) | river | (wasteland & bracelet)
@@ -2085,7 +2085,7 @@ sign-maze:
   condition-basic: plains & hookshot
 swamp:
   type: region
-  condition-basic: (woods & break-bush) | (wasteland & bracelet) | (mr-write-house & (feather | rooster))
+  condition-basic: (woods & break-bush) | (wasteland & bracelet) | (mr-write-house & (feather | rooster | hookshot))
 tail-cave:
   type: region
   condition-basic: mabe & tail-key
@@ -2122,10 +2122,10 @@ turtle-rock:
   condition-basic: taltal-west-2 & song-soul & kill-turtle-rock
 wasteland:
   type: region
-  condition-basic: (woods & (feather | bracelet | rooster)) | (taltal-east-0 & (break-strange-obstacle | rooster) & bracelet) | (heights & bracelet) | (swamp & bracelet) | (plains & bracelet)
+  condition-basic: (woods & (feather | bracelet | rooster | hookshot)) | (taltal-east-0 & (break-strange-obstacle | rooster) & bracelet) | (heights & bracelet) | (swamp & bracelet) | (plains & bracelet)
 woods:
   type: region
-  condition-basic: (mabe & break-bush) | (swamp & break-bush) | (wasteland & (feather | bracelet | rooster))
+  condition-basic: (mabe & break-bush) | (swamp & break-bush) | (wasteland & (feather | bracelet | rooster | hookshot))
 
 
 # Rooms
