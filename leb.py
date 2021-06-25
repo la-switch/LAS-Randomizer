@@ -1,3 +1,5 @@
+import re
+
 def readBytes(bytes, start, length, endianness='little'):
 	return int.from_bytes(bytes[start : start + length], endianness)
 
@@ -171,8 +173,7 @@ class Actor:
 			paramType = readBytes(data, 0x38 + (0x8 * i) + 0x4, 4)
 
 			if paramType == 0x4:
-				if readString(names, param) != b'':
-					self.parameters.append(readString(names, param))
+				self.parameters.append(readString(names, param))
 			else:
 				self.parameters.append(param)
 
@@ -200,18 +201,14 @@ class Actor:
 		packed += self.x34.to_bytes(4, 'little')
 
 		for i in range(8):
-			if len(self.parameters) > i:
-				param = self.parameters[i]
-				if isinstance(param, bytes):
-					packed += (len(nameRepr) + nameOffset).to_bytes(4, 'little')
-					packed += (4).to_bytes(4, 'little')
-					nameRepr += param + b'\x00'
-				else:
-					packed += param.to_bytes(4, 'little')
-					packed += (3).to_bytes(4, 'little')
-			else:
-				packed += (nameOffset - 1).to_bytes(4, 'little')
+			param = self.parameters[i]
+			if isinstance(param, bytes):
+				packed += (len(nameRepr) + nameOffset).to_bytes(4, 'little')
 				packed += (4).to_bytes(4, 'little')
+				nameRepr += param + b'\x00'
+			else:
+				packed += param.to_bytes(4, 'little')
+				packed += (3).to_bytes(4, 'little')
 
 		packed += self.x78
 
@@ -256,7 +253,7 @@ class Room:
 
 		if len(zones) > index:
 			zone = zones[index]
-			zone.parameters[0] = newDestination[:newDestination.index(b'_')]
+			zone.parameters[0] = re.match(b'(.+)_\\d\\d[A-Z]', newDestination).group(1)
 			zone.parameters[1] = newDestination
 
 	def repack(self):
