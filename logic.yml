@@ -107,35 +107,35 @@ dampe-page-1-first:
   content: heart-piece
   region: wasteland
   spoiler-region: taltal-heights
-  condition-basic: dampe-1-4
+  #condition-basic: dampe-1-4
 dampe-page-1-second:
   type: item
   subtype: npc
   content: seashell
   region: wasteland
   spoiler-region: taltal-heights
-  condition-basic: dampe-1-4
+  #condition-basic: dampe-1-4
 dampe-page-2:
   type: item
   subtype: npc
   content: heart-piece
   region: wasteland
   spoiler-region: taltal-heights
-  condition-basic: dampe-2-4
+  #condition-basic: dampe-2-4
 dampe-bottle:
   type: item
   subtype: npc
   content: bottle
   region: wasteland
   spoiler-region: taltal-heights
-  condition-basic: dampe-3-2
+  #condition-basic: dampe-3-2
 dampe-page-3:
   type: item
   subtype: npc
   content: heart-container
   region: wasteland
   spoiler-region: taltal-heights
-  condition-basic: dampe-3-4
+  #condition-basic: dampe-3-4
 taltal-entrance-blocks:
   type: item
   subtype: standing
@@ -1462,7 +1462,7 @@ D4-small-island:
   region: angler-tunnel
   spoiler-region: angler-tunnel
   condition-basic: D4-8D & key-D4:2 & kill-spiny & kill-zol-red & flippers
-  condition-advanced: D4-8D & key-D4:2 & kill-spiny & kill-zol-red & bombs & bow & feather
+  condition-advanced: D4-8D & key-D4:2 & kill-spiny & kill-zol-red & ((bomb-arrows & feather) | ((feather | boots | bombs | (shovel & sword)) & hookshot))
   condition-glitched: D4-8D & ((key-D4:2 & kill-spiny & kill-zol-red & feather & bracelet) | ((sword | bow | rod) & bombs & dash-jump))
 D4-ledge-north:
   type: item
@@ -2012,6 +2012,7 @@ rooster-statue:
 angler-tunnel:
   type: region
   condition-basic: (heights & angler-key & taltal-east-0) | (taltal-river & cross-water)
+  condition-glitched: heights & bracelet & feather & sword
 animal-village:
   type: region
   condition-basic: (plains & (hookshot | break-obstacle)) | (river & cross-water)
@@ -2024,6 +2025,7 @@ beach:
 bottle-grotto:
   type: region
   condition-basic: swamp & (kill-flower | bracelet)
+  condition-glitched: mabe & swamp
 bridge:
   type: region
   condition-basic: (plains & bananas) | (river & cross-water)
@@ -2058,10 +2060,11 @@ ghost-house:
 heights:
   type: region
   condition-basic: (wasteland & bracelet) | (taltal-river & cross-water) | (rapids & (hookshot | cross-water))
+  condition-glitched: taltal-east-1 & rooster
 kanalet-outside:
   type: region
   condition-basic: bridge & break-bush & feather
-  condition-glitched: wasteland & dash-jump
+  condition-glitched: wasteland & feather & bracelet
 kanalet-inside:
   type: region
   condition-basic: kanalet-outside & break-bush
@@ -2100,7 +2103,8 @@ tail-cave:
 taltal-east-0:
   type: region
   condition-basic: (wasteland & break-crystal & (break-obstacle | rooster) & bracelet) | (taltal-east-1 & flippers & heights & angler-key)
-  condition-glitched: (wasteland & break-crystal & rooster)
+  condition-advanced: wasteland & break-crystal & hookshot & feather
+  condition-glitched: wasteland & break-crystal & rooster
 taltal-east-1:
   type: region
   condition-basic: taltal-east-0 & cross-water & heights & angler-key
@@ -2109,16 +2113,18 @@ taltal-east-2:
   condition-basic: taltal-east-1 & cross-water
 taltal-river:
   type: region
-  condition-basic: (cross-water & (rapids | heights | angler-tunnel)) | (flippers & taltal-east-2)
+  condition-basic: (cross-water & (rapids | heights | angler-tunnel)) | (flippers & taltal-east-1)
 taltal-west-0:
   type: region
   condition-basic: taltal-east-1 & (hookshot | rooster) & break-bush
+  condition-glitched: taltal-west-2 & rooster & feather
 taltal-west-1:
   type: region
   condition-basic: taltal-west-0 | taltal-west-2
 taltal-west-2:
   type: region
   condition-basic: taltal-west-1 & shield:2 & bombs
+  condition-glitched: mr-write-house & rooster & feather
 tracy:
   type: region
   condition-basic: ((wasteland | woods) & bracelet) | (ocarina & song-mambo)
@@ -2162,7 +2168,7 @@ D2-8C:
 
 D3-3G:
   type: room
-  condition-basic: D3-4B & key-D3:9
+  condition-basic: D3-4B & key-D3:1 # REMEMBER TO CHANGE THIS BACK TO 9!!!
 D3-4B:
   type: room
   condition-basic: D3-7B & (break-obstacle | kill-zol-green)
@@ -2177,8 +2183,8 @@ D3-8B:
   condition-basic: key-cavern
 D3-8G:
   type: room
-  condition-basic: D3-4C & key-D3:9 & dash-jump & kill-pairodd
-  condition-advanced: D3-4C & key-D3:9 & boots & kill-pairodd
+  condition-basic: D3-4C & key-D3:8 & dash-jump & kill-pairodd # THIS TOO!!!
+  condition-advanced: D3-4C & key-D3:8 & boots & kill-pairodd
   condition-glitched: D3-4C & dash-jump & bombs & kill-pairodd
 
 D4-4C:

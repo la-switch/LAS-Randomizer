@@ -1,10 +1,15 @@
 import yaml
-
-# Open logic YAML
-with open("logic.yml", 'r') as logicFile:
-	logicDefs = yaml.safe_load(logicFile)
+import os
 
 def generateSpoilerLog(placements, outputDir, seedName):
+	# Open logic YAML
+	with open("logic.yml", 'r') as logicFile:
+		logicDefs = yaml.safe_load(logicFile)
+
+	# Make the output directory if it doesnt exist
+	if not os.path.exists(outputDir):
+		os.makedirs(outputDir)
+
 	regions = {'mabe-village': [], 'toronbo-shores': [], 'mysterious-woods': [], 'koholint-prairie': [], 'tabahl-wasteland': [], 'ukuku-prairie': [], 'sign-maze': [], 'goponga-swamp': [], 'taltal-heights': [], 'marthas-bay': [], 'kanalet-castle': [], 'pothole-field': [], 'animal-village': [], 'yarna-desert': [], 'ancient-ruins': [], 'rapids-ride': [], 'taltal-mountains-east': [], 'taltal-mountains-west': [], 'color-dungeon': [], 'tail-cave': [], 'bottle-grotto': [], 'key-cavern': [], 'angler-tunnel': [], 'catfish-maw': [], 'face-shrine': [], 'eagle-tower': [], 'turtle-rock': []}
 
 	for key in logicDefs:

@@ -35,6 +35,8 @@ def checkAccess(newCheck, access, logic):
 	# get the name of the check without the parameter sometimes applied to enemy checks
 	noParams = re.match('[a-zA-Z0-9-]+', newCheck).group(0)
 
+	if logic == 'none': return True
+
 	if logicDefs[noParams]['type'] == 'enemy':
 		param = re.search('\\[([a-z]+)\\]', newCheck)
 		if param:
@@ -103,21 +105,21 @@ def canReachLocation(toReach, placements, startingAccess, logic):
 						access = addAccess(access, key+'[heavy]')
 				# if we can't do the thing, but it's an enemy, we might be able to use pits or heavy throwables, so check those cases independently
 				elif logicDefs[key]['type'] == 'enemy':
-					if 'condition-pit' in logicDefs[key]:
+					if 'condition-pit' in logicDefs[key] and not hasAccess(access, key+'[pit]'):
 						if checkAccess(key+'[pit]', access, logic):
-							access = addAccess(access, key)
+							access = addAccess(access, key+'[pit]')
 							accessAdded = True
-					if 'condition-heavy' in logicDefs[key]:
+					if 'condition-heavy' in logicDefs[key] and not hasAccess(access, key+'[heavy]'):
 						if checkAccess(key+'[heavy]', access, logic):
-							access = addAccess(access, key)
+							access = addAccess(access, key+'[heavy]')
 							accessAdded = True
 
 	# If we get stuck and can't find any more locations to add, then we're stuck and can't reach toReach
 	return False
 
 
-def findReachableOpenLocations(placements, startingAccess, logic):
-	# Given a starting access set and a set of item placements, find how many item locations are reachable, but still empty.
+def verifySeashellsAttainable(placements, startingAccess, logic, numRandom, goal):
+	# Verify, given the starting access to items, whether it is possible to get up to [goal] seashells. This includes already placed shells (vanilla) or 
 	locations = []
 	access = startingAccess.copy()
 	accessAdded = True
@@ -143,16 +145,18 @@ def findReachableOpenLocations(placements, startingAccess, logic):
 						access = addAccess(access, key+'[heavy]')
 				# if we can't do the thing, but it's an enemy, we might be able to use pits or heavy throwables, so check those cases independently
 				elif logicDefs[key]['type'] == 'enemy':
-					if 'condition-pit' in logicDefs[key]:
+					if 'condition-pit' in logicDefs[key] and not hasAccess(access, key+'[pit]'):
 						if checkAccess(key+'[pit]', access, logic):
-							access = addAccess(access, key)
+							access = addAccess(access, key+'[pit]')
 							accessAdded = True
-					if 'condition-heavy' in logicDefs[key]:
+					if 'condition-heavy' in logicDefs[key] and not hasAccess(access, key+'[heavy]'):
 						if checkAccess(key+'[heavy]', access, logic):
-							access = addAccess(access, key)
+							access = addAccess(access, key+'[heavy]')
 							accessAdded = True
 
-	return locations
+	#print(len(locations), numRandom, access['seashell'], goal)
+	#print(access)
+	return min(len(locations), numRandom) + access['seashell'] >= goal
 
 
 
@@ -174,6 +178,11 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 
 	random.seed(seed)
 
+	# Make sure logic is a valid value, default to basic
+	logic = logic.lower()
+	if logic not in ['basic', 'advanced', 'glitched', 'none']:
+		logic = 'basic'
+
 	# Initialize the item and location lists, and the structures for tracking placements and access
 	access = {}
 	importantItems = []
@@ -183,6 +192,8 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 	dungeonItems = []
 	locations = []
 	placements = {}
+
+	vanillaSeashells = 0 # Keep track of how many seashells were forced into their vanilla locations. This is important for ensuring there is enough room to place the random ones.
 
 	placements['settings'] = settings
 	placements['force-junk'] = []
@@ -212,10 +223,14 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 			dungeonItems += [key] * itemDefs[key]['quantity']
 
 	# Randomly place bow-wow and the rooster
-	followers = ['bow-wow', 'rooster']
+	"""followers = ['bow-wow', 'rooster']
 	random.shuffle(followers)
 	placements['moblin-cave'] = followers[0]
-	placements['rooster-statue'] = followers[1]
+	placements['rooster-statue'] = followers[1]"""
+
+	# Force the followers to be vanilla (for now)
+	placements['moblin-cave'] = 'bow-wow'
+	placements['rooster-statue'] = 'rooster'
 
 	# Assign junk into the forceJunk locations
 	random.shuffle(junkItems)
@@ -255,6 +270,9 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 		items.remove(logicDefs[loc]['content'])
 		access = removeAccess(access, logicDefs[loc]['content'])
 		locations.remove(loc)
+
+		if logicDefs[loc]['content'] == 'seashell':
+			vanillaSeashells += 1
 
 		placements['force-vanilla'].append(loc)
 	
@@ -325,17 +343,19 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 		if verbose: print(chests[0])
 
 	# Next, place an item on Tarin. Since Tarin is the only check available with no items, he has to have something out of a certain subset of items
-	success = False
-	while success == False:
-		placements['tarin'] = items[0]
-		success = canReachLocation('can-shop', placements, settingsAccess, logic) or canReachLocation('break-bush', placements, settingsAccess, logic)
-		if success == False:
-			items.insert(items.index('seashell'), items[0])
-			items.pop(0)
+	# Only do this if Tarin has no item placed, i.e. not forced to be vanilla
+	if placements['tarin'] == None:
+		success = False
+		while success == False:
+			placements['tarin'] = items[0]
+			success = canReachLocation('can-shop', placements, settingsAccess, logic) or canReachLocation('break-bush', placements, settingsAccess, logic)
+			if success == False:
+				items.insert(items.index('seashell'), items[0])
+				items.pop(0)
 
-	if verbose: print(items[0]+' -> tarin')
-	access = removeAccess(access, items.pop(0))
-	locations.remove('tarin')
+		if verbose: print(items[0]+' -> tarin')
+		access = removeAccess(access, items.pop(0))
+		locations.remove('tarin')
 
 	# Keep track of where we placed items. this is necessary to undo placements if we get stuck
 	placementTracker = []
@@ -387,14 +407,16 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 			placementTracker.append(locations.pop(0))
 
 			# If we placed the last important item (so that afterward we start placing seashells), we want to ensure there's enough available locations to place a number of seashells required.
-			# i.e., are ther 40 locations reachable without getting the 40 and 50 rewards? If not, we haven't made a valid placement, so we have to go back and undo things until this is resolved.
+			# i.e., are there 40 locations reachable without getting the 40 and 50 rewards? If not, we haven't made a valid placement, so we have to go back and undo things until this is resolved.
 			if item != 'seashell' and len(items) > 0 and items[0] == 'seashell':
-				if not ((len(findReachableOpenLocations(placements, settingsAccess, logic)) >= 5) 
-				  and (len(findReachableOpenLocations(placements, settingsAccess | {'seashell': 5}, logic)) >= 15)
-				  and (len(findReachableOpenLocations(placements, settingsAccess | {'seashell': 15}, logic)) >= 30)
-				  and (len(findReachableOpenLocations(placements, settingsAccess | {'seashell': 30}, logic)) >= 40)
-				  and (len(findReachableOpenLocations(placements, settingsAccess | {'seashell': 40}, logic)) >= 50)):
-					if verbose: print('no room for shells')
+				if not ((verifySeashellsAttainable(placements, settingsAccess, logic, 50 - vanillaSeashells, 5)) 
+				  and (verifySeashellsAttainable(placements, settingsAccess | {'seashell': max(0, 5 - vanillaSeashells)}, logic, 50 - vanillaSeashells, 15))
+				  and (verifySeashellsAttainable(placements, settingsAccess | {'seashell': max(0, 15 - vanillaSeashells)}, logic, 50 - vanillaSeashells, 30))
+				  and (verifySeashellsAttainable(placements, settingsAccess | {'seashell': max(0, 30 - vanillaSeashells)}, logic, 50 - vanillaSeashells, 40))
+				  and (verifySeashellsAttainable(placements, settingsAccess | {'seashell': max(0, 40 - vanillaSeashells)}, logic, 50 - vanillaSeashells, 50))):
+					if verbose: 
+						print('no room for shells')
+						#print(placements)
 					undoLocation = placementTracker.pop(0)
 					locations.append(undoLocation)
 					random.shuffle(locations)

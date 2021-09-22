@@ -2,326 +2,433 @@
 sword:
   type: important
   quantity: 2
+  item-key: SwordLv1
 shield:
   type: important
   quantity: 2
+  item-key: MirrorShield
 bracelet:
   type: important
   quantity: 2
+  item-key: PowerBraceletLv1
 boots:
   type: important
   quantity: 1
+  item-key: PegasusBoots
 flippers:
   type: important
   quantity: 1
+  item-key: Flippers
 feather:
   type: important
   quantity: 1
+  item-key: RocsFeather
 shovel:
   type: important
   quantity: 1
+  item-key: Shovel
 hookshot:
   type: important
   quantity: 1
+  item-key: HookShot
 bow:
   type: important
   quantity: 1
+  item-key: Bow
 rod:
   type: important
   quantity: 1
+  item-key: MagicRod
 boomerang:
   type: important
   quantity: 1
+  item-key: Boomerang
 ocarina:
   type: important
   quantity: 1
+  item-key: Ocarina
 song-ballad:
   type: important
   quantity: 1
+  item-key: Song_WindFish
 song-mambo:
   type: important
   quantity: 1
+  item-key: Song_Mambo
 song-soul:
   type: important
   quantity: 1
+  item-key: Song_Soul
 yoshi-doll:
   type: important
   quantity: 1
+  item-key: YoshiDool
 ribbon:
   type: important
   quantity: 1
+  item-key: Ribbon
 dog-food:
   type: important
   quantity: 1
+  item-key: DogFood
 bananas:
   type: important
   quantity: 1
+  item-key: Bananas
 stick:
   type: important
   quantity: 1
+  item-key: Stick
 honeycomb:
   type: important
   quantity: 1
+  item-key: Honeycomb
 pineapple:
   type: important
   quantity: 1
+  item-key: Pineapple
 hibiscus:
   type: important
   quantity: 1
+  item-key: Hibiscus
 letter:
   type: important
   quantity: 1
+  item-key: Letter
 broom:
   type: important
   quantity: 1
+  item-key: Broom
 fishing-hook:
   type: important
   quantity: 1
+  item-key: FishingHook
 necklace:
   type: important
   quantity: 1
+  item-key: PinkBra
 mermaid-scale:
   type: important
   quantity: 1
+  item-key: MermaidsScale
 magnifying-lens:
   type: important
   quantity: 1
+  item-key: MagnifyingLens
 golden-leaf:
   type: important
   quantity: 5
+  item-key: GoldenLeaf
 mushroom:
   type: important
   quantity: 1
+  item-key: SleepyMushroom
 tail-key:
   type: important
   quantity: 1
+  item-key: TailKey
 slime-key:
   type: important
   quantity: 1
+  item-key: SlimeKey
 angler-key:
   type: important
   quantity: 1
+  item-key: AnglerKey
 face-key:
   type: important
   quantity: 1
+  item-key: FaceKey
 bird-key:
   type: important
   quantity: 1
+  item-key: BirdKey
 full-moon-cello:
   type: important
   quantity: 1
+  item-key: FullMoonCello
 conch-horn:
   type: important
   quantity: 1
+  item-key: ConchHorn
 sea-lilys-bell:
   type: important
   quantity: 1
+  item-key: SeaLilysBell
 surf-harp:
   type: important
   quantity: 1
+  item-key: SurfHarp
 wind-marimba:
   type: important
   quantity: 1
+  item-key: WindMarimba
 coral-triangle:
   type: important
   quantity: 1
+  item-key: CoralTriangle
 evening-calm-organ:
   type: important
   quantity: 1
+  item-key: EveningCalmOrgan
 thunder-drum:
   type: important
   quantity: 1
+  item-key: ThunderDrum
 seashell:
   type: seashell
   quantity: 50
+  item-key: Seashell
 bottle:
   type: good
   quantity: 3
+  item-key: Bottle
 heart-container:
   type: good
   quantity: 9
+  item-key: HeartContainer
 bomb-capacity:
   type: good
   quantity: 1
+  item-key: Bomb_MaxUp
 arrow-capacity:
   type: good
   quantity: 1
+  item-key: Arrow_MaxUp
 powder-capacity:
   type: good
   quantity: 1
+  item-key: MagicPowder_MaxUp
 shell-sensor:
   type: good
   quantity: 1
+  item-key: ShellRader
 medicine:
   type: good
   quantity: 3
+  item-key: SecretMedicine
 red-tunic:
   type: good
   quantity: 1
+  item-key: ClothesRed
 blue-tunic:
   type: good
   quantity: 1
+  item-key: ClothesBlue
 rupee-300:
   type: good
   quantity: 2
+  item-key: Rupee300
 heart-piece:
   type: junk
   quantity: 32
+  item-key: HeartPiece
 rupee-50:
   type: junk
   quantity: 19
+  item-key: Rupee50
 rupee-100:
   type: junk
   quantity: 5
+  item-key: Rupee100
 chamber-stone:
   type: junk
   quantity: 14
+  item-key: PanelDungeonPiece
 rupee-20:
   type: junk
   quantity: 5
+  item-key: Rupee20
 zol-trap:
   type: junk
   quantity: 4
+  item-key: $ENEMY
 bomb:
   type: junk
   quantity: 1
+  item-key: Bomb
 stalfos-note:
   type: junk
   quantity: 1
+  item-key: $EXT:MasterStalfonLetter
 key-D1:
   type: D1
   quantity: 3
+  item-key: SmallKey
 nightmare-key-D1:
   type: D1
   quantity: 1
+  item-key: NightmareKey
 stone-beak-D1:
   type: D1
   quantity: 1
+  item-key: StoneBeak
 compass-D1:
   type: D1
   quantity: 1
+  item-key: Compass
 map-D1:
   type: D1
   quantity: 1
+  item-key: DungeonMap
 key-D2:
   type: D2
   quantity: 5
+  item-key: SmallKey
 nightmare-key-D2:
   type: D2
   quantity: 1
+  item-key: NightmareKey
 stone-beak-D2:
   type: D2
   quantity: 1
+  item-key: StoneBeak
 compass-D2:
   type: D2
   quantity: 1
+  item-key: Compass
 map-D2:
   type: D2
   quantity: 1
+  item-key: DungeonMap
 key-D3:
   type: D3
   quantity: 9
+  item-key: SmallKey
 nightmare-key-D3:
   type: D3
   quantity: 1
+  item-key: NightmareKey
 stone-beak-D3:
   type: D3
   quantity: 1
+  item-key: StoneBeak
 compass-D3:
   type: D3
   quantity: 1
+  item-key: Compass
 map-D3:
   type: D3
   quantity: 1
+  item-key: DungeonMap
 key-D4:
   type: D4
   quantity: 5
+  item-key: SmallKey
 nightmare-key-D4:
   type: D4
   quantity: 1
+  item-key: NightmareKey
 stone-beak-D4:
   type: D4
   quantity: 1
+  item-key: StoneBeak
 compass-D4:
   type: D4
   quantity: 1
+  item-key: Compass
 map-D4:
   type: D4
   quantity: 1
+  item-key: DungeonMap
 key-D5:
   type: D5
   quantity: 3
+  item-key: SmallKey
 nightmare-key-D5:
   type: D5
   quantity: 1
+  item-key: NightmareKey
 stone-beak-D5:
   type: D5
   quantity: 1
+  item-key: StoneBeak
 compass-D5:
   type: D5
   quantity: 1
+  item-key: Compass
 map-D5:
   type: D5
   quantity: 1
+  item-key: DungeonMap
 key-D6:
   type: D6
   quantity: 3
+  item-key: SmallKey
 nightmare-key-D6:
   type: D6
   quantity: 1
+  item-key: NightmareKey
 stone-beak-D6:
   type: D6
   quantity: 1
+  item-key: StoneBeak
 compass-D6:
   type: D6
   quantity: 1
+  item-key: Compass
 map-D6:
   type: D6
   quantity: 1
+  item-key: DungeonMap
 key-D7:
   type: D7
   quantity: 3
+  item-key: SmallKey
 nightmare-key-D7:
   type: D7
   quantity: 1
+  item-key: NightmareKey
 stone-beak-D7:
   type: D7
   quantity: 1
+  item-key: StoneBeak
 compass-D7:
   type: D7
   quantity: 1
+  item-key: Compass
 map-D7:
   type: D7
   quantity: 1
+  item-key: DungeonMap
 key-D8:
   type: D8
   quantity: 7
+  item-key: SmallKey
 nightmare-key-D8:
   type: D8
   quantity: 1
+  item-key: NightmareKey
 stone-beak-D8:
   type: D8
   quantity: 1
+  item-key: StoneBeak
 compass-D8:
   type: D8
   quantity: 1
+  item-key: Compass
 map-D8:
   type: D8
   quantity: 1
+  item-key: DungeonMap
 key-D0:
   type: D0
   quantity: 3
+  item-key: SmallKey
 nightmare-key-D0:
   type: D0
   quantity: 1
+  item-key: NightmareKey
 stone-beak-D0:
   type: D0
   quantity: 1
+  item-key: StoneBeak
 compass-D0:
   type: D0
   quantity: 1
+  item-key: Compass
 map-D0:
   type: D0
   quantity: 1
-
+  item-key: DungeonMap
 ...

@@ -243,10 +243,9 @@ class Room:
 			chest.parameters[1] = newContent
 
 			if itemIndex > -1:
-				if len(chest.parameters) == 2:
-					chest.parameters.append(itemIndex)
+				chest.parameters[2] = itemIndex
 			else:
-				chest.parameters = chest.parameters[:2]
+				chest.parameters[2] = b''
 
 	def setLoadingZoneTarget(self, newDestination, index=0):
 		zones = list(filter(lambda a: a.type == 0x190 and len(a.parameters) > 0, self.actors))
