@@ -3,7 +3,7 @@ A randomizer for The Legend of Zelda: Link's Awakening remake. Currently still v
 
 The early release version available now allows for shuffling all the chests in the game, and only the chests. More work will come soon.
 
-Please note that this early in development, not everything is guaranteed to be functional, and there is a definite possibility of the logic resulting in softlocks. This will be especially true with the glitched logic. It is recommended to primarily play the basic logic and make backup saves before going into an area that you might not be able to exit (e.g. going into Angler Tunnel without the flippers, and the flippers or the feather and neither are there).
+Please note that this early in development, not everything is guaranteed to be functional, and there is a definite possibility of the logic resulting in softlocks. This will be especially true with the glitched logic. It is recommended to primarily play the basic logic and make backup saves before going into an area that you might not be able to exit (e.g. going into Angler Tunnel without the flippers or the feather and neither are there).
 
 In order to run the randomizer, you must have the RomFS of the game extracted and on the device you're running this program from. This can be extracted through tools like [Hactool](https://github.com/SciresM/hactool). The RomFS is the component of the game package with all of the data files (i.e. non-executable files).
 
