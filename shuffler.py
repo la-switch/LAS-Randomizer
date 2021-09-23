@@ -207,7 +207,7 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 
 	# Add the settings into the access. This affects some logic like with fast trendy, free fishing, etc.
 	settingsAccess = {setting: 1 for setting in settings}
-	access |= settingsAccess
+	access.update(settingsAccess)
 
 	# For each type of item in the item pool, add its quantity to the item lists
 	for key in itemDefs:
