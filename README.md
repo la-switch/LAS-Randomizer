@@ -7,6 +7,8 @@ Please note that this early in development, not everything is guaranteed to be f
 
 In order to run the randomizer, you must have the RomFS of the game extracted and on the device you're running this program from. This can be extracted through tools like [Hactool](https://github.com/SciresM/hactool). The RomFS is the component of the game package with all of the data files (i.e. non-executable files).
 
+Join the [Discord](https://discord.com/invite/rfBSCUfzj8) to talk about the randomizer or ask any questions you have!
+
 ## How to run:
 
 You will need to have Python 3 installed and run the following on the command line from the directory with the code:
