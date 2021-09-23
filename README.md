@@ -9,7 +9,7 @@ In order to run the randomizer, you must have the RomFS of the game extracted an
 
 ## How to run:
 
-You will need to have Python 3 installed and run the following on the command line from the directory with the code:
+You will need to have Python 3.9+ installed and run the following on the command line from the directory with the code:
 
 `python main.py <RomFS path> <output directory> <seed> <logic> <other settings, space separated>`
 
