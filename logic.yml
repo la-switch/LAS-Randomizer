@@ -241,7 +241,7 @@ ghost-house-pot:
   content: seashell
   region: ghost-house
   spoiler-region: marthas-bay
-  condition-advanced: break-pot
+  condition-basic: break-pot
 taltal-heights-hole:
   type: item
   subtype: bomb-hole
@@ -505,14 +505,14 @@ goponga-cave-left:
   content: rupee-20
   region: mr-write-house
   spoiler-region: goponga-swamp
-  condition-basic: break-skull
+  condition-basic: feather
 goponga-cave-right:
   type: item
   subtype: chest
   content: rupee-50
   region: mr-write-house
   spoiler-region: goponga-swamp
-  condition-basic: feather
+  condition-basic: break-skull
 goponga-west-dig:
   type: item
   subtype: dig
@@ -2312,7 +2312,7 @@ bomb-arrows:
   condition-basic: bombs & bow
 bombs:
   type: interaction
-  condition-basic: (mabe & boots) | (can-shop & (conch-horn | free-shop)) | (break-pot & (kanalet-inside | (D0-8D & kill-goblin) | key-cavern | D6-8D)) | (rapids & (feather | boomerang))
+  condition-basic: (mabe & boots) | (can-shop & (conch-horn | free-shop)) | (break-pot & (kanalet-inside | (D0-8D & kill-goblin) | key-cavern | D6-8D)) | (rapids & (feather | boomerang)) | (angler-tunnel & (sword | feather))
 powder:
   type: interaction
   condition-basic: (woods & mushroom) | (color-dungeon & (can-farm-rupees | break-pot)) | (D2-7D & feather & hit-crystal-switch) | (D8-8D & kill-vire & feather & break-pot) | (D8-4C & feather & hookshot) | (D8-8D & feather & key-D8:2) | (rapids & (feather | boomerang))
