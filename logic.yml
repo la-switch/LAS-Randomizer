@@ -255,7 +255,7 @@ kanalet-crow:
   content: golden-leaf
   region: kanalet-outside
   spoiler-region: kanalet-castle
-  condition-basic: kill-crow
+  condition-basic: kill-crow & (bombs | bracelet)
 kanalet-mad-bomber:
   type: item
   subtype: enemy
@@ -519,7 +519,7 @@ goponga-west-dig:
   content: seashell
   region: mr-write-house
   spoiler-region: goponga-swamp
-  condition-basic: break-bush & feather
+  condition-basic: break-bush & shovel
 mr-write:
   type: item
   subtype: npc

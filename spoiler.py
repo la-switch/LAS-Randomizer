@@ -16,7 +16,7 @@ def generateSpoilerLog(placements, outputDir, seedName):
 		if logicDefs[key]['type'] == 'item' or logicDefs[key]['type'] == 'follower':
 			regions[logicDefs[key]['spoiler-region']].append(key)
 
-	with open(f'./{outputDir}/spoiler_{seedName}.txt', 'w') as output:
+	with open(f'{outputDir}/spoiler_{seedName}.txt', 'w') as output:
 		for key in regions:
 			output.write(f'{key}:\n')
 			for location in regions[key]:
