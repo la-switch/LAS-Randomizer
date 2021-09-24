@@ -11,7 +11,11 @@ Join the [Discord](https://discord.com/invite/rfBSCUfzj8) to talk about the rand
 
 ## How to run:
 
-You will need to have Python 3 installed and run the following on the command line from the directory with the code:
+You will need to have Python 3 installed.  Version 3.9+ is recommended to be sure the program will work. You will also need to ensure you have the YAML library installed, which can be done through pip:
+
+`pip install pyyaml`
+
+Now run the following on the command line from the directory with the randomizer code:
 
 `python main.py <RomFS path> <output directory> <seed> <logic> <other settings, space separated>`
 
