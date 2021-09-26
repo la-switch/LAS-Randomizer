@@ -100,7 +100,7 @@ goriya-trader:
   content: boomerang
   region: beach
   spoiler-region: toronbo-shores
-  condition-basic: bombs & magnifying-lens & (shovel | bow)
+  condition-basic: bombs & magnifying-lens & (shovel | bow | rod) & (boomerang | sword | bracelet | (shovel & rod))
 dampe-page-1-first:
   type: item
   subtype: npc
@@ -569,7 +569,7 @@ above-d3:
   content: seashell
   region: plains
   spoiler-region: ukuku-prairie
-  condition-basic: cross-water & shovel
+  condition-basic: (cross-water | feather) & shovel
 under-skull-rock:
   type: item
   subtype: dig
@@ -792,7 +792,7 @@ mamu:
   content: song-soul
   region: sign-maze
   spoiler-region: sign-maze
-  condition-basic: hookshot & ocarina
+  condition-basic: hookshot & ocarina & can-farm-rupees
 swamp-chest:
   type: item
   subtype: chest
@@ -1170,7 +1170,7 @@ D2-boos:
   content: bracelet
   region: bottle-grotto
   spoiler-region: bottle-grotto
-  condition-basic: D2-4C & key-D2:5 & (powder | rod | bow | sword:2)
+  condition-basic: D2-4C & key-D2:5 & (powder | rod | shoot-arrows | sword:2)
 D2-long-room-west:
   type: item
   subtype: chest
@@ -1375,7 +1375,7 @@ D3-hallway-1:
   content: key-D3
   region: key-cavern
   spoiler-region: key-cavern
-  condition-basic: D3-7B & (sword | powder | bombs | bow | hookshot | rod | boomerang)
+  condition-basic: D3-7B & (sword | powder | bombs | shoot-arrows | hookshot | rod | boomerang)
 D3-vacuum-mouth:
   type: item
   subtype: chest
@@ -1463,7 +1463,7 @@ D4-small-island:
   spoiler-region: angler-tunnel
   condition-basic: D4-8D & key-D4:2 & kill-spiny & kill-zol-red & flippers
   condition-advanced: D4-8D & key-D4:2 & kill-spiny & kill-zol-red & ((bomb-arrows & feather) | ((feather | boots | bombs | (shovel & sword)) & hookshot))
-  condition-glitched: D4-8D & ((key-D4:2 & kill-spiny & kill-zol-red & feather & bracelet) | ((sword | bow | rod) & bombs & dash-jump))
+  condition-glitched: D4-8D & ((key-D4:2 & kill-spiny & kill-zol-red & feather & bracelet) | ((sword | shoot-arrows | rod) & bombs & dash-jump))
 D4-ledge-north:
   type: item
   subtype: chest
@@ -1637,7 +1637,7 @@ D6-statue-line-south:
   content: stone-beak-D6
   region: face-shrine
   spoiler-region: face-shrine
-  condition-basic: D6-8D & (bracelet:2 | bow | rod | bombs | boomerang | hookshot)
+  condition-basic: D6-8D & (bracelet:2 | shoot-arrows | rod | bombs | boomerang | hookshot)
 D6-wizzrobe-pegs:
   type: item
   subtype: drop
@@ -1864,7 +1864,7 @@ D8-statue:
   content: key-D8
   region: turtle-rock
   spoiler-region: turtle-rock
-  condition-basic: D8-4C & bow
+  condition-basic: D8-4C & shoot-arrows
 D8-torches:
   type: item
   subtype: chest
@@ -2103,7 +2103,7 @@ tail-cave:
 taltal-east-0:
   type: region
   condition-basic: (wasteland & break-crystal & (break-obstacle | rooster) & bracelet) | (taltal-east-1 & flippers & heights & angler-key)
-  condition-advanced: wasteland & break-crystal & hookshot & feather
+  condition-advanced: wasteland & break-crystal & hookshot & feather & bracelet
   condition-glitched: wasteland & break-crystal & rooster
 taltal-east-1:
   type: region
@@ -2194,7 +2194,7 @@ D4-4E:
   type: room
   condition-basic: D4-8D & key-D4:3 & kill-spiny & kill-zol-red & dash-jump
   condition-advanced: D4-8D & key-D4:3 & kill-spiny & kill-zol-red & (feather | flippers) & ((feather | boots | bombs | (shovel & sword)) & hookshot)
-  condition-glitched: D4-8D & (sword | bow | rod) & bombs & dash-jump
+  condition-glitched: D4-8D & (sword | shoot-arrows | rod) & bombs & dash-jump
 D4-5B:
   type: room
   condition-basic: D4-4E & flippers & key-D4:5
@@ -2226,7 +2226,7 @@ D5-8H:
 
 D6-3A:
   type: room
-  condition-basic: D6-8D & bracelet & (bracelet:2 | bow | rod | bombs | boomerang | hookshot)
+  condition-basic: D6-8D & bracelet & (bracelet:2 | shoot-arrows | rod | bombs | boomerang | hookshot)
   condition-glitched: taltal-east-2 & rooster
 D6-4H: 
   type: room
@@ -2235,10 +2235,10 @@ D6-4H:
 D6-5D:
   type: room
   condition-basic: D6-8D & key-D6:1 & bombs & bracelet:2 & feather
-  condition-glitched: D6-3A & feather & (bombs | (boots & (sword | rod | bow)))
+  condition-glitched: D6-3A & feather & (bombs | (boots & (sword | rod | shoot-arrows)))
 D6-8D:
   type: room
-  condition-basic: (river & face-key & (hookshot | rooster)) | (D6-3A & (song-mambo | bombs | bow | boomerang | rod))
+  condition-basic: (river & face-key & (hookshot | rooster)) | (D6-3A & (song-mambo | bombs | shoot-arrows | boomerang | rod))
   condition-glitched: armos-maze & bracelet & feather & sword & boots & face-key
 
 D7-2F:
@@ -2295,10 +2295,10 @@ cross-water:
   condition-basic: flippers | rooster
 hit-crystal-switch:
   type: interaction
-  condition-basic: sword | bow | bombs | hookshot | boomerang | rod
+  condition-basic: sword | shoot-arrows | bombs | hookshot | boomerang | rod
 hit-color-dungeon-switch:
   type: interaction
-  condition-basic: sword | bow | bombs | hookshot | boomerang | rod
+  condition-basic: sword | shoot-arrows | bombs | hookshot | boomerang | rod
 
 D7-collapse:
   type: interaction
@@ -2309,19 +2309,22 @@ D0-clear:
 
 bomb-arrows:
   type: interaction
-  condition-basic: bombs & bow
+  condition-basic: bombs & shoot-arrows
 bombs:
   type: interaction
   condition-basic: (mabe & boots) | (can-shop & (conch-horn | free-shop)) | (break-pot & (kanalet-inside | (D0-8D & kill-goblin) | key-cavern | D6-8D)) | (rapids & (feather | boomerang)) | (angler-tunnel & (sword | feather))
 powder:
   type: interaction
   condition-basic: (woods & mushroom) | (color-dungeon & (can-farm-rupees | break-pot)) | (D2-7D & feather & hit-crystal-switch) | (D8-8D & kill-vire & feather & break-pot) | (D8-4C & feather & hookshot) | (D8-8D & feather & key-D8:2) | (rapids & (feather | boomerang))
+shoot-arrows:
+  type: interaction
+  condition-basic: bow & (can-shop | (armos-maze & break-pot) | (D5-7F & kill-helmasaur & feather) | (D6-8D & break-pot) | (D8-4C & (feather | break-pot)) | (D8-8D & feather & key-D8:2))
 can-shop:
   type: interaction
-  condition-basic: can-farm-rupees | beach # might need to be changed later. we don't know the exact condition for being able to steal is yet
+  condition-basic: can-farm-rupees | sword
 can-farm-rupees:
   type: interaction
-  condition-basic: break-bush | kill-octorok | shovel
+  condition-basic: bracelet | sword | rod | boomerang | kill-octorok | shovel
 dash-jump:
   type: interaction
   condition-basic: feather & boots
@@ -2338,135 +2341,135 @@ dampe-3-4:
 # Enemy interactions
 kill-3-of-a-kind:
   type: enemy
-  condition-basic: sword | shield | bow | bombs | rod | boomerang
+  condition-basic: sword | shield | shoot-arrows | bombs | rod | boomerang
 kill-arm-mimic:
   type: enemy
   condition-basic: sword
 kill-battle-bat: 
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-bombite-red:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | hookshot | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | hookshot | rod | boomerang
 kill-bombite-green:
   type: enemy
-  condition-basic: sword | shield | bow | bombs | rod
+  condition-basic: sword | shield | shoot-arrows | bombs | rod
 kill-crow:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-darknut-shield:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-darknut-spear:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-darknut-flail:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-flower:
   type: enemy
-  condition-basic: (hookshot & (sword | powder | bow | bombs)) | rod | boomerang | bow-wow
+  condition-basic: (hookshot & (sword | powder | shoot-arrows | bombs)) | rod | boomerang | bow-wow
 kill-gibdo:
   type: enemy
-  condition-basic: sword | bow | bombs | boomerang
+  condition-basic: sword | shoot-arrows | bombs | boomerang
 kill-goblin:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
 kill-hardhat-beetle:
   type: enemy
   condition-basic: bombs
   condition-pit: sword | shield | hookshot | boomerang
 kill-helmasaur:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
   condition-heavy: bracelet
 kill-keese:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
   condition-heavy: bracelet
 kill-like-like:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
 kill-mad-bomber:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-minimoldorm:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
 kill-moblin-spear:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang | shield:2
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang | shield:2
 kill-moblin-shield:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
 kill-octorok:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang | shield:2
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang | shield:2
 kill-orb:
   type: enemy
-  condition-basic: sword | hookshot | bow | bombs | rod | boomerang
+  condition-basic: sword | hookshot | shoot-arrows | bombs | rod | boomerang
 kill-pairodd:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-pols-voice:
   type: enemy
-  condition-basic: bow | bombs | rod | (ocarina & song-ballad)
+  condition-basic: shoot-arrows | bombs | rod | (ocarina & song-ballad)
   condition-heavy: bracelet
 kill-rope:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
   condition-heavy: bracelet
 kill-shy-guy:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-spiny:
   type: enemy
-  condition-basic: shield & (sword | powder | bow | bombs | rod | boomerang)
+  condition-basic: shield & (sword | powder | shoot-arrows | bombs | rod | boomerang)
   condition-pit: shield | sword
 kill-stalfos:
   type: enemy
-  condition-basic: sword | bow | bombs | boomerang
+  condition-basic: sword | shoot-arrows | bombs | boomerang
   condition-pit: powder | hookshot | rod | bottle | shovel
 kill-stalfos-yellow:
   type: enemy
-  condition-basic: sword | bow | bombs | boomerang
+  condition-basic: sword | shoot-arrows | bombs | boomerang
 kill-stalfos-red:
   type: enemy
-  condition-basic: sword | bow | bombs | boomerang | shield:2
+  condition-basic: sword | shoot-arrows | bombs | boomerang | shield:2
   condition-pit: powder | hookshot | rod | bottle | shovel
 kill-stalfos-spear:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang | shield:2
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang | shield:2
   condition-heavy: bracelet
 kill-star:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
 kill-urchin:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
 kill-vire:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
 kill-water-tektite:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
 kill-wizzrobe:
   type: enemy
-  condition-basic: bow | bombs | rod | boomerang
+  condition-basic: shoot-arrows | bombs | rod | boomerang
   condition-pit: hookshot | boomerang | sword | shield
 kill-zol-green:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
   condition-heavy: bracelet
 kill-zol-red:
   type: enemy
-  condition-basic: sword | powder | bow | bombs | rod | boomerang
+  condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
   condition-heavy: bracelet
   condition-pit: shield
 
 kill-armos-knight:
   type: enemy
-  condition-basic: sword | bow
+  condition-basic: (sword | shoot-arrows) & feather
 kill-blaino:
   type: enemy
   condition-basic: sword
@@ -2475,47 +2478,47 @@ kill-blob-boss:
   condition-basic: powder & sword
 kill-cueball:
   type: enemy
-  condition-basic: sword | bow | bombs | boomerang
+  condition-basic: sword | shoot-arrows | bombs | boomerang
 kill-dodongo:
   type: enemy
   condition-basic: bombs
 kill-gohma:
   type: enemy
-  condition-basic: bow | (hookshot & (sword | bombs | rod | boomerang))
+  condition-basic: shoot-arrows | (hookshot & (sword | bombs | rod | boomerang))
 kill-hinox:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-king-moblin:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-lanmola:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-master-stalfos:
   type: enemy
   condition-basic: (sword | boomerang) & bombs
 kill-rolling-bones:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-smasher:
   type: enemy
   condition-basic: 'True'
 kill-stone-hinox:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-turtle-rock:
   type: enemy
   condition-basic: bombs
 
 kill-evil-orb:
   type: enemy
-  condition-basic: sword | bow | rod | boomerang
+  condition-basic: sword | shoot-arrows | rod | boomerang
 kill-moldorm:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-genie:
   type: enemy
-  condition-basic: (sword | bow | bombs | rod | boomerang) & bracelet
+  condition-basic: (sword | shoot-arrows | bombs | rod | boomerang) & bracelet
 kill-slime-eye:
   type: enemy
   condition-basic: sword & boots
@@ -2524,13 +2527,13 @@ kill-angler:
   condition-basic: sword
 kill-slime-eel:
   type: enemy
-  condition-basic: hookshot & (sword | bow | bombs | rod | boomerang)
+  condition-basic: hookshot & (sword | shoot-arrows | bombs | rod | boomerang)
 kill-facade:
   type: enemy
   condition-basic: bombs
 kill-evil-eagle:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-hothead:
   type: enemy
   condition-basic: rod
@@ -2542,16 +2545,16 @@ kill-nightmare-agahnim:
   condition-basic: sword | bottle
 kill-nightmare-moldorm:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-nightmare-ganon:
   type: enemy
   condition-basic: sword
 kill-nightmare-lanmola:
   type: enemy
-  condition-basic: sword | bow | bombs | rod | boomerang
+  condition-basic: sword | shoot-arrows | bombs | rod | boomerang
 kill-dethl:
   type: enemy
-  condition-basic: bow | rod | boomerang
+  condition-basic: shoot-arrows | rod | boomerang
 kill-nightmare:
   type: enemy
   condition-basic: egg & (magnifying-lens | free-book) & kill-nightmare-zol & kill-nightmare-agahnim & kill-nightmare-moldorm & kill-nightmare-ganon & kill-nightmare-lanmola & kill-dethl
