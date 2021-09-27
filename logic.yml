@@ -647,7 +647,8 @@ kanalet-south-cave:
   content: seashell
   region: plains
   spoiler-region: ukuku-prairie
-  condition-basic: hookshot
+  condition-basic: hookshot & (flippers | (ocarina & song-mambo))
+  condition-advanced: hookshot & (feather | bombs)
 plains-rock-maze:
   type: item
   subtype: hidden
