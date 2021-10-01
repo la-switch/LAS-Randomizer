@@ -101,41 +101,41 @@ goriya-trader:
   region: beach
   spoiler-region: toronbo-shores
   condition-basic: bombs & magnifying-lens & (shovel | bow | rod) & (boomerang | sword | bracelet | (shovel & rod))
-dampe-page-1-first:
-  type: item
-  subtype: npc
-  content: heart-piece
-  region: wasteland
-  spoiler-region: taltal-heights
-  #condition-basic: dampe-1-4
-dampe-page-1-second:
+dampe-page-1:
   type: item
   subtype: npc
   content: seashell
   region: wasteland
   spoiler-region: taltal-heights
-  #condition-basic: dampe-1-4
+  condition-basic: dampe-1-1 & dampe-1-2 & dampe-1-3 & dampe-1-4
+dampe-heart-challenge:
+  type: item
+  subtype: npc
+  content: heart-piece
+  region: wasteland
+  spoiler-region: taltal-heights
+  condition-basic: dampe-1-4
 dampe-page-2:
   type: item
   subtype: npc
   content: heart-piece
   region: wasteland
   spoiler-region: taltal-heights
-  #condition-basic: dampe-2-4
-dampe-bottle:
+  condition-basic: dampe-2-1 & dampe-2-2 & dampe-2-3 & dampe-2-4
+dampe-bottle-challenge:
   type: item
   subtype: npc
   content: bottle
   region: wasteland
   spoiler-region: taltal-heights
-  #condition-basic: dampe-3-2
-dampe-page-3:
+  condition-basic: dampe-3-2
+dampe-final:
   type: item
   subtype: npc
   content: heart-container
   region: wasteland
   spoiler-region: taltal-heights
-  #condition-basic: dampe-3-4
+  condition-basic: dampe-1-1 & dampe-1-2 & dampe-1-3 & dampe-1-4 & dampe-2-1 & dampe-2-2 & dampe-2-3 & dampe-2-4 & dampe-3-1 & dampe-3-2 & dampe-3-3 & dampe-3-4
 taltal-entrance-blocks:
   type: item
   subtype: standing
@@ -1937,7 +1937,7 @@ D0-northern-chest:
   content: nightmare-key-D0
   region: color-dungeon
   spoiler-region: color-dungeon
-  condition-basic: D0-8C & kill-goblin & key-D0:3 & kill-blob-boss
+  condition-basic: D0-8C & kill-goblin[heavy] & key-D0:3 & kill-blob-boss
 D0-zol-pots:
   type: item
   subtype: chest
@@ -1958,28 +1958,28 @@ D0-south-orbs:
   content: stone-beak-D0
   region: color-dungeon
   spoiler-region: color-dungeon
-  condition-basic: D0-8C & kill-goblin & kill-orb
+  condition-basic: D0-8C & kill-goblin[heavy] & kill-orb
 D0-east-color-puzzle:
   type: item
   subtype: drop
   content: key-D0
   region: color-dungeon
   spoiler-region: color-dungeon
-  condition-basic: D0-8C & kill-goblin & hit-color-dungeon-switch
+  condition-basic: D0-8C & kill-goblin[heavy] & hit-color-dungeon-switch
 D0-west-color-puzzle:
   type: item
   subtype: chest
   content: compass-D0 
   region: color-dungeon
   spoiler-region: color-dungeon
-  condition-basic: D0-8C & kill-goblin & hit-color-dungeon-switch
+  condition-basic: D0-8C & kill-goblin[heavy] & hit-color-dungeon-switch
 D0-putters:
   type: item
   subtype: chest
   content: key-D0
   region: color-dungeon
   spoiler-region: color-dungeon
-  condition-basic: D0-8C & kill-goblin
+  condition-basic: D0-8C & kill-goblin[heavy]
 D0-fairy-1:
   type: item
   subtype: npc
@@ -1999,7 +1999,7 @@ D0-fairy-2:
 moblin-cave:
   type: follower
   content: bow-wow
-  region: taltal-heights
+  region: wasteland
   spoiler-region: taltal-heights
   condition-basic: kill-moblin-shield & kill-moblin-spear & kill-king-moblin & full-moon-cello
 rooster-statue:
@@ -2269,7 +2269,7 @@ D0-8C:
   condition-basic: color-dungeon
 D0-6D:
   type: room
-  condition-basic: D0-8C & kill-goblin & key-D0:2 & kill-stone-hinox
+  condition-basic: D0-8C & kill-goblin[heavy] & key-D0:2 & kill-stone-hinox
 
 
 # Common combos/interactions
@@ -2306,7 +2306,7 @@ D7-collapse:
   condition-basic: D7-2B & D7-2C & D7-2D & D7-3B & D7-4B & hit-crystal-switch
 D0-clear:
   type: interaction
-  condition-basic: D0-4C
+  condition-basic: D0-6D & kill-evil-orb & nightmare-key-D0 & key-D0:3 & hit-color-dungeon-switch
 
 bomb-arrows:
   type: interaction
@@ -2330,14 +2330,45 @@ dash-jump:
   type: interaction
   condition-basic: feather & boots
 
+dampe-start:
+  type: interaction
+  condition-basic: bow-wow & conch-horn
+dampe-1-1:
+  type: interaction
+  condition-basic: dampe-start
+dampe-1-2:
+  type: interaction
+  condition-basic: dampe-1-1
+dampe-1-3:
+  type: interaction
+  condition-basic: dampe-1-2 & (kill-hardhat-beetle[pit] | (ocarina & song-mambo) | full-moon-cello | sea-lilys-bell | wind-marimba | coral-triangle | evening-calm-organ | thunder-drum | D0-clear)
 dampe-1-4:
   type: interaction
+  condition-basic: dampe-1-3 & (full-moon-cello | sea-lilys-bell | wind-marimba | coral-triangle | evening-calm-organ | thunder-drum | D0-clear)
+dampe-2-1:
+  type: interaction
+  condition-basic: dampe-1-3 & (full-moon-cello | sea-lilys-bell | surf-harp | (wind-marimba & kill-master-stalfos) | coral-triangle | evening-calm-organ | thunder-drum | D0-clear)
+dampe-2-2:
+  type: interaction
+  condition-basic: dampe-1-4 & (full-moon-cello | wind-marimba | evening-calm-organ | thunder-drum | D0-clear)
+dampe-2-3:
+  type: interaction
+  condition-basic: dampe-1-3 & (((thunder-drum & bow) | evening-calm-organ) & (D0-clear | (surf-harp & evening-calm-organ & (full-moon-cello | wind-marimba))))
 dampe-2-4:
   type: interaction
+  condition-basic: dampe-2-3 & (((((sea-lilys-bell | wind-marimba) & flippers) | evening-calm-organ | thunder-drum) & kill-gohma & kill-master-stalfos) | (D0-clear & kill-gohma))
+dampe-3-1:
+  type: interaction
+  condition-basic: dampe-2-3 & (full-moon-cello | sea-lilys-bell | surf-harp | wind-marimba | coral-triangle | evening-calm-organ | thunder-drum | D0-clear)
 dampe-3-2:
   type: interaction
+  condition-basic: dampe-3-1 & (wind-marimba | coral-triangle | evening-calm-organ | thunder-drum)
+dampe-3-3:
+  type: interaction
+  condition-basic: dampe-3-2 & bombs
 dampe-3-4:
   type: interaction
+  condition-basic: dampe-3-4 & (full-moon-cello | wind-marimba | coral-triangle | thunder-drum | D0-clear)
 
 # Enemy interactions
 kill-3-of-a-kind:
@@ -2376,6 +2407,7 @@ kill-gibdo:
 kill-goblin:
   type: enemy
   condition-basic: sword | powder | shoot-arrows | bombs | rod | boomerang
+  condition-heavy: bracelet
 kill-hardhat-beetle:
   type: enemy
   condition-basic: bombs
