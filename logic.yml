@@ -2330,45 +2330,42 @@ dash-jump:
   type: interaction
   condition-basic: feather & boots
 
-dampe-start:
-  type: interaction
-  condition-basic: bow-wow & conch-horn
 dampe-1-1:
   type: interaction
-  condition-basic: dampe-start
+  condition-basic: bow-wow & conch-horn
 dampe-1-2:
   type: interaction
   condition-basic: dampe-1-1
 dampe-1-3:
   type: interaction
-  condition-basic: dampe-1-2 & (kill-hardhat-beetle[pit] | (ocarina & song-mambo) | full-moon-cello | sea-lilys-bell | wind-marimba | coral-triangle | evening-calm-organ | thunder-drum | D0-clear)
+  condition-basic: dampe-1-2 & sea-lilys-bell
 dampe-1-4:
   type: interaction
-  condition-basic: dampe-1-3 & (full-moon-cello | sea-lilys-bell | wind-marimba | coral-triangle | evening-calm-organ | thunder-drum | D0-clear)
+  condition-basic: dampe-1-3 & sea-lilys-bell
 dampe-2-1:
   type: interaction
-  condition-basic: dampe-1-3 & (full-moon-cello | sea-lilys-bell | surf-harp | (wind-marimba & kill-master-stalfos) | coral-triangle | evening-calm-organ | thunder-drum | D0-clear)
+  condition-basic: dampe-1-3 & sea-lilys-bell
 dampe-2-2:
   type: interaction
-  condition-basic: dampe-1-4 & (full-moon-cello | wind-marimba | evening-calm-organ | thunder-drum | D0-clear)
+  condition-basic: dampe-1-4 & surf-harp
 dampe-2-3:
   type: interaction
-  condition-basic: dampe-1-3 & (((thunder-drum & bow) | evening-calm-organ) & (D0-clear | (surf-harp & evening-calm-organ & (full-moon-cello | wind-marimba))))
+  condition-basic: dampe-1-3 & wind-marimba & ((evening-calm-organ & (surf-harp | D0-clear)) | (thunder-drum & D0-clear))
 dampe-2-4:
   type: interaction
-  condition-basic: dampe-2-3 & (((((sea-lilys-bell | wind-marimba) & flippers) | evening-calm-organ | thunder-drum) & kill-gohma & kill-master-stalfos) | (D0-clear & kill-gohma))
+  condition-basic: dampe-2-3 & wind-marimba & flippers & kill-gohma & kill-master-stalfos
 dampe-3-1:
   type: interaction
-  condition-basic: dampe-2-3 & (full-moon-cello | sea-lilys-bell | surf-harp | wind-marimba | coral-triangle | evening-calm-organ | thunder-drum | D0-clear)
+  condition-basic: dampe-2-3 & coral-triangle
 dampe-3-2:
   type: interaction
-  condition-basic: dampe-3-1 & (wind-marimba | coral-triangle | evening-calm-organ | thunder-drum)
+  condition-basic: dampe-3-1 & coral-triangle
 dampe-3-3:
   type: interaction
-  condition-basic: dampe-3-2 & bombs
+  condition-basic: dampe-3-2 & evening-calm-organ & bombs
 dampe-3-4:
   type: interaction
-  condition-basic: dampe-3-4 & (full-moon-cello | wind-marimba | coral-triangle | thunder-drum | D0-clear)
+  condition-basic: dampe-3-4 & thunder-drum
 
 # Enemy interactions
 kill-3-of-a-kind:
