@@ -13,9 +13,10 @@ Join the [Discord](https://discord.com/invite/rfBSCUfzj8) to talk about the rand
 
 ## How to run:
 
-You will need to have Python 3 installed.  Version 3.9+ is recommended to be sure the program will work. You will also need to ensure you have the YAML library installed, which can be done through pip:
+You will need to have Python 3 installed.  Version 3.9+ is recommended to be sure the program will work. You will also need to install 2 libraries through pip, pyyaml and evfl. It can be done with the following:
 
 `pip install pyyaml`
+`pip install evfl`
 
 Now run the following on the command line from the directory with the randomizer code:
 
