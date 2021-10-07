@@ -10,6 +10,9 @@ def makeMod(placements, romPath, outdir):
     makeMarinTarinFix(romPath, outdir)
     makeStaticEventChanges(romPath, outdir)
 
+    if 'free-book' in placements['settings']:
+        setFreeBook(romPath, outdir)
+
     makeChestContentFixes(placements, romPath, outdir)
 
 
@@ -192,6 +195,14 @@ def makeStaticEventChanges(romPath, outdir):
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MusicalInstrument.bfevfl', musicalInstrument)
 
+
+# Set the event for the book of shadows to reveal the egg path without having the magnifying lens
+def setFreeBook(romPath, outdir):
+    book = eventtools.readFlow(f'{romPath}/region_common/event/Book.bfevfl')
+
+    eventtools.insertEventAfter(book.flowchart, 'Event18', 'Event73')
+
+    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Book.bfevfl', book)
 
 
 chestRooms = {

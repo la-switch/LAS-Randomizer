@@ -50,7 +50,7 @@ def addActorAction(actor, action):
 def addActorQuery (actor, action):
 	actor.queries.append(evfl.common.StringHolder(action))
 
-# Change the previous event or entry point to have new be the next event. {previous} is the name of the event/entry point, {new} is the name of the event to add
+# Change the previous event or entry point to have {new} be the next event. {previous} is the name of the event/entry point, {new} is the name of the event to add
 # Return True if any event or entry point was modified and False if not
 def insertEventAfter(flowchart, previous, new):
 	newEvent = findEvent(flowchart, new)
