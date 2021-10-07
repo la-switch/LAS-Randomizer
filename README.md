@@ -28,11 +28,8 @@ Seed can be any string. If specified as `random` (case insensitive), or omitted,
 
 Valid logics are `basic`, `advanced`, `glitched`, and `none`. Omitting this will default to basic logic. Note that the advanced and glitched logics are not fully complete yet. No logic is almost certainly not beatable.
 
-Valid extra options currently are the following, although these settings **WILL NOT** have anything reflected in game at this time! Please don't use these until a later release.
+Valid extra options currently are the following (more to come in future updates):
 ```
-fast-trendy : removes all instrument requirements from obtaining the trendy game prizes.
-free-fishing : removes all instrument requirements for types of fish to appear in the pond.
-free-shop : removes intrument/dungeon conditions for buying items from the shop.
 free-book : the magnifying lens is not required to read the book which reveals the egg path.
 ```
 
