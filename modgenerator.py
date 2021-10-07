@@ -196,7 +196,7 @@ def makeStaticEventChanges(romPath, outdir):
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MusicalInstrument.bfevfl', musicalInstrument)
 
 
-# Set the event for the book of shadows to reveal the egg path without having the magnifying lens
+# Set the event for the book of dark secrets to reveal the egg path without having the magnifying lens
 def setFreeBook(romPath, outdir):
     book = eventtools.readFlow(f'{romPath}/region_common/event/Book.bfevfl')
 
