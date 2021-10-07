@@ -1,15 +1,24 @@
 import yaml
 import os
 import re
+import copy
 
 import leb
+import eventtools
 
 def makeMod(placements, romPath, outdir):
+    makeMarinTarinFix(romPath, outdir)
+    makeStaticEventChanges(romPath, outdir)
+
+    makeChestContentFixes(placements, romPath, outdir)
+
+
+
+# Patch LEB files of rooms with chests to update their contents
+def makeChestContentFixes(placements, romPath, outdir):
 	# Start by setting up the paths for the RomFS
 	if not os.path.exists(f'{outdir}/Romfs/region_common/level'):
 		os.makedirs(f'{outdir}/Romfs/region_common/level')
-
-	placedBracelet = False
 
 	# Load the Items YAML. This is necessary to translate our naming conventions for the logic into the internal item names.
 	with open("items.yml", 'r') as itemsFile:
@@ -30,12 +39,6 @@ def makeMod(placements, romPath, outdir):
 
 		if placements[room] == 'seashell':
 			seashellIndex = seashellIndices.pop()
-
-		if item == b'PowerBraceletLv1':
-			if placedBracelet:
-				item = b'PowerBraceletLv2'
-			else:
-				placedBracelet = True
 
 		for i in range(5 if room == 'taltal-5-chest-puzzle' else 1): # use this to handle one special case where we need to write the same data to 5 chests in the same room
 			if seashellIndex > -1:
@@ -74,6 +77,120 @@ def makeMod(placements, romPath, outdir):
 
 			with open(f'{outdir}/Romfs/region_common/level/Lv07EagleTower/Lv07EagleTower_05G.leb', 'wb') as outfile:
 				outfile.write(roomData.repack())
+
+# Fix the MarinTarinHouse room so that you can leave without having the shield
+def makeMarinTarinFix(romPath, outdir):
+    # Make sure the folder exists
+    if not os.path.exists(f'{outdir}/Romfs/region_common/level/MarinTarinHouse'):
+        os.makedirs(f'{outdir}/Romfs/region_common/level/MarinTarinHouse')
+
+    with open(f'{romPath}/region_common/level/MarinTarinHouse/MarinTarinHouse_01A.leb', 'rb') as file:
+        room = leb.Room(file.read())
+
+    room.actors.append(room.actors.pop(3))
+
+    room.actors.insert(3, copy.deepcopy(room.actors[6]))
+    room.actors[3].X += 0xB000000
+    room.actors[3].Y += 0xB000000
+
+    with open(f'{outdir}/Romfs/region_common/level/MarinTarinHouse/MarinTarinHouse_01A.leb', 'wb') as file:
+        file.write(room.repack())
+
+# Make changes to some events that should be in every seed, e.g. setting flags for having watched cutscenes
+def makeStaticEventChanges(romPath, outdir):
+    if not os.path.exists(f'{outdir}/Romfs/region_common/event'):
+        os.makedirs(f'{outdir}/Romfs/region_common/event')
+
+    #################################################################################################################################
+    ### PlayerStart event: Sets a bunch of flags for cutscenes being watched/triggered to prevent them from ever happening.
+    ### First check if ShieldGet flag was set, to only do this after getting the item from Tarin
+    playerStart = eventtools.readFlow(f'{romPath}/region_common/event/PlayerStart.bfevfl')
+    eventFlagsActor = eventtools.findActor(playerStart.flowchart, 'EventFlags') # Store this actor for later to add it to other event flows.
+
+    playerStartFlagsFirstEvent = eventtools.createActionEvent(playerStart.flowchart, 'EventFlags', 'SetFlag', {'symbol': 'FirstClear', 'value': True})
+    playerStartShieldGetCheckEvent = eventtools.createSwitchEvent(playerStart.flowchart, 'EventFlags', 'CheckFlag', {'symbol': 'ShieldGet'}, {0: None, 1: playerStartFlagsFirstEvent})
+
+    eventtools.insertEventAfter(playerStart.flowchart, 'Event558', playerStartShieldGetCheckEvent)
+
+    eventtools.createActionChain(playerStart.flowchart, playerStartFlagsFirstEvent, [
+        ('EventFlags', 'SetFlag', {'symbol': 'SecondClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'ThirdClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'FourthClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'FifthClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'SixthClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'SeventhClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'NinthClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'TenthClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'EleventhClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'TwelveClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'ThirteenClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'FourteenClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'FiveteenClear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'WalrusAwaked', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'MarinRescueClear', 'value': True})
+        ])
+
+    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PlayerStart.bfevfl', playerStart)
+
+    #################################################################################################################################
+    ### TreasureBox event: Adds in events to make the Power Bracelets be progressive. Will extend to other items later.
+    treasureBox = eventtools.readFlow(f'{romPath}/region_common/event/TreasureBox.bfevfl')
+
+    # Add the EventFlags actor and the AddItem action to the Inventory actor.
+    treasureBox.flowchart.actors.append(eventFlagsActor)
+    eventtools.addActorAction(eventtools.findActor(treasureBox.flowchart, 'Inventory'), 'AddItem')
+    inventoryActor = eventtools.findActor(treasureBox.flowchart, 'Inventory') # Store this actor to add to another flow.
+
+    braceletLv1AddEvent = eventtools.createActionEvent(treasureBox.flowchart, 'Inventory', 'AddItem', {'itemType': 14, 'count': 1, 'autoEquip': False})
+    braceletLv1GetSeqEvent = eventtools.createActionEvent(treasureBox.flowchart, 'Link', 'GenericItemGetSequenceByKey', {'itemKey': 'PowerBraceletLv1', 'keepCarry': False, 'messageEntry': ''}, braceletLv1AddEvent)
+
+    braceletLv2AddEvent = eventtools.createActionEvent(treasureBox.flowchart, 'Inventory', 'AddItem', {'itemType': 15, 'count': 1, 'autoEquip': False})
+    braceletLv2GetSeqEvent = eventtools.createActionEvent(treasureBox.flowchart, 'Link', 'GenericItemGetSequenceByKey', {'itemKey': 'PowerBraceletLv2', 'keepCarry': False, 'messageEntry': ''}, braceletLv2AddEvent)
+
+    braceletGetFlagSetEvent = eventtools.createActionEvent(treasureBox.flowchart, 'EventFlags', 'SetFlag', {'symbol': 'unused0358', 'value': True}, braceletLv1GetSeqEvent) 
+
+    braceletGetFlagCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'EventFlags', 'CheckFlag', {'symbol': 'unused0358'}, {0: braceletGetFlagSetEvent, 1: braceletLv2GetSeqEvent})
+
+    ChestContentCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'PowerBraceletLv1'}, {0: braceletGetFlagCheckEvent, 1: 'Event33'})
+
+    eventtools.insertEventAfter(treasureBox.flowchart, 'Event32', ChestContentCheckEvent)
+
+    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/TreasureBox.bfevfl', treasureBox)
+
+    #################################################################################################################################
+    ### Owl event: Modify the Eighth cutscene to give the ghost bottle.
+    owl = eventtools.readFlow(f'{romPath}/region_common/event/Owl.bfevfl')
+
+    owl.flowchart.actors.append(inventoryActor)
+    eventtools.addActorAction(inventoryActor, 'AddBottle')
+    eventtools.addActorAction(eventtools.findActor(owl.flowchart, 'Link'), 'GenericItemGetSequence')
+
+    eventtools.createActionChain(owl.flowchart, 'Event34', [
+        ('Inventory', 'AddBottle', {'index': 0}),
+        ('Link', 'GenericItemGetSequence', {'itemType': 64, 'keepCarry': False, 'messageEntry': ''}),
+        ('Owl', 'Destroy', {})
+        ])
+
+    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Owl.bfevfl', owl)
+
+    #################################################################################################################################
+    ### MusicalInstrument event: Set ghost clear flags if you got the Surf Harp.
+    musicalInstrument = eventtools.readFlow(f'{romPath}/region_common/event/MusicalInstrument.bfevfl')
+
+    musicalInstrument.flowchart.actors.append(eventFlagsActor)
+    eventtools.addActorQuery(eventtools.findActor(musicalInstrument.flowchart, 'Inventory'), 'HasItem')
+
+    ghostFlagsSetEvent = eventtools.createActionEvent(musicalInstrument.flowchart, 'EventFlags', 'SetFlag', {'symbol': 'GhostClear1', 'value': True})
+
+    eventtools.insertEventAfter(musicalInstrument.flowchart, 'Event52', eventtools.createSwitchEvent(musicalInstrument.flowchart, 'Inventory', 'HasItem', {'itemType': 48, 'count': 1}, {0: 'Event0', 1: ghostFlagsSetEvent}))
+
+    eventtools.createActionChain(musicalInstrument.flowchart, ghostFlagsSetEvent, [
+        ('EventFlags', 'SetFlag', {'symbol': 'Ghost2_Clear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'Ghost3_Clear', 'value': True}),
+        ('EventFlags', 'SetFlag', {'symbol': 'Ghost4_Clear', 'value': True})
+        ], 'Event0')
+
+    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MusicalInstrument.bfevfl', musicalInstrument)
 
 
 

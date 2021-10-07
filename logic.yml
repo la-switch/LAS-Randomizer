@@ -380,7 +380,7 @@ marin:
   content: song-ballad
   region: mabe
   spoiler-region: mabe-village
-  condition-basic: ocarina
+  condition-basic: ocarina & beach
 shop-slot3-1st:
   type: item
   subtype: shop
@@ -596,7 +596,7 @@ ukuku-cave-east-chest:
   content: rupee-50
   region: plains
   spoiler-region: ukuku-prairie
-  condition-basic: break-obstacle
+  condition-basic: break-obstacle & bombs
 ukuku-cave-east-loose:
   type: item
   subtype: standing
@@ -717,7 +717,7 @@ rapids-east-island:
   content: seashell
   region: rapids
   spoiler-region: rapids-ride
-  condition-basic: hookshot
+  condition-basic: hookshot & shovel
 rapids-south-island:
   type: item
   subtype: chest
@@ -2134,7 +2134,7 @@ trendy:
   condition-basic: mabe & break-bush
 turtle-rock:
   type: region
-  condition-basic: taltal-west-2 & song-soul & kill-turtle-rock
+  condition-basic: taltal-west-2 & ocarina & song-soul & kill-turtle-rock
 wasteland:
   type: region
   condition-basic: (woods & (feather | bracelet | rooster | hookshot)) | (taltal-east-0 & (break-obstacle | rooster) & bracelet) | (heights & bracelet) | (swamp & bracelet) | (plains & bracelet)
@@ -2239,7 +2239,7 @@ D6-5D:
   condition-glitched: D6-3A & feather & (bombs | (boots & (sword | rod | shoot-arrows)))
 D6-8D:
   type: room
-  condition-basic: (river & face-key & (hookshot | rooster)) | (D6-3A & (song-mambo | bombs | shoot-arrows | boomerang | rod))
+  condition-basic: (river & face-key & (hookshot | rooster)) | (D6-3A & ((ocarina & song-mambo) | bombs | shoot-arrows | boomerang | rod))
   condition-glitched: armos-maze & bracelet & feather & sword & boots & face-key
 
 D7-2F:
@@ -2365,7 +2365,7 @@ dampe-3-3:
   condition-basic: dampe-3-2 & evening-calm-organ & bombs
 dampe-3-4:
   type: interaction
-  condition-basic: dampe-3-4 & thunder-drum
+  condition-basic: dampe-3-3 & thunder-drum
 
 # Enemy interactions
 kill-3-of-a-kind:
