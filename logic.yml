@@ -14,6 +14,7 @@ south-bay-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 15
   region: animal-village
   spoiler-region: marthas-bay
   condition-basic: shovel
@@ -29,6 +30,7 @@ animal-village-northwest:
   type: item
   subtype: standing
   content: heart-piece
+  index: 16
   region: animal-village
   spoiler-region: animal-village
   condition-basic: break-bush
@@ -36,6 +38,7 @@ animal-village-cave:
   type: item
   subtype: standing
   content: heart-piece
+  index: 8
   region: animal-village
   spoiler-region: animal-village
   condition-basic: break-bush & bombs & hookshot
@@ -50,13 +53,15 @@ christine-grateful:
   type: item
   subtype: npc
   content: seashell
+  index: 35
   region: animal-village
   spoiler-region: animal-village
-  condition-basic: letter & mr-write
+  condition-basic: letter & mr-write-house
 invisible-zora:
   type: item
   subtype: npc
   content: seashell
+  index: 36
   region: animal-village
   spoiler-region: animal-village
   condition-basic: magnifying-lens
@@ -85,6 +90,7 @@ beach-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 10
   region: beach
   spoiler-region: toronbo-shores
   condition-basic: shovel
@@ -105,6 +111,7 @@ dampe-page-1:
   type: item
   subtype: npc
   content: seashell
+  index: 48
   region: wasteland
   spoiler-region: taltal-heights
   condition-basic: dampe-1-1 & dampe-1-2 & dampe-1-3 & dampe-1-4
@@ -112,6 +119,7 @@ dampe-heart-challenge:
   type: item
   subtype: npc
   content: heart-piece
+  index: 30
   region: wasteland
   spoiler-region: taltal-heights
   condition-basic: dampe-1-4
@@ -119,6 +127,7 @@ dampe-page-2:
   type: item
   subtype: npc
   content: heart-piece
+  index: 31
   region: wasteland
   spoiler-region: taltal-heights
   condition-basic: dampe-2-1 & dampe-2-2 & dampe-2-3 & dampe-2-4
@@ -126,6 +135,7 @@ dampe-bottle-challenge:
   type: item
   subtype: npc
   content: bottle
+  index: 2
   region: wasteland
   spoiler-region: taltal-heights
   condition-basic: dampe-3-2
@@ -133,6 +143,7 @@ dampe-final:
   type: item
   subtype: npc
   content: heart-container
+  index: 8
   region: wasteland
   spoiler-region: taltal-heights
   condition-basic: dampe-1-1 & dampe-1-2 & dampe-1-3 & dampe-1-4 & dampe-2-1 & dampe-2-2 & dampe-2-3 & dampe-2-4 & dampe-3-1 & dampe-3-2 & dampe-3-3 & dampe-3-4
@@ -140,6 +151,7 @@ taltal-entrance-blocks:
   type: item
   subtype: standing
   content: heart-piece
+  index: 13
   region: wasteland
   spoiler-region: taltal-mountains-east
   condition-basic: bracelet & break-crystal
@@ -161,6 +173,7 @@ wasteland-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 28
   region: wasteland
   spoiler-region: tabahl-wasteland
   condition-basic: shovel
@@ -168,6 +181,7 @@ north-wasteland:
   type: item
   subtype: standing
   content: heart-piece
+  index: 12
   region: wasteland
   spoiler-region: tabahl-wasteland
   condition-basic: feather | hookshot | rooster
@@ -175,6 +189,7 @@ north-of-moblin-cave:
   type: item
   subtype: hidden
   content: seashell
+  index: 32
   region: wasteland
   spoiler-region: taltal-heights
   condition-basic: bracelet
@@ -189,6 +204,7 @@ desert-cave:
   type: item
   subtype: standing
   content: heart-piece
+  index: 5
   region: desert
   spoiler-region: yarna-desert
   condition-basic: bombs
@@ -196,6 +212,7 @@ walrus:
   type: item
   subtype: npc
   content: seashell
+  index: 39
   region: desert
   spoiler-region: yarna-desert
   condition-basic: ocarina & song-ballad
@@ -203,6 +220,7 @@ desert-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 34
   region: desert
   spoiler-region: yarna-desert
   condition-basic: shovel
@@ -210,6 +228,7 @@ desert-south:
   type: item
   subtype: hidden
   content: seashell
+  index: 16
   region: desert
   spoiler-region: yarna-desert
   condition-basic: bracelet
@@ -217,6 +236,7 @@ ghost-reward:
   type: item
   subtype: npc
   content: bottle
+  index: 0
   region: ghost-grave
   spoiler-region: koholint-prairie
   condition-basic: surf-harp
@@ -224,6 +244,7 @@ ghost-grave-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 4
   region: ghost-grave
   spoiler-region: koholint-prairie
   condition-basic: shovel & break-bush
@@ -231,6 +252,7 @@ graveyard-cave:
   type: item
   subtype: standing
   content: heart-piece
+  index: 9
   region: ghost-grave
   spoiler-region: koholint-prairie
   condition-basic: bracelet & feather & bombs & hookshot
@@ -239,6 +261,7 @@ ghost-house-pot:
   type: item
   subtype: hidden
   content: seashell
+  index: 20
   region: ghost-house
   spoiler-region: marthas-bay
   condition-basic: break-pot
@@ -246,6 +269,7 @@ taltal-heights-hole:
   type: item
   subtype: bomb-hole
   content: seashell
+  index: 29
   region: heights
   spoiler-region: taltal-heights
   condition-basic: bombs
@@ -253,6 +277,7 @@ kanalet-crow:
   type: item
   subtype: enemy
   content: golden-leaf
+  index: 1
   region: kanalet-outside
   spoiler-region: kanalet-castle
   condition-basic: kill-crow & (bombs | bracelet)
@@ -260,6 +285,7 @@ kanalet-mad-bomber:
   type: item
   subtype: enemy
   content: golden-leaf
+  index: 0
   region: kanalet-outside
   spoiler-region: kanalet-castle
   condition-basic: kill-mad-bomber
@@ -267,6 +293,7 @@ kanalet-kill-room:
   type: item
   subtype: drop
   content: golden-leaf
+  index: 2
   region: kanalet-inside
   spoiler-region: kanalet-castle
   condition-basic: kill-darknut-spear & kill-zol-red
@@ -274,6 +301,7 @@ kanalet-bombed-guard:
   type: item
   subtype: enemy
   content: golden-leaf
+  index: 3
   region: kanalet-inside
   spoiler-region: kanalet-castle
   condition-basic: bombs & kill-darknut-shield
@@ -281,6 +309,7 @@ kanalet-final-guard:
   type: item
   subtype: enemy
   content: golden-leaf
+  index: 4
   region: kanalet-inside
   spoiler-region: kanalet-castle
   condition-basic: bracelet & kill-darknut-flail
@@ -302,6 +331,7 @@ mabe-bushes:
   type: item
   subtype: hidden
   content: seashell
+  index: 0
   region: mabe
   spoiler-region: mabe-village
   condition-basic: break-bush
@@ -309,6 +339,7 @@ doghouse-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 1
   region: mabe
   spoiler-region: mabe-village
   condition-basic: shovel
@@ -316,6 +347,7 @@ mabe-well:
   type: item
   subtype: standing
   content: heart-piece
+  index: 0
   region: mabe
   spoiler-region: mabe-village
   condition-basic: break-bush
@@ -323,6 +355,7 @@ fishing-any:
   type: item
   subtype: npc
   content: heart-piece
+  index: 1
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees
@@ -330,6 +363,7 @@ fishing-50:
   type: item
   subtype: npc
   content: heart-piece
+  index: 27
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees
@@ -337,6 +371,7 @@ fishing-100:
   type: item
   subtype: npc
   content: seashell
+  index: 45
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees & (wind-marimba | coral-triangle | free-fishing)
@@ -351,6 +386,7 @@ fishing-cheep-cheep:
   type: item
   subtype: npc
   content: seashell
+  index: 44
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees & (surf-harp | free-fishing)
@@ -365,6 +401,7 @@ fishing-loose:
   type: item
   subtype: standing
   content: bottle
+  index: 1
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees
@@ -448,6 +485,7 @@ shop-slot6:
   type: item
   subtype: shop
   content: heart-piece
+  index: 24
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop
@@ -469,6 +507,7 @@ tail-cave-bonk-tree:
   type: item
   subtype: hidden
   content: seashell
+  index: 13
   region: mabe
   spoiler-region: toronbo-shores
   condition-basic: boots
@@ -476,6 +515,7 @@ beach-bonk-tree:
   type: item
   subtype: hidden
   content: seashell
+  index: 49
   region: mabe
   spoiler-region: toronbo-shores
   condition-basic: boots
@@ -483,12 +523,14 @@ armos-cave:
   type: item
   subtype: chest
   content: seashell
+  index: 17
   region: armos-maze
   spoiler-region: ancient-ruins
 rock-maze:
   type: item
   subtype: hidden
   content: seashell
+  index: 33
   region: armos-maze
   spoiler-region: ancient-ruins
   condition-basic: bracelet
@@ -517,6 +559,7 @@ goponga-west-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 27
   region: mr-write-house
   spoiler-region: goponga-swamp
   condition-basic: break-bush & shovel
@@ -531,6 +574,7 @@ pond-island:
   type: item
   subtype: hidden
   content: seashell
+  index: 18
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: break-bush & cross-water
@@ -539,6 +583,7 @@ southwest-bay-bush:
   type: item
   subtype: hidden
   content: seashell
+  index: 11
   region: plains
   spoiler-region: marthas-bay
   condition-basic: break-bush
@@ -546,6 +591,7 @@ beside-seashell-mansion:
   type: item
   subtype: hidden
   content: seashell
+  index: 9
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: break-bush
@@ -553,6 +599,7 @@ small-coast-island:
   type: item
   subtype: hidden
   content: seashell
+  index: 19
   region: plains
   spoiler-region: marthas-bay
   condition-basic: break-bush & cross-water
@@ -560,6 +607,7 @@ above-cave-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 7
   region: plains
   spoiler-region: marthas-bay
   condition-basic: bombs & (feather | rooster) & shovel
@@ -567,6 +615,7 @@ above-d3:
   type: item
   subtype: dig
   content: seashell
+  index: 6
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: (cross-water | feather) & shovel
@@ -574,6 +623,7 @@ under-skull-rock:
   type: item
   subtype: dig
   content: seashell
+  index: 30
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: bombs & shovel
@@ -587,6 +637,7 @@ ukuku-cave-west-loose:
   type: item
   subtype: standing
   content: heart-piece
+  index: 14
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: break-skull
@@ -601,6 +652,7 @@ ukuku-cave-east-loose:
   type: item
   subtype: standing
   content: heart-piece
+  index: 4
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: break-obstacle & bombs
@@ -616,6 +668,7 @@ bay-passage-sunken:
   type: item
   subtype: underwater
   content: heart-piece
+  index: 23
   region: plains
   spoiler-region: marthas-bay
   condition-basic: (((rooster | feather) & (boomerang | rod)) | (feather & sword)) & flippers
@@ -624,6 +677,7 @@ river-crossing-cave:
   type: item
   subtype: underwater
   content: heart-piece
+  index: 18
   region: plains
   spoiler-region: marthas-bay
   condition-basic: break-bush & flippers
@@ -645,6 +699,7 @@ kanalet-south-cave:
   type: item
   subtype: chest
   content: seashell
+  index: 24
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: hookshot & (flippers | (ocarina & song-mambo))
@@ -653,6 +708,7 @@ plains-rock-maze:
   type: item
   subtype: hidden
   content: seashell
+  index: 8
   region: plains
   spoiler-region: marthas-bay
   condition-basic: bracelet
@@ -660,6 +716,7 @@ ukuku-bonk-tree:
   type: item
   subtype: hidden
   content: seashell
+  index: 14
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: boots
@@ -667,6 +724,7 @@ ukuku-bonk-tree:
   type: item
   subtype: npc
   content: heart-piece
+  index: 22
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: seashell:5
@@ -702,6 +760,7 @@ rapids-west-island:
   type: item
   subtype: standing
   content: heart-piece
+  index: 28
   region: rapids
   spoiler-region: rapids-ride
   condition-basic: hookshot
@@ -715,6 +774,7 @@ rapids-east-island:
   type: item
   subtype: dig
   content: seashell
+  index: 46
   region: rapids
   spoiler-region: rapids-ride
   condition-basic: hookshot & shovel
@@ -722,6 +782,7 @@ rapids-south-island:
   type: item
   subtype: chest
   content: seashell
+  index: 23
   region: rapids
   spoiler-region: rapids-ride
   condition-basic: D6-2A
@@ -729,12 +790,14 @@ rapids-race-45:
   type: item
   subtype: npc
   content: heart-piece
+  index: 29
   region: rapids
   spoiler-region: rapids-ride
 rapids-race-35:
   type: item
   subtype: npc
   content: seashell
+  index: 47
   region: rapids
   spoiler-region: rapids-ride
   condition-basic: hookshot
@@ -749,6 +812,7 @@ rapids-ascent-cave:
   type: item
   subtype: standing
   content: heart-piece
+  index: 20
   region: rapids
   spoiler-region: rapids-ride
   condition-basic: hookshot & cross-water
@@ -770,6 +834,7 @@ kanalet-moat-north:
   type: item
   subtype: underwater
   content: seashell
+  index: 38
   region: river
   spoiler-region: kanalet-castle
   condition-basic: flippers
@@ -777,6 +842,7 @@ kanalet-moat-south:
   type: item
   subtype: underwater
   content: heart-piece
+  index: 6
   region: river
   spoiler-region: kanalet-castle
   condition-basic: flippers
@@ -784,6 +850,7 @@ south-bay-sunken:
   type: item
   subtype: underwater
   content: heart-piece
+  index: 17
   region: river
   spoiler-region: marthas-bay
   condition-basic: flippers
@@ -818,6 +885,7 @@ taltal-bomb-hole:
   type: item
   subtype: bomb-hole
   content: seashell
+  index: 31
   region: taltal-east-1
   spoiler-region: taltal-mountains-east
   condition-basic: bombs
@@ -832,6 +900,7 @@ taltal-crossing-cave:
   type: item
   subtype: standing
   content: heart-piece
+  index: 10
   region: taltal-east-1
   spoiler-region: taltal-mountains-east
   condition-basic: (hookshot | rooster) & break-bush & bombs
@@ -839,6 +908,7 @@ taltal-east-bridge:
   type: item
   subtype: hidden
   content: seashell
+  index: 21
   region: taltal-east-1
   spoiler-region: taltal-mountains-east
   condition-basic: (feather | rooster) & bracelet
@@ -846,6 +916,7 @@ taltal-sunken:
   type: item
   subtype: underwater
   content: seashell
+  index: 37
   region: taltal-east-1
   spoiler-region: taltal-mountains-east
   condition-basic: flippers
@@ -853,6 +924,7 @@ taltal-ledge-chest:
   type: item
   subtype: chest
   content: seashell
+  index: 22
   region: taltal-east-2
   spoiler-region: taltal-mountains-east
   condition-basic: bombs
@@ -874,6 +946,7 @@ taltal-east-drop:
   type: item
   subtype: underwater
   content: heart-piece
+  index: 7
   region: taltal-river
   spoiler-region: taltal-heights
   condition-basic: flippers
@@ -894,6 +967,7 @@ taltal-west-rock:
   type: item
   subtype: hidden
   content: seashell
+  index: 40
   region: taltal-west-0
   spoiler-region: taltal-mountains-west
   condition-basic: bracelet
@@ -901,12 +975,14 @@ taltal-west-escape:
   type: item
   subtype: standing
   content: heart-piece
+  index: 21
   region: taltal-west-1
   spoiler-region: taltal-mountains-west
 taltal-west-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 41
   region: taltal-west-2
   spoiler-region: taltal-mountains-west
   condition-basic: shovel
@@ -914,6 +990,7 @@ above-turtle-rock:
   type: item
   subtype: standing
   content: heart-piece
+  index: 11
   region: taltal-west-2
   spoiler-region: taltal-mountains-west
   condition-basic: D8-3C
@@ -928,6 +1005,7 @@ trendy-prize-2:
   type: item
   subtype: standing
   content: heart-piece
+  index: 25
   region: trendy
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees
@@ -935,6 +1013,7 @@ trendy-prize-3:
   type: item
   subtype: standing
   content: seashell
+  index: 42
   region: trendy
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees
@@ -949,6 +1028,7 @@ trendy-prize-5:
   type: item
   subtype: standing
   content: heart-piece
+  index: 26
   region: trendy
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees & (sea-lilys-bell | fast-trendy)
@@ -956,6 +1036,7 @@ trendy-prize-6:
   type: item
   subtype: standing
   content: seashell
+  index: 43
   region: trendy
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees & (surf-harp | fast-trendy)
@@ -970,6 +1051,7 @@ villa-cave:
   type: item
   subtype: chest
   content: seashell
+  index: 12
   region: pothole
   spoiler-region: pothole-field
   condition-basic: feather | rooster | hookshot
@@ -977,6 +1059,7 @@ pothole-north:
   type: item
   subtype: standing
   content: heart-piece
+  index: 15
   region: pothole
   spoiler-region: pothole-field
   condition-basic: ((rooster | feather) & (boomerang | rod)) | (feather & sword)
@@ -999,6 +1082,7 @@ woods-crossing-cave-loose:
   type: item
   subtype: standing
   content: heart-piece
+  index: 3
   region: woods
   spoiler-region: mysterious-woods
   condition-basic: break-skull
@@ -1013,6 +1097,7 @@ woods-north-cave-loose:
   type: item
   subtype: standing
   content: heart-piece
+  index: 19
   region: woods
   spoiler-region: mysterious-woods
   condition-basic: bracelet & (hookshot | rooster)
@@ -1027,6 +1112,7 @@ woods-south-chest:
   type: item
   subtype: chest
   content: seashell
+  index: 3
   region: woods
   spoiler-region: mysterious-woods
   condition-basic: bracelet
@@ -1041,6 +1127,7 @@ woods-west-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 26
   region: woods
   spoiler-region: mysterious-woods
   condition-basic: shovel
@@ -1048,6 +1135,7 @@ woods-east-dig:
   type: item
   subtype: dig
   content: seashell
+  index: 5
   region: woods
   spoiler-region: mysterious-woods
   condition-basic: shovel
@@ -1061,6 +1149,7 @@ diamond-island:
   type: item
   subtype: standing
   content: heart-piece
+  index: 2
   region: woods
   spoiler-region: koholint-prairie
   condition-basic: feather | rooster
@@ -1076,6 +1165,7 @@ D1-moldorm:
   type: item
   subtype: boss
   content: heart-container
+  index: 0
   region: tail-cave
   spoiler-region: tail-cave
   condition-basic: D1-6F & nightmare-key-D1 & feather & kill-rolling-bones & kill-moldorm
@@ -1104,6 +1194,7 @@ D1-bomb-room:
   type: item
   subtype: chest
   content: seashell
+  index: 2
   region: tail-cave
   spoiler-region: tail-cave
   condition-basic: D1-8D & bombs
@@ -1162,6 +1253,7 @@ D2-genie:
   type: item
   subtype: boss
   content: heart-container
+  index: 1
   region: bottle-grotto
   spoiler-region: bottle-grotto
   condition-basic: D2-4G & kill-genie
@@ -1259,8 +1351,9 @@ D3-instrument:
   condition-basic: D3-8G & nightmare-key-D3 & kill-slime-eye
 D3-slime-eye:
   type: item
-  subtype: boss 
+  subtype: boss
   content: heart-container
+  index: 2
   region: key-cavern
   spoiler-region: key-cavern
   condition-basic: D3-8G & nightmare-key-D3 & kill-slime-eye
@@ -1396,6 +1489,7 @@ D4-angler:
   type: item
   subtype: boss
   content: heart-container
+  index: 3
   region: angler-tunnel
   spoiler-region: angler-tunnel
   condition-basic: D4-5B & nightmare-key-D4 & kill-angler & flippers
@@ -1506,6 +1600,7 @@ D5-slime-eel:
   type: item
   subtype: boss
   content: heart-container
+  index: 4
   region: catfish-maw
   spoiler-region: catfish-maw
   condition-basic: D5-3E & key-D5:3 & nightmare-key-D5 & hookshot & kill-slime-eel
@@ -1607,6 +1702,7 @@ D6-facade:
   type: item
   subtype: boss
   content: heart-container
+  index: 5
   region: face-shrine
   spoiler-region: face-shrine
   condition-basic: D6-4D & kill-wizzrobe[pit] & nightmare-key-D6 & kill-facade
@@ -1715,6 +1811,7 @@ D7-eagle:
   type: item
   subtype: boss
   content: heart-container
+  index: 6
   region: eagle-tower
   spoiler-region: eagle-tower
   condition-basic: D7-2F & kill-evil-eagle
@@ -1736,6 +1833,7 @@ D7-west-ledge:
   type: item
   subtype: chest
   content: seashell
+  index: 25
   region: eagle-tower
   spoiler-region: eagle-tower
   condition-basic: D7-2D & hit-crystal-switch
@@ -1807,6 +1905,7 @@ D8-hothead:
   type: item
   subtype: boss
   content: heart-container
+  index: 7
   region: turtle-rock
   spoiler-region: turtle-rock
   condition-basic: D8-8D & feather & rod & nightmare-key-D8 & kill-hothead
