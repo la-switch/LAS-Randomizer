@@ -118,11 +118,15 @@ def canReachLocation(toReach, placements, startingAccess, logic):
 	return False
 
 
-def verifySeashellsAttainable(placements, startingAccess, logic, numRandom, goal):
+def verifySeashellsAttainable(placements, startingAccess, logic, goal):
 	# Verify, given the starting access to items, whether it is possible to get up to [goal] seashells. This includes already placed shells (vanilla) or 
 	locations = []
 	access = startingAccess.copy()
 	accessAdded = True
+
+	# This check is run before random shells are placed, so any seashell come across during this runthrough
+	# must have been forced vanilla. We don't want to count these directly in access.
+	vanillaSeashells = 0
 
 	while accessAdded:
 		accessAdded = False
@@ -134,7 +138,10 @@ def verifySeashellsAttainable(placements, startingAccess, logic, numRandom, goal
 
 					# if we're looking at an item or follower location, at the item it holds, if it has one
 					if (logicDefs[key]['type'] == 'item' or logicDefs[key]['type'] == 'follower') and placements[key] != None:
-						access = addAccess(access, placements[key])
+						if placements[key] == 'seashell':
+							vanillaSeashells += 1
+						else:
+							access = addAccess(access, placements[key])
 
 					if logicDefs[key]['type'] == 'item' and placements[key] == None:
 						locations.append(key)
@@ -156,7 +163,7 @@ def verifySeashellsAttainable(placements, startingAccess, logic, numRandom, goal
 
 	#print(len(locations), numRandom, access['seashell'], goal)
 	#print(access)
-	return min(len(locations), numRandom) + access['seashell'] >= goal
+	return len(locations) + vanillaSeashells >= goal
 
 
 
@@ -198,6 +205,9 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 	placements['settings'] = settings
 	placements['force-junk'] = []
 	placements['force-vanilla'] = []
+	placements['indexes'] = {}
+
+	indexesAvailable = {'seashell': list(range(50)), 'heart-piece': list(range(32)), 'heart-container': list(range(9)), 'bottle': list(range(3)), 'golden-leaf': list(range(5))}
 
 	for key in logicDefs:
 		if logicDefs[key]['type'] == 'item':
@@ -247,9 +257,14 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 
 		# Add the first element of the junk list into loc, and store it in placements.
 		# Also, remove loc from the locations list because we already dealt with it
-		placements[loc] = junkItems.pop(0)
+		placedItem = junkItems.pop(0)
+		placements[loc] = placedItem
 		access = removeAccess(access, placements[loc])
 		locations.remove(loc)
+
+		# If the item is one that needs an index, give it the next available one
+		if placedItem in indexesAvailable:
+			placements['indexes'][loc] = indexesAvailable[placedItem].pop(0)
 
 		placements['force-junk'].append(loc)
 
@@ -273,6 +288,11 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 
 		if logicDefs[loc]['content'] == 'seashell':
 			vanillaSeashells += 1
+
+		# If the item is one that needs an index, assign it its vanilla item index and remove that from the available indexes
+		if logicDefs[loc]['content'] in indexesAvailable:
+			placements['indexes'][loc] = logicDefs[loc]['index']
+			indexesAvailable[logicDefs[loc]['content']].remove(logicDefs[loc]['index'])
 
 		placements['force-vanilla'].append(loc)
 	
@@ -403,17 +423,22 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 		if validPlacement:
 			# After we successfully made a valid placement, remove the item and location from consideration
 			if verbose: print(locations[0])
-			items.pop(0)
+
+			placedItem = items.pop(0)
+			# If the item is one that needs an index, give it the next available one
+			if placedItem in indexesAvailable:
+				placements['indexes'][locations[0]] = indexesAvailable[placedItem].pop(0)
+
 			placementTracker.append(locations.pop(0))
 
 			# If we placed the last important item (so that afterward we start placing seashells), we want to ensure there's enough available locations to place a number of seashells required.
 			# i.e., are there 40 locations reachable without getting the 40 and 50 rewards? If not, we haven't made a valid placement, so we have to go back and undo things until this is resolved.
 			if item != 'seashell' and len(items) > 0 and items[0] == 'seashell':
-				if not ((verifySeashellsAttainable(placements, settingsAccess, logic, 50 - vanillaSeashells, 5)) 
-				  and (verifySeashellsAttainable(placements, settingsAccess | {'seashell': max(0, 5 - vanillaSeashells)}, logic, 50 - vanillaSeashells, 15))
-				  and (verifySeashellsAttainable(placements, settingsAccess | {'seashell': max(0, 15 - vanillaSeashells)}, logic, 50 - vanillaSeashells, 30))
-				  and (verifySeashellsAttainable(placements, settingsAccess | {'seashell': max(0, 30 - vanillaSeashells)}, logic, 50 - vanillaSeashells, 40))
-				  and (verifySeashellsAttainable(placements, settingsAccess | {'seashell': max(0, 40 - vanillaSeashells)}, logic, 50 - vanillaSeashells, 50))):
+				if not ((verifySeashellsAttainable(placements, settingsAccess, logic, 5)) 
+				  and (verifySeashellsAttainable(placements, settingsAccess, logic, 15))
+				  and (verifySeashellsAttainable(placements, settingsAccess, logic, 30))
+				  and (verifySeashellsAttainable(placements, settingsAccess, logic, 40))
+				  and (verifySeashellsAttainable(placements, settingsAccess, logic, 50))):
 					if verbose: 
 						print('no room for shells')
 						#print(placements)

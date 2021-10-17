@@ -379,6 +379,7 @@ fishing-150:
   type: item
   subtype: npc
   content: chamber-stone
+  index: 11
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees & (coral-triangle | free-fishing)
@@ -394,6 +395,7 @@ fishing-ol-baron:
   type: item
   subtype: npc
   content: chamber-stone
+  index: 12
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees & (coral-triangle | free-fishing)
@@ -436,6 +438,7 @@ shop-slot5-1st:
   type: item
   subtype: shop
   content: chamber-stone
+  index: 25
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop & (D0-clear | free-shop)
@@ -443,6 +446,7 @@ shop-slot5-2nd:
   type: item
   subtype: shop
   content: chamber-stone
+  index: 26
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop & (D0-clear | free-shop)
@@ -450,6 +454,7 @@ shop-slot5-3rd:
   type: item
   subtype: shop
   content: chamber-stone
+  index: 10
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop & (coral-triangle | free-shop)
@@ -457,6 +462,7 @@ shop-slot5-4th:
   type: item
   subtype: shop
   content: chamber-stone
+  index: 20
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop & (thunder-drum | free-shop)
@@ -464,6 +470,7 @@ shop-slot5-5th:
   type: item
   subtype: shop
   content: chamber-stone
+  index: 21
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop & (thunder-drum | free-shop)
@@ -471,6 +478,7 @@ shop-slot5-6th:
   type: item
   subtype: shop
   content: chamber-stone
+  index: 22
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop & (thunder-drum | free-shop)
@@ -478,6 +486,7 @@ shop-slot5-7th:
   type: item
   subtype: shop
   content: chamber-stone
+  index: 23
   region: mabe
   spoiler-region: mabe-village
   condition-basic: can-shop & (thunder-drum | free-shop)
@@ -739,6 +748,7 @@ ukuku-bonk-tree:
   type: item
   subtype: npc
   content: chamber-stone
+  index: 4
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: seashell:30
@@ -753,6 +763,7 @@ ukuku-bonk-tree:
   type: item
   subtype: npc
   content: chamber-stone
+  index: 13
   region: plains
   spoiler-region: ukuku-prairie
   condition-basic: seashell:50
@@ -805,6 +816,7 @@ rapids-race-30:
   type: item
   subtype: npc
   content: chamber-stone
+  index: 8
   region: rapids
   spoiler-region: rapids-ride
   condition-basic: hookshot
@@ -1021,6 +1033,7 @@ trendy-prize-4:
   type: item
   subtype: standing
   content: chamber-stone
+  index: 3
   region: trendy
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees & (conch-horn | fast-trendy)
@@ -1044,6 +1057,7 @@ trendy-prize-final:
   type: item
   subtype: npc
   content: chamber-stone
+  index: 24
   region: trendy
   spoiler-region: mabe-village
   condition-basic: can-farm-rupees & (fast-trendy | (full-moon-cello & conch-horn & sea-lilys-bell & surf-harp & wind-marimba & coral-triangle & evening-calm-organ & thunder-drum))
