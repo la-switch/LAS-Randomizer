@@ -207,7 +207,7 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 	placements['force-vanilla'] = []
 	placements['indexes'] = {}
 
-	indexesAvailable = {'seashell': list(range(50)), 'heart-piece': list(range(32)), 'heart-container': list(range(9)), 'bottle': list(range(3)), 'golden-leaf': list(range(5))}
+	indexesAvailable = {'seashell': list(range(50)), 'heart-piece': list(range(32)), 'heart-container': list(range(9)), 'bottle': list(range(3)), 'golden-leaf': list(range(5)), 'chamber-stone': [3, 4, 8, 10, 11, 12, 13, 20, 21, 22, 23, 24, 25, 26]}
 
 	for key in logicDefs:
 		if logicDefs[key]['type'] == 'item':
@@ -368,7 +368,7 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 		success = False
 		while success == False:
 			placements['tarin'] = items[0]
-			success = canReachLocation('can-shop', placements, settingsAccess, logic) or canReachLocation('break-bush', placements, settingsAccess, logic)
+			success = canReachLocation('can-shop', placements, settingsAccess, logic) or canReachLocation('tail-cave', placements, settingsAccess, logic) or canReachLocation('beach', placements, settingsAccess, logic)
 			if success == False:
 				items.insert(items.index('seashell'), items[0])
 				items.pop(0)
@@ -394,7 +394,7 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 			access = removeAccess(access, item)
 
 			# Check for item type restrictions, i.e. songs can't be standing items
-			if (item in ['song-ballad', 'song-mambo', 'song-soul', 'bomb-capacity', 'arrow-capacity', 'powder-capacity']) and (logicDefs[locations[0]]['subtype'] in ['standing', 'hidden', 'dig', 'drop', 'boss', 'underwater', 'shop']):
+			if (item in ['song-ballad', 'song-mambo', 'song-soul', 'bomb-capacity', 'arrow-capacity', 'powder-capacity', 'red-tunic', 'blue-tunic']) and (logicDefs[locations[0]]['subtype'] in ['standing', 'hidden', 'dig', 'drop', 'boss', 'underwater', 'shop']):
 				validPlacement = False
 			elif (item in ['zol-trap', 'stalfos-note']) and logicDefs[locations[0]]['subtype'] != 'chest':
 				validPlacement = False

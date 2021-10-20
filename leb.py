@@ -236,7 +236,7 @@ class Room:
 
 	def setChestContent(self, newContent, chestIndex=0, itemIndex=-1):
 		# itemIndex is for seashells/heart pieces, which are tracked via an index of 0-49 and 0-31 respectively
-		chests = list(filter(lambda a: a.type == 0xF7 and len(a.parameters) > 0, self.actors))
+		chests = list(filter(lambda a: a.type == 0xF7, self.actors))
 
 		if len(chests) > chestIndex:
 			chest = chests[chestIndex]
@@ -247,8 +247,18 @@ class Room:
 			else:
 				chest.parameters[2] = b''
 
+	def setSmallKeyParams(self, modelPath, modelName, entryPoint, keyIndex=0):
+		# itemIndex is for seashells/heart pieces, which are tracked via an index of 0-49 and 0-31 respectively
+		keys = list(filter(lambda a: a.type == 0xA9, self.actors))
+
+		if len(keys) > keyIndex:
+			key = keys[keyIndex]
+			key.parameters[1] = bytes(modelPath, 'utf-8')
+			key.parameters[2] = bytes(modelName, 'utf-8')
+			key.parameters[3] = bytes(entryPoint, 'utf-8')
+
 	def setLoadingZoneTarget(self, newDestination, index=0):
-		zones = list(filter(lambda a: a.type == 0x190 and len(a.parameters) > 0, self.actors))
+		zones = list(filter(lambda a: a.type == 0x190, self.actors))
 
 		if len(zones) > index:
 			zone = zones[index]

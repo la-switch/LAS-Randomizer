@@ -2023,7 +2023,7 @@ D8-east-of-pots:
   condition-basic: D8-8D & (feather | (break-pot & kill-vire))
 D8-east-roomba:
   type: item
-  subtype: roomba
+  subtype: drop
   content: key-D8
   region: turtle-rock
   spoiler-region: turtle-rock
@@ -2568,7 +2568,7 @@ kill-shy-guy:
 kill-spiny:
   type: enemy
   condition-basic: shield & (sword | powder | shoot-arrows | bombs | rod | boomerang)
-  condition-pit: shield | sword
+  condition-pit: shield
 kill-stalfos:
   type: enemy
   condition-basic: sword | shoot-arrows | bombs | boomerang

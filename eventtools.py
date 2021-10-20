@@ -47,8 +47,11 @@ def findActor(flowchart, name):
 def addActorAction(actor, action):
 	actor.actions.append(evfl.common.StringHolder(action))
 
-def addActorQuery (actor, action):
+def addActorQuery(actor, action):
 	actor.queries.append(evfl.common.StringHolder(action))
+
+def addEntryPoint(flowchart, name):
+	flowchart.entry_points.append(evfl.entry_point.EntryPoint(name))
 
 # Change the previous event or entry point to have {new} be the next event. {previous} is the name of the event/entry point, {new} is the name of the event to add
 # Return True if any event or entry point was modified and False if not
@@ -72,6 +75,15 @@ def insertEventAfter(flowchart, previous, new):
 
 	return False
 
+# Removes the next event from the specified event, so that there is nothing after it in the flow.
+def removeEventAfter(flowchart, eventName):
+	event = findEvent(flowchart, eventName)
+	if not event:
+		return
+
+	event.data.nxt.v = None
+	event.data.nxt.set_index(invertList(flowchart.events))
+
 
 def insertActionChain(flowchart, before, events):
 	if len(events) == 0:
@@ -83,11 +95,14 @@ def insertActionChain(flowchart, before, events):
 		insertEventAfter(flowchart, events[i-1], events[i])
 
 
+# Create a series of action events in order after {before} and followed by {after}.
+# Return the name of the first event in the chain.
 def createActionChain(flowchart, before, eventDefs, after=None):
 	if len(eventDefs) == 0:
 		return
 
-	current = createActionEvent(flowchart, eventDefs[0][0], eventDefs[0][1], eventDefs[0][2])
+	first = createActionEvent(flowchart, eventDefs[0][0], eventDefs[0][1], eventDefs[0][2])
+	current = first
 	insertEventAfter(flowchart, before, current)
 
 	for i in range(1, len(eventDefs)):
@@ -96,6 +111,24 @@ def createActionChain(flowchart, before, eventDefs, after=None):
 		current = createActionEvent(flowchart, eventDefs[i][0], eventDefs[i][1], eventDefs[i][2], after)
 		insertEventAfter(flowchart, before, current)
 
+	return first
+
+
+# Create a switch event leading to getting one of two options depending on whether a flag was set beforehand
+def createProgressiveItemSwitch(flowchart, item1, item2, flag, before=None, after=None):
+	item1GetSeqEvent = createActionEvent(flowchart, 'Link', 'GenericItemGetSequenceByKey', {'itemKey': item1, 'keepCarry': False, 'messageEntry': ''}, after)
+	item1AddEvent = createActionEvent(flowchart, 'Inventory', 'AddItemByKey', {'itemKey': item1, 'count': 1, 'index': -1, 'autoEquip': False}, item1GetSeqEvent)
+
+	item2GetSeqEvent = createActionEvent(flowchart, 'Link', 'GenericItemGetSequenceByKey', {'itemKey': item2, 'keepCarry': False, 'messageEntry': ''}, after)
+	item2AddEvent = createActionEvent(flowchart, 'Inventory', 'AddItemByKey', {'itemKey': item2, 'count': 1, 'index': -1, 'autoEquip': False}, item2GetSeqEvent)
+
+	flagSetEvent = createActionEvent(flowchart, 'EventFlags', 'SetFlag', {'symbol': flag, 'value': True}, item1AddEvent)
+
+	flagCheckEvent = createSwitchEvent(flowchart, 'EventFlags', 'CheckFlag', {'symbol': flag}, {0: flagSetEvent, 1: item2AddEvent})
+
+	insertEventAfter(flowchart, before, flagCheckEvent)
+
+	return flagCheckEvent
 
 # Creates a new action event. {actor} and {action} should be strings, {params} should be a dict.
 # {nextev} is the name of the next event.
@@ -120,7 +153,7 @@ def createActionEvent(flowchart, actor, action, params, nextev=None):
 	return new.name
 
 
-# Creates a new switch event and inserts it into the flow after the event named {previous}
+# Creates a new switch event and adds it to the flowchart
 # {actor} and {query} should be strings, {params} should be a dict, {cases} is a dict if {int: event name}
 def createSwitchEvent(flowchart, actor, query, params, cases):
 	new = evfl.event.Event()
@@ -142,5 +175,26 @@ def createSwitchEvent(flowchart, actor, query, params, cases):
 			caseEvents[case].set_index(invertList(flowchart.events))
 
 	new.data.cases = caseEvents
+
+	return new.name
+
+
+# Creates a new subflow event and insert it into the flow.
+# {nextev} is the name of the next event.
+def createSubFlowEvent(flowchart, refChart, entryPoint, params, nextev=None):
+	nextEvent = findEvent(flowchart, nextev)
+
+	new = evfl.event.Event()
+	new.data = evfl.event.SubFlowEvent()
+	new.data.params = evfl.container.Container()
+	new.data.params.data = params
+	new.data.res_flowchart_name = refChart
+	new.data.entry_point_name = entryPoint
+
+	flowchart.add_event(new, idgen)
+
+	if nextEvent:
+		new.data.nxt.v = nextEvent
+		new.data.nxt.set_index(invertList(flowchart.events))
 
 	return new.name
