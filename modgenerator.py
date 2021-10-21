@@ -202,9 +202,10 @@ def tarinChanges(placements, romPath, outdir):
         ('Inventory', 'AddItemByKey', {'itemKey': 'Flippers', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'TailKey', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 30, 'index': -1, 'autoEquip': False}),
+        ('Inventory', 'AddItemByKey', {'itemKey': 'MagicPowder', 'count': 10, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Rupee300', 'count': 1, 'index': -1, 'autoEquip': False}),
         #('EventFlags', 'SetFlag', {'symbol': 'PokeyFigure', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'ShadowClear', 'value': True})
+        ('EventFlags', 'SetFlag', {'symbol': 'PineappleGet', 'value': True})
         ], 'Event52')"""
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Tarin.bfevfl', flow)
@@ -368,6 +369,9 @@ def marinChanges(placements, romPath, outdir):
     event676.data.actor_query = event20.data.actor_query
     event160.data.params.data['symbol'] = 'MarinsongGet'
     event676.data.params.data['symbol'] = 'MarinsongGet'
+
+    # Make Marin not do beach_talk under any circumstance
+    eventtools.setSwitchEventCase(flow.flowchart, 'Event21', 0, 'Event674')
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Marin.bfevfl', flow)
 
@@ -845,7 +849,22 @@ def makeGeneralEventChanges(placements, romPath, outdir):
     braceletFlagCheckEvent = eventtools.createProgressiveItemSwitch(treasureBox.flowchart, 'PowerBraceletLv1', 'PowerBraceletLv2', braceletFoundFlag)
     braceletContentCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'PowerBraceletLv1'}, {0: braceletFlagCheckEvent, 1: shieldContentCheckEvent})
 
-    eventtools.insertEventAfter(treasureBox.flowchart, 'Event32', braceletContentCheckEvent)
+    powderCapacityGetEvent = insertItemGetEvent(treasureBox.flowchart, 'MagicPowder_MaxUp', -1, None, None)
+    powderCapacityCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'MagicPowder_MaxUp'}, {0: powderCapacityGetEvent, 1: braceletContentCheckEvent})
+
+    bombCapacityGetEvent = insertItemGetEvent(treasureBox.flowchart, 'Bomb_MaxUp', -1, None, None)
+    bombCapacityCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Bomb_MaxUp'}, {0: bombCapacityGetEvent, 1: powderCapacityCheckEvent})
+
+    arrowCapacityGetEvent = insertItemGetEvent(treasureBox.flowchart, 'Arrow_MaxUp', -1, None, None)
+    arrowCapacityCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Arrow_MaxUp'}, {0: arrowCapacityGetEvent, 1: bombCapacityCheckEvent})
+
+    eventtools.insertEventAfter(treasureBox.flowchart, 'Event32', arrowCapacityCheckEvent)
+
+    # Sets the events to give you the item before the item get sequence, mainly for red/blue tunic. Can be changed back when those get their own event chains
+    eventtools.setSwitchEventCase(treasureBox.flowchart, 'Event33', 1, 'Event5')
+    eventtools.setSwitchEventCase(treasureBox.flowchart, 'Event39', 0, 'Event5')
+    eventtools.insertEventAfter(treasureBox.flowchart, 'Event5', 'Event0')
+    eventtools.insertEventAfter(treasureBox.flowchart, 'Event0', None)
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/TreasureBox.bfevfl', treasureBox)
 
@@ -867,10 +886,19 @@ def makeGeneralEventChanges(placements, romPath, outdir):
     braceletFlagCheckEvent = eventtools.createProgressiveItemSwitch(shellPresent.flowchart, 'PowerBraceletLv1', 'PowerBraceletLv2', braceletFoundFlag, None, 'Event0')
     braceletContentCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'PowerBraceletLv1'}, {0: braceletFlagCheckEvent, 1: shieldContentCheckEvent})
 
+    powderCapacityGetEvent = insertItemGetEvent(shellPresent.flowchart, 'MagicPowder_MaxUp', -1, None, 'Event0')
+    powderCapacityCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'MagicPowder_MaxUp'}, {0: powderCapacityGetEvent, 1: braceletContentCheckEvent})
+
+    bombCapacityGetEvent = insertItemGetEvent(shellPresent.flowchart, 'Bomb_MaxUp', -1, None, 'Event0')
+    bombCapacityCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Bomb_MaxUp'}, {0: bombCapacityGetEvent, 1: powderCapacityCheckEvent})
+
+    arrowCapacityGetEvent = insertItemGetEvent(shellPresent.flowchart, 'Arrow_MaxUp', -1, None, 'Event0')
+    arrowCapacityCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Arrow_MaxUp'}, {0: arrowCapacityGetEvent, 1: bombCapacityCheckEvent})
+
     eventtools.insertEventAfter(shellPresent.flowchart, 'Event3', 'Event4')
     eventtools.insertEventAfter(shellPresent.flowchart, 'Event4', 'Event14')
     eventtools.insertEventAfter(shellPresent.flowchart, 'Event14', 'Event0')
-    eventtools.insertEventAfter(shellPresent.flowchart, 'Event25', braceletContentCheckEvent)
+    eventtools.insertEventAfter(shellPresent.flowchart, 'Event25', arrowCapacityCheckEvent)
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/ShellMansionPresent.bfevfl', shellPresent)
 
@@ -893,6 +921,20 @@ def makeGeneralEventChanges(placements, romPath, outdir):
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MusicalInstrument.bfevfl', musicalInstrument)
 
+    #################################################################################################################################
+    ### Item: Add and fix some entry points for the ItemGetSequence for capcity upgrades and tunics.
+    item = eventtools.readFlow(f'{romPath}/region_common/event/Item.bfevfl')
+
+    """eventtools.addEntryPoint(item.flowchart, 'MagicPowder_MaxUp')
+    eventtools.createActionChain(item.flowchart, 'MagicPowder_MaxUp', [
+        ('Dialog', 'Show', {'message': 'Scenario:Lv1GetShield'})
+        ])"""
+
+    eventtools.findEntryPoint(item.flowchart, 'RedClothes').name = 'ClothesRed'
+    eventtools.findEntryPoint(item.flowchart, 'BlueClothes').name = 'ClothesBlue'
+
+    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Item.bfevfl', item)
+
 
 # Make changes to some datasheets that are general in nature and not tied to specific item placements.
 def makeGeneralDatasheetChanges(placements, romPath, outdir):
@@ -900,8 +942,10 @@ def makeGeneralDatasheetChanges(placements, romPath, outdir):
         os.makedirs(f'{outdir}/Romfs/region_common/datasheets')
 
     #################################################################################################################################
-    ### Npc datasheet: Change MadBatter to use actor parameter $2 as its event entry point
-    ### Also change ItemSmallKey and ObjSinkingSword to use custom models/entry points
+    ### Npc datasheet: Change MadBatter to use actor parameter $2 as its event entry point.
+    ### Also change ItemSmallKey and ObjSinkingSword to use custom models/entry points.
+    ### Change ItemClothesGreen to have the small key model, which we'll kinda hack in the Items datasheet so small keys are visible 
+    ### in the GenericItemGetSequence.
     npcSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Npc.gsheet')
 
     for i in range(len(npcSheet['values'])):
@@ -909,6 +953,11 @@ def makeGeneralDatasheetChanges(placements, romPath, outdir):
             batterIndex = i
         if npcSheet['values'][i]['symbol'] == 'ItemSmallKey':
             smallKeyIndex = i
+        if npcSheet['values'][i]['symbol'] == 'ItemClothesGreen':
+            npcSheet['values'][i]['graphics']['path'] = 'ItemSmallKey.bfres'
+            npcSheet['values'][i]['graphics']['model'] = 'SmallKey'
+        #if npcSheet['values'][i]['symbol'] == 'NpcPapahl':
+        #    npcSheet['values'][i]['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 2}
         if npcSheet['values'][i]['symbol'] == 'ObjSinkingSword':
             swordIndex = i
 
@@ -945,6 +994,32 @@ def makeGeneralDatasheetChanges(placements, romPath, outdir):
         itemDropSheet['values'][firstHeartIndex+i]['mLotTable'][0]['mType'] = ''
 
     oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/ItemDrop.gsheet', itemDropSheet)
+
+    #################################################################################################################################
+    ### Items datasheet: Set actor IDs for the capacity upgrades so they show something when you get them.
+    itemsSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Items.gsheet')
+
+    for item in itemsSheet['values']:
+        if item['symbol'] == 'MagicPowder_MaxUp':
+            item['actorID'] = 124
+        if item['symbol'] == 'Bomb_MaxUp':
+            item['actorID'] = 117
+        if item['symbol'] == 'Arrow_MaxUp':
+            item['actorID'] = 180
+        if item['symbol'] == 'SmallKey':
+            item['npcKey'] = 'ItemClothesGreen'
+
+    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Items.gsheet', itemsSheet)
+
+    #################################################################################################################################
+    ### Conditions datasheet: Change conditions on Marin being in the village, so the getting the pineapple won't send her to the beach.
+    conditionsSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Conditions.gsheet')
+
+    for condition in conditionsSheet['values']:
+        if condition['symbol'] == 'MarinVillageStay':
+            condition['conditions'].pop(1)
+
+    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Conditions.gsheet', conditionsSheet)
 
 
 
@@ -995,6 +1070,27 @@ def insertItemGetEvent(flowchart, item, index, before, after=None):
 
     if item == 'Shield':
         return eventtools.createProgressiveItemSwitch(flowchart, 'Shield', 'MirrorShield', shieldFoundFlag, before, after)
+
+    if item == 'MagicPowder_MaxUp':
+        return eventtools.createActionChain(flowchart, before, [
+            ('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
+            ('Inventory', 'AddItemByKey', {'itemKey': 'MagicPowder', 'count': 40, 'index': -1, 'autoEquip': False}),
+            ('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
+            ], after)
+
+    if item == 'Bomb_MaxUp':
+        return eventtools.createActionChain(flowchart, before, [
+            ('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
+            ('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 60, 'index': -1, 'autoEquip': False}),
+            ('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
+            ], after)
+
+    if item == 'Arrow_MaxUp':
+        return eventtools.createActionChain(flowchart, before, [
+            ('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
+            ('Inventory', 'AddItemByKey', {'itemKey': 'Arrow', 'count': 60, 'index': -1, 'autoEquip': False}),
+            ('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
+            ], after)
 
     return eventtools.createActionChain(flowchart, before, [
         ('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),

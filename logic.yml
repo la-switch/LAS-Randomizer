@@ -96,7 +96,7 @@ beach-dig:
   condition-basic: shovel
 washed-up:
   type: item
-  subtype: npc
+  subtype: standing
   content: sword
   region: beach
   spoiler-region: toronbo-shores
@@ -2210,7 +2210,7 @@ sign-maze:
   condition-basic: plains & hookshot
 swamp:
   type: region
-  condition-basic: (woods & break-bush) | (wasteland & bracelet) | (mr-write-house & (feather | rooster | hookshot))
+  condition-basic: (woods & break-bush & (powder | feather | rooster)) | (wasteland & bracelet) | (mr-write-house & (feather | rooster | hookshot))
 tail-cave:
   type: region
   condition-basic: mabe & tail-key
@@ -2282,7 +2282,7 @@ D2-8C:
 
 D3-3G:
   type: room
-  condition-basic: D3-4B & key-D3:1 # REMEMBER TO CHANGE THIS BACK TO 9!!!
+  condition-basic: D3-4B & key-D3:9
 D3-4B:
   type: room
   condition-basic: D3-7B & (break-obstacle | kill-zol-green)
@@ -2297,8 +2297,8 @@ D3-8B:
   condition-basic: key-cavern
 D3-8G:
   type: room
-  condition-basic: D3-4C & key-D3:8 & dash-jump & kill-pairodd # THIS TOO!!!
-  condition-advanced: D3-4C & key-D3:8 & boots & kill-pairodd
+  condition-basic: D3-4C & key-D3:9 & dash-jump & kill-pairodd
+  condition-advanced: D3-4C & key-D3:9 & boots & kill-pairodd
   condition-glitched: D3-4C & dash-jump & bombs & kill-pairodd
 
 D4-4C:

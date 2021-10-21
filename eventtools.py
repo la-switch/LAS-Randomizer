@@ -57,8 +57,6 @@ def addEntryPoint(flowchart, name):
 # Return True if any event or entry point was modified and False if not
 def insertEventAfter(flowchart, previous, new):
 	newEvent = findEvent(flowchart, new)
-	if not newEvent:
-		return False
 
 	prevEvent = findEvent(flowchart, previous)
 	if prevEvent:
@@ -71,6 +69,19 @@ def insertEventAfter(flowchart, previous, new):
 	if entry_point:
 		entry_point.main_event.v = newEvent
 		entry_point.main_event.set_index(invertList(flowchart.events))
+		return True
+
+	return False
+
+
+def setSwitchEventCase(flowchart, switch, case, new):
+	newEvent = findEvent(flowchart, new)
+
+	switchEvent = findEvent(flowchart, switch)
+	if switchEvent:
+		switchEvent.data.cases[case].v = newEvent
+		switchEvent.data.cases[case].set_index(invertList(flowchart.events))
+
 		return True
 
 	return False
