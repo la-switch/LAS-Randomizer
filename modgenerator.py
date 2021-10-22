@@ -206,7 +206,7 @@ def tarinChanges(placements, romPath, outdir):
     event0.data.params = event78.data.params
     
     """eventtools.createActionChain(flow.flowchart, 'Event36', [
-        ('Inventory', 'AddItemByKey', {'itemKey': 'MagnifyingLens', 'count': 1, 'index': -1, 'autoEquip': False}),
+        #('Inventory', 'AddItemByKey', {'itemKey': 'MagnifyingLens', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'SwordLv1', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Shield', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'PegasusBoots', 'count': 1, 'index': -1, 'autoEquip': False}),
@@ -220,9 +220,7 @@ def tarinChanges(placements, romPath, outdir):
         ('Inventory', 'AddItemByKey', {'itemKey': 'TailKey', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 30, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'MagicPowder', 'count': 10, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Rupee300', 'count': 1, 'index': -1, 'autoEquip': False}),
-        #('EventFlags', 'SetFlag', {'symbol': 'PokeyFigure', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'AnglersWaterfallOpened', 'value': True})
+        ('Inventory', 'AddItemByKey', {'itemKey': 'Rupee300', 'count': 1, 'index': -1, 'autoEquip': False})
         ], 'Event52')"""
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Tarin.bfevfl', flow)
@@ -954,6 +952,24 @@ def makeGeneralEventChanges(placements, romPath, outdir):
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Item.bfevfl', item)
 
+    #################################################################################################################################
+    ### MadamMeowMeow: Change her behaviour to always take back BowWow if you have him, and not do anything based on having the Horn
+    madam = eventtools.readFlow(f'{romPath}/region_common/event/MadamMeowMeow.bfevfl')
+
+    # Removes BowWowClear flag being set
+    eventtools.insertEventAfter(madam.flowchart, 'Event69', 'Event18')
+
+    # Rearranging her dialogue conditions
+    eventtools.insertEventAfter(madam.flowchart, 'Event22', 'Event5')
+    eventtools.setSwitchEventCase(madam.flowchart, 'Event5', 0, 'Event0')
+    eventtools.setSwitchEventCase(madam.flowchart, 'Event5', 1, 'Event52')
+    eventtools.setSwitchEventCase(madam.flowchart, 'Event0', 0, 'Event40')
+    eventtools.setSwitchEventCase(madam.flowchart, 'Event0', 1, 'Event21')
+    eventtools.setSwitchEventCase(madam.flowchart, 'Event21', 0, 'Event80')
+    eventtools.findEvent(madam.flowchart, 'Event21').data.params.data['symbol'] = 'BowWowJoin'
+
+    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MadamMeowMeow.bfevfl', madam)
+
 
 # Make changes to some datasheets that are general in nature and not tied to specific item placements.
 def makeGeneralDatasheetChanges(placements, romPath, outdir):
@@ -984,6 +1000,11 @@ def makeGeneralDatasheetChanges(placements, romPath, outdir):
             swordIndex = i
         if npcSheet['values'][i]['symbol'] == 'ObjRoosterBones':
             npcSheet['values'][i]['layoutConditions'].pop(0)
+        if npcSheet['values'][i]['symbol'] == 'NpcBowWow':
+            npcSheet['values'][i]['layoutConditions'][2] = {'category': 3, 'parameter': 'BowWow', 'layoutID': -1}
+        if npcSheet['values'][i]['symbol'] == 'NpcMadamMeowMeow':
+            npcSheet['values'][i]['layoutConditions'][2] = {'category': 1, 'parameter': 'BowWowJoin', 'layoutID': 3}
+            npcSheet['values'][i]['layoutConditions'].pop(1)
 
     npcSheet['values'][batterIndex]['eventTriggers'][0]['entryPoint'] = '$2'
 
