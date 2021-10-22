@@ -211,17 +211,18 @@ def tarinChanges(placements, romPath, outdir):
         ('Inventory', 'AddItemByKey', {'itemKey': 'Shield', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'PegasusBoots', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'PowerBraceletLv2', 'count': 1, 'index': -1, 'autoEquip': False}),
+        ('Inventory', 'AddItemByKey', {'itemKey': 'Song_Soul', 'count': 1, 'index': -1, 'autoEquip': False}),
+        ('Inventory', 'AddItemByKey', {'itemKey': 'Ocarina', 'count': 1, 'index': -1, 'autoEquip': True}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'RocsFeather', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'HookShot', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Boomerang', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Shovel', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Flippers', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'TailKey', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 30, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'MagicPowder', 'count': 10, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Rupee300', 'count': 1, 'index': -1, 'autoEquip': False}),
         #('EventFlags', 'SetFlag', {'symbol': 'PokeyFigure', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'PineappleGet', 'value': True})
+        ('EventFlags', 'SetFlag', {'symbol': 'AnglersWaterfallOpened', 'value': True})
         ], 'Event52')"""
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Tarin.bfevfl', flow)
@@ -809,7 +810,6 @@ def makeGeneralLEBChanges(placements, romPath, outdir):
         outfile.write(roomData.repack())
 
 
-
 # Make changes to some events that should be in every seed, e.g. setting flags for having watched cutscenes
 def makeGeneralEventChanges(placements, romPath, outdir):
     if not os.path.exists(f'{outdir}/Romfs/region_common/event'):
@@ -843,6 +843,9 @@ def makeGeneralEventChanges(placements, romPath, outdir):
         ('EventFlags', 'SetFlag', {'symbol': 'WalrusAwaked', 'value': True}),
         ('EventFlags', 'SetFlag', {'symbol': 'MarinRescueClear', 'value': True})
         ])
+
+    # Remove the part that kills the rooster after D7 in Level7DungeonIn_FlyingCucco
+    eventtools.insertEventAfter(playerStart.flowchart, 'Level7DungeonIn_FlyingCucco', 'Event476')
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PlayerStart.bfevfl', playerStart)
 
@@ -962,6 +965,7 @@ def makeGeneralDatasheetChanges(placements, romPath, outdir):
     ### Also change ItemSmallKey and ObjSinkingSword to use custom models/entry points.
     ### Change ItemClothesGreen to have the small key model, which we'll kinda hack in the Items datasheet so small keys are visible 
     ### in the GenericItemGetSequence.
+    ### Make Papahl appear in the mountains after trading for the pineapple instead of the getting the Bell
     npcSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Npc.gsheet')
 
     for i in range(len(npcSheet['values'])):
@@ -972,10 +976,14 @@ def makeGeneralDatasheetChanges(placements, romPath, outdir):
         if npcSheet['values'][i]['symbol'] == 'ItemClothesGreen':
             npcSheet['values'][i]['graphics']['path'] = 'ItemSmallKey.bfres'
             npcSheet['values'][i]['graphics']['model'] = 'SmallKey'
-        #if npcSheet['values'][i]['symbol'] == 'NpcPapahl':
-        #    npcSheet['values'][i]['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 2}
+        if npcSheet['values'][i]['symbol'] == 'NpcPapahl':
+            npcSheet['values'][i]['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 2}
+        if npcSheet['values'][i]['symbol'] == 'ObjClothBag':
+            npcSheet['values'][i]['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 0}
         if npcSheet['values'][i]['symbol'] == 'ObjSinkingSword':
             swordIndex = i
+        if npcSheet['values'][i]['symbol'] == 'ObjRoosterBones':
+            npcSheet['values'][i]['layoutConditions'].pop(0)
 
     npcSheet['values'][batterIndex]['eventTriggers'][0]['entryPoint'] = '$2'
 

@@ -1137,6 +1137,7 @@ woods-north-chest:
   region: woods
   spoiler-region: mysterious-woods
   condition-basic: (powder | rooster | feather) & break-bush
+  condition-advanced: hookshot & (sword | shovel | boots) & break-bush
 woods-west-dig:
   type: item
   subtype: dig
@@ -2211,6 +2212,7 @@ sign-maze:
 swamp:
   type: region
   condition-basic: (woods & break-bush & (powder | feather | rooster)) | (wasteland & bracelet) | (mr-write-house & (feather | rooster | hookshot))
+  condition-advanced: woods & hookshot & (sword | shovel | boots) & break-bush
 tail-cave:
   type: region
   condition-basic: mabe & tail-key
