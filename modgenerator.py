@@ -244,8 +244,9 @@ def sinkingSwordChanges(placements, romPath, outdir):
     with open(f'{romPath}/region_common/level/Field/Field_16C.leb', 'rb') as file:
         room = leb.Room(file.read())
 
-    room.actors[4].parameters[0] = bytes(itemDefs[item]['model-path'], 'utf-8')
-    room.actors[4].parameters[1] = bytes(itemDefs[item]['model-name'], 'utf-8')
+    # Keep the normal model if it's a sword
+    room.actors[4].parameters[0] = bytes('ObjSinkingSword.bfres' if item == 'sword' else itemDefs[item]['model-path'], 'utf-8')
+    room.actors[4].parameters[1] = bytes('SinkingSword' if item == 'sword' else itemDefs[item]['model-name'], 'utf-8')
     room.actors[4].parameters[2] = bytes('examine', 'utf-8')
     room.actors[4].parameters[3] = bytes('SwordGet', 'utf-8')
 
