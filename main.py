@@ -90,7 +90,6 @@ vanillaLocations.remove('taltal-rooster-cave')
 vanillaLocations.remove('dream-shrine-left')
 
 vanillaLocations.append('kanalet-kill-room')
-vanillaLocations.append('D4-sunken-item')
 
 # Create a placement, spoiler log, and game mod.
 print(f'Shuffling item placements... (Seed: {seed} Logic: {logic})')

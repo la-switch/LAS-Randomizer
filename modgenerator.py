@@ -119,6 +119,7 @@ def makeSmallKeyChanges(placements, romPath, outdir):
             roomData = leb.Room(roomfile.read())
 
         item = placements[room]
+        itemIndex = placements['indexes'][room] if room in placements['indexes'] else -1
 
         # Don't change anything if the item placed here is actually a small key. Just leave it as the vanilla ItemSmallKey actor.
         if item[:3] == 'key':
@@ -128,7 +129,6 @@ def makeSmallKeyChanges(placements, romPath, outdir):
 
             eventtools.addEntryPoint(flow.flowchart, smallKeyRooms[room])
             
-            itemIndex = placements['indexes'][room] if room in placements['indexes'] else -1
             itemEvent = insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, None, None)
 
             eventtools.createActionChain(flow.flowchart, smallKeyRooms[room], [
@@ -140,6 +140,19 @@ def makeSmallKeyChanges(placements, romPath, outdir):
 
         with open(f'{outdir}/Romfs/region_common/level/{dirname}/{smallKeyRooms[room]}.leb', 'wb') as outfile:
             outfile.write(roomData.repack())
+
+        if room == 'D4-sunken-item': # special case. need to write the same data in 06A
+            with open(f'{romPath}/region_common/level/Lv04AnglersTunnel/Lv04AnglersTunnel_06A.leb', 'rb') as roomfile:
+                roomData = leb.Room(roomfile.read())
+
+            # Don't change anything if the item placed here is actually a small key. Just leave it as the vanilla ItemSmallKey actor.
+            if item[:3] == 'key':
+                roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], 'take')
+            else:
+                roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], smallKeyRooms[room])
+
+            with open(f'{outdir}/Romfs/region_common/level/Lv04AnglersTunnel/Lv04AnglersTunnel_06A.leb', 'wb') as outfile:
+                outfile.write(roomData.repack())
 
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SmallKey.bfevfl', flow)
@@ -199,6 +212,9 @@ def tarinChanges(placements, romPath, outdir):
         ('Inventory', 'AddItemByKey', {'itemKey': 'PegasusBoots', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'PowerBraceletLv2', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'RocsFeather', 'count': 1, 'index': -1, 'autoEquip': False}),
+        ('Inventory', 'AddItemByKey', {'itemKey': 'HookShot', 'count': 1, 'index': -1, 'autoEquip': False}),
+        ('Inventory', 'AddItemByKey', {'itemKey': 'Boomerang', 'count': 1, 'index': -1, 'autoEquip': False}),
+        ('Inventory', 'AddItemByKey', {'itemKey': 'Shovel', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Flippers', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'TailKey', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 30, 'index': -1, 'autoEquip': False}),
