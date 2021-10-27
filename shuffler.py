@@ -77,6 +77,10 @@ def canReachLocation(toReach, placements, startingAccess, logic):
 	Returns True or False depending on whether access is eventually gained to toReach.
 	"""
 
+	# If this location is disabled (force junk), consider it to be unreachable. This will result in no important items being placed there.
+	if toReach in placements['force-junk']:
+		return False
+
 	# if using no logic, we don't have to check if it's reachable, we just assume it is.
 	if logic == 'none':
 		return True
@@ -185,6 +189,13 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 
 	random.seed(seed)
 
+	if not set(forceJunk).isdisjoint(forceVanilla):
+		print('Warning! Some locations set as disabled are unrandomized. These locations will not actually be considered out of logic.')
+		forceJunk = [l for l in forceJunk if l not in forceVanilla]
+
+	# Ensure all excluded locations are actually location names
+	forceJunk = [l for l in forceJunk if l in logicDefs and logicDefs[l]['type'] == 'item']
+
 	# Make sure logic is a valid value, default to basic
 	logic = logic.lower()
 	if logic not in ['basic', 'advanced', 'glitched', 'none']:
@@ -203,8 +214,8 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 	vanillaSeashells = 0 # Keep track of how many seashells were forced into their vanilla locations. This is important for ensuring there is enough room to place the random ones.
 
 	placements['settings'] = settings
-	placements['force-junk'] = []
-	placements['force-vanilla'] = []
+	placements['force-junk'] = forceJunk
+	placements['force-vanilla'] = forceVanilla
 	placements['indexes'] = {}
 
 	indexesAvailable = {'seashell': list(range(50)), 'heart-piece': list(range(32)), 'heart-container': list(range(9)), 'bottle': list(range(3)), 'golden-leaf': list(range(5)), 'chamber-stone': [3, 4, 8, 10, 11, 12, 13, 20, 21, 22, 23, 24, 25, 26]}
@@ -216,7 +227,7 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 			access = addAccess(access, logicDefs[key]['content']) # we're going to assume the player starts with everything, then slowly loses things as they get placed into the wild
 
 	# Add the settings into the access. This affects some logic like with fast trendy, free fishing, etc.
-	settingsAccess = {setting: 1 for setting in settings}
+	settingsAccess = {setting: 1 for setting in settings if settings[setting] == True}
 	access.update(settingsAccess)
 
 	# For each type of item in the item pool, add its quantity to the item lists
@@ -241,32 +252,6 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 	# Force the followers to be vanilla (for now)
 	placements['moblin-cave'] = 'bow-wow'
 	placements['rooster-statue'] = 'rooster'
-
-	# Assign junk into the forceJunk locations
-	random.shuffle(junkItems)
-
-	for loc in forceJunk:
-		# If it's not a valid location name, just ignore it
-		if loc not in locations:
-			continue
-
-		# Zol traps and the master stalfos note can only exist in chests.
-		# So, we want to move them to the end of the junk list until we find something we can put in a chest
-		while (junkItems[0] == 'zol-trap' or junkItems[0] == 'stalfos-note') and logicDefs[loc]['subtype'] != 'chest':
-			junkItems.append(junkItems.pop(0))
-
-		# Add the first element of the junk list into loc, and store it in placements.
-		# Also, remove loc from the locations list because we already dealt with it
-		placedItem = junkItems.pop(0)
-		placements[loc] = placedItem
-		access = removeAccess(access, placements[loc])
-		locations.remove(loc)
-
-		# If the item is one that needs an index, give it the next available one
-		if placedItem in indexesAvailable:
-			placements['indexes'][loc] = indexesAvailable[placedItem].pop(0)
-
-		placements['force-junk'].append(loc)
 
 	# Shuffle item and location lists
 	random.shuffle(importantItems)
@@ -293,8 +278,6 @@ def makeRandomizedPlacement(seed, logic, forceJunk, forceVanilla, settings, verb
 		if logicDefs[loc]['content'] in indexesAvailable:
 			placements['indexes'][loc] = logicDefs[loc]['index']
 			indexesAvailable[logicDefs[loc]['content']].remove(logicDefs[loc]['index'])
-
-		placements['force-vanilla'].append(loc)
 	
 	# Next, assign dungeon items into their own dungeons
 	# Some may have been placed already because of forceVanilla so we need to factor that in

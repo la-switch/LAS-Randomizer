@@ -78,7 +78,7 @@ grandma-yahoo:
   content: fishing-hook
   region: animal-village
   spoiler-region: animal-village
-  condition-basic: broom
+  condition-basic: broom & full-moon-cello & sea-lilys-bell
 beach-chest:
   type: item
   subtype: chest
@@ -892,7 +892,7 @@ papahl:
   content: hibiscus
   region: taltal-east-0
   spoiler-region: taltal-mountains-east
-  condition-basic: pineapple
+  condition-basic: pineapple & sea-lilys-bell
 taltal-bomb-hole:
   type: item
   subtype: bomb-hole
@@ -2428,7 +2428,7 @@ bomb-arrows:
   condition-basic: bombs & shoot-arrows
 bombs:
   type: interaction
-  condition-basic: (mabe & boots) | (can-shop & (conch-horn | free-shop)) | (break-pot & (kanalet-inside | (D0-8D & kill-goblin) | key-cavern | D6-8D)) | (rapids & (feather | boomerang)) | (angler-tunnel & (sword | feather))
+  condition-basic: (mabe & boots) | (can-shop & (conch-horn | unlocked-bombs)) | (break-pot & (kanalet-inside | (D0-8D & kill-goblin) | key-cavern | D6-8D)) | (rapids & (feather | boomerang)) | (angler-tunnel & (sword | feather))
 powder:
   type: interaction
   condition-basic: (woods & mushroom) | (color-dungeon & (can-farm-rupees | break-pot)) | (D2-7D & feather & hit-crystal-switch) | (D8-8D & kill-vire & feather & break-pot) | (D8-4C & feather & hookshot) | (D8-8D & feather & key-D8:2) | (rapids & (feather | boomerang))

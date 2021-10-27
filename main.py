@@ -36,15 +36,6 @@ if len(sys.argv) > 1:
 else:
 	logic = 'basic'
 
-# Get other settings off the command line arguments.
-allSettings = ['fast-trendy', 'free-fishing', 'free-shop', 'free-book']
-settings = []
-
-for setting in allSettings:
-	if setting in sys.argv:
-		settings.append(setting)
-
-
 # TEMPORARY CODE HERE to make it so that everything that isn't a chest is set to vanilla
 with open("logic.yml", 'r') as logicFile:
 	logicDefs = yaml.safe_load(logicFile)
@@ -91,9 +82,16 @@ vanillaLocations.remove('dream-shrine-left')
 
 vanillaLocations.append('kanalet-kill-room')
 
+with open("settings.yml", 'r') as settingsFile:
+	settings = yaml.safe_load(settingsFile)
+
+if settings['assured-sword-shield']:
+	vanillaLocations.append('tarin')
+	vanillaLocations.append('washed-up')
+
 # Create a placement, spoiler log, and game mod.
 print(f'Shuffling item placements... (Seed: {seed} Logic: {logic})')
-placements = shuffler.makeRandomizedPlacement(seed, logic, [], vanillaLocations, settings, False)
+placements = shuffler.makeRandomizedPlacement(seed, logic, settings['excluded-locations'], vanillaLocations, settings, False)
 
 print('Creating spoiler log...')
 spoiler.generateSpoilerLog(placements, outdir, seed)

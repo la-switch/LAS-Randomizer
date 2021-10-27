@@ -1,0 +1,19 @@
+---
+free-book: True
+unlocked-bombs: False
+fast-trendy: False
+fast-stealing: False
+assured-sword-shield: False
+reduce-early-farming: True
+
+excluded-locations:
+  - trendy-prize-final
+  - dampe-page-1
+  - dampe-heart-challenge
+  - dampe-page-2
+  - dampe-bottle-challenge
+  - dampe-final
+  - 40-seashell-reward
+  - 50-seashell-reward
+
+...

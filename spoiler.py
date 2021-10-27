@@ -23,13 +23,10 @@ def generateSpoilerLog(placements, outputDir, seedName):
 				output.write('  {0}: {1}\n'.format(location, placements[location]))
 
 		output.write('settings:\n')
-		for setting in ['free-shop', 'fast-trendy', 'free-fishing', 'free-book']:
-			output.write(f'  {setting}: {setting in placements["settings"]}\n')
+		for setting in placements['settings']:
+			if setting != 'excluded-locations':
+				output.write(f'  {setting}: {placements["settings"][setting]}\n')
 
-		output.write('force-junk:\n')
+		output.write('excluded-locations:\n')
 		for location in placements['force-junk']:
-			output.write(f'  {location}\n')
-
-		output.write('force-vanilla:\n')
-		for location in placements['force-vanilla']:
 			output.write(f'  {location}\n')

@@ -32,7 +32,7 @@ def makeMod(placements, romPath, outdir):
     makeGeneralEventChanges(placements, romPath, outdir)
     makeGeneralDatasheetChanges(placements, romPath, outdir)
 
-    if 'free-book' in placements['settings']:
+    if placements['settings']['free-book']:
         setFreeBook(romPath, outdir)
 
     makeChestContentFixes(placements, romPath, outdir)
@@ -199,6 +199,12 @@ def tarinChanges(placements, romPath, outdir):
     itemIndex = placements['indexes']['tarin'] if 'tarin' in placements['indexes'] else -1
     insertItemGetEvent(flow.flowchart, itemDefs[placements['tarin']]['item-key'], itemIndex, 'Event52', 'Event31')
 
+    # If reduce-early-farming is on, and Tarin has boots, also give 20 bombs if Tarin has boots
+    if placements['tarin'] == 'boots' and placements['settings']['reduce-early-farming']:
+        eventtools.createActionChain(flow.flowchart, 'Event31', [
+            ('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 20, 'index': -1, 'autoEquip': False})
+            ], 'Event2')
+
     event0 = eventtools.findEvent(flow.flowchart, 'Event0')
     event78 = eventtools.findEvent(flow.flowchart, 'Event78')
     event0.data.actor = event78.data.actor
@@ -206,21 +212,24 @@ def tarinChanges(placements, romPath, outdir):
     event0.data.params = event78.data.params
     
     """eventtools.createActionChain(flow.flowchart, 'Event36', [
-        #('Inventory', 'AddItemByKey', {'itemKey': 'MagnifyingLens', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'SwordLv1', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Shield', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'PegasusBoots', 'count': 1, 'index': -1, 'autoEquip': False}),
+        ('Inventory', 'AddItemByKey', {'itemKey': 'PowerBraceletLv1', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'PowerBraceletLv2', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Song_Soul', 'count': 1, 'index': -1, 'autoEquip': False}),
+        ('Inventory', 'AddItemByKey', {'itemKey': 'Song_WindFish', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Ocarina', 'count': 1, 'index': -1, 'autoEquip': True}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'RocsFeather', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'HookShot', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Boomerang', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'Flippers', 'count': 1, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'TailKey', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 30, 'index': -1, 'autoEquip': False}),
+        ('Inventory', 'AddItemByKey', {'itemKey': 'FullMoonCello', 'count': 1, 'index': -1, 'autoEquip': False}),
+        #('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 30, 'index': -1, 'autoEquip': False}),
         ('Inventory', 'AddItemByKey', {'itemKey': 'MagicPowder', 'count': 10, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Rupee300', 'count': 1, 'index': -1, 'autoEquip': False})
+        ('Inventory', 'AddItemByKey', {'itemKey': 'Rupee300', 'count': 1, 'index': -1, 'autoEquip': False}),
+        ('EventFlags', 'SetFlag', {'symbol': 'MamuMazeClear', 'value': True})
         ], 'Event52')"""
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Tarin.bfevfl', flow)
@@ -687,7 +696,7 @@ def eagleChanges(placements, romPath, outdir):
     addNeededActors(flow.flowchart, romPath)
 
     itemIndex = placements['indexes']['D7-eagle'] if 'D7-eagle' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D7-eagle']]['item-key'], itemIndex, 'Event3', 'Event51')
+    insertItemGetEvent(flow.flowchart, itemDefs[placements['D7-eagle']]['item-key'], itemIndex, 'Event40', 'Event51')
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Albatoss.bfevfl', flow)
 
@@ -846,6 +855,12 @@ def makeGeneralEventChanges(placements, romPath, outdir):
     # Remove the part that kills the rooster after D7 in Level7DungeonIn_FlyingCucco
     eventtools.insertEventAfter(playerStart.flowchart, 'Level7DungeonIn_FlyingCucco', 'Event476')
 
+    if placements['settings']['fast-stealing']:
+        # Remove the flag that says you stole so that the shopkeeper won't kill you
+        eventtools.createActionChain(playerStart.flowchart, 'Event774', [
+            ('EventFlags', 'SetFlag', {'symbol': 'StealSuccess', 'value': False})
+            ])
+
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PlayerStart.bfevfl', playerStart)
 
     #################################################################################################################################
@@ -971,6 +986,39 @@ def makeGeneralEventChanges(placements, romPath, outdir):
 
     eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MadamMeowMeow.bfevfl', madam)
 
+    #################################################################################################################################
+    ### WindFishsEgg: Add and fix some entry points for the ItemGetSequence for capcity upgrades and tunics.
+    egg = eventtools.readFlow(f'{romPath}/region_common/event/WindFishsEgg.bfevfl')
+
+    eventtools.insertEventAfter(egg.flowchart, 'Event142', None)
+
+    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/WindFishsEgg.bfevfl', egg)
+
+    #################################################################################################################################
+    ### SkeletalGuardBlue: Make him sell 20 bombs in addition to the 20 powder.
+    if placements['settings']['reduce-early-farming']:
+        skeleton = eventtools.readFlow(f'{romPath}/region_common/event/SkeletalGuardBlue.bfevfl')
+
+        bombAddEvent = eventtools.createActionEvent(skeleton.flowchart, 'Inventory', 'AddItem', {'itemType': 4, 'count': 20, 'autoEquip': False})
+        powderAddEvent = eventtools.createActionEvent(skeleton.flowchart, 'Inventory', 'AddItem', {'itemType': 12, 'count': 20, 'autoEquip': False})
+
+        bombCheckEvent = eventtools.createSwitchEvent(skeleton.flowchart, 'Inventory', 'HasItem', {'itemType': 4, 'count': 1}, {0: bombAddEvent, 1: None})
+        powderCheckEvent = eventtools.createSwitchEvent(skeleton.flowchart, 'Inventory', 'HasItem', {'itemType': 12, 'count': 1}, {0: powderAddEvent, 1: bombCheckEvent})
+
+        eventtools.insertEventAfter(skeleton.flowchart, powderAddEvent, bombCheckEvent)
+        eventtools.insertEventAfter(skeleton.flowchart, 'Event2', powderCheckEvent)
+
+        eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SkeletalGuardBlue.bfevfl', skeleton)
+
+    #################################################################################################################################
+    ### PrizeCommon: Change the figure to look for when the fast-trendy setting is on
+    if placements['settings']['fast-trendy']:
+        prize = eventtools.readFlow(f'{romPath}/region_common/event/PrizeCommon.bfevfl')
+
+        eventtools.findEvent(prize.flowchart, 'Event5').data.params.data['prizeType'] = 10
+
+        eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PrizeCommon.bfevfl', prize)
+
 
 # Make changes to some datasheets that are general in nature and not tied to specific item placements.
 def makeGeneralDatasheetChanges(placements, romPath, outdir):
@@ -985,40 +1033,37 @@ def makeGeneralDatasheetChanges(placements, romPath, outdir):
     ### Make Papahl appear in the mountains after trading for the pineapple instead of the getting the Bell
     npcSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Npc.gsheet')
 
-    for i in range(len(npcSheet['values'])):
-        if npcSheet['values'][i]['symbol'] == 'NpcMadBatter':
-            batterIndex = i
-        if npcSheet['values'][i]['symbol'] == 'ItemSmallKey':
-            smallKeyIndex = i
-        if npcSheet['values'][i]['symbol'] == 'ItemClothesGreen':
-            npcSheet['values'][i]['graphics']['path'] = 'ItemSmallKey.bfres'
-            npcSheet['values'][i]['graphics']['model'] = 'SmallKey'
-        if npcSheet['values'][i]['symbol'] == 'NpcPapahl':
-            npcSheet['values'][i]['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 2}
-        if npcSheet['values'][i]['symbol'] == 'ObjClothBag':
-            npcSheet['values'][i]['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 0}
-        if npcSheet['values'][i]['symbol'] == 'ObjSinkingSword':
-            swordIndex = i
-        if npcSheet['values'][i]['symbol'] == 'ObjRoosterBones':
-            npcSheet['values'][i]['layoutConditions'].pop(0)
-        if npcSheet['values'][i]['symbol'] == 'NpcBowWow':
-            npcSheet['values'][i]['layoutConditions'][2] = {'category': 3, 'parameter': 'BowWow', 'layoutID': -1}
-        if npcSheet['values'][i]['symbol'] == 'NpcMadamMeowMeow':
-            npcSheet['values'][i]['layoutConditions'][2] = {'category': 1, 'parameter': 'BowWowJoin', 'layoutID': 3}
-            npcSheet['values'][i]['layoutConditions'].pop(1)
-
-    npcSheet['values'][batterIndex]['eventTriggers'][0]['entryPoint'] = '$2'
-
-
-    npcSheet['values'][smallKeyIndex]['graphics']['path'] = '$1'
-    npcSheet['values'][smallKeyIndex]['graphics']['model'] = '$2'
-    npcSheet['values'][smallKeyIndex]['eventTriggers'][2]['entryPoint'] = '$3'
-
-    npcSheet['values'][swordIndex]['graphics']['path'] = '$0'
-    npcSheet['values'][swordIndex]['graphics']['model'] = '$1'
-    npcSheet['values'][swordIndex]['eventTriggers'][0]['entryPoint'] = '$2'
-    npcSheet['values'][swordIndex]['layoutConditions'][0]['parameter'] = '$3'
-
+    for npc in npcSheet['values']:
+        if npc['symbol'] == 'NpcMadBatter':
+            npc['eventTriggers'][0]['entryPoint'] = '$2'
+            npc['layoutConditions'].pop(1)
+        if npc['symbol'] == 'ItemSmallKey':
+            npc['graphics']['path'] = '$1'
+            npc['graphics']['model'] = '$2'
+            npc['eventTriggers'][2]['entryPoint'] = '$3'
+        if npc['symbol'] == 'ItemClothesGreen':
+            npc['graphics']['path'] = 'ItemSmallKey.bfres'
+            npc['graphics']['model'] = 'SmallKey'
+        """if npc['symbol'] == 'NpcPapahl':
+            npc['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 2}
+        if npc['symbol'] == 'ObjClothBag':
+            npc['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 0}
+        if npc['symbol'] == 'NpcGrandmaUlrira':
+            npc['layoutConditions'][1] = {'category': 2, 'parameter': 'Broom', 'layoutID': 4}"""
+        if npc['symbol'] == 'ObjSinkingSword':
+            npc['graphics']['path'] = '$0'
+            npc['graphics']['model'] = '$1'
+            npc['eventTriggers'][0]['entryPoint'] = '$2'
+            npc['layoutConditions'][0]['parameter'] = '$3'
+        if npc['symbol'] == 'ObjRoosterBones':
+            npc['layoutConditions'].pop(0)
+        if npc['symbol'] == 'NpcBowWow':
+            npc['layoutConditions'][2] = {'category': 3, 'parameter': 'BowWow', 'layoutID': -1}
+        if npc['symbol'] == 'NpcMadamMeowMeow':
+            npc['layoutConditions'][2] = {'category': 1, 'parameter': 'BowWowJoin', 'layoutID': 3}
+            npc['layoutConditions'].pop(1)
+        if npc['symbol'] == 'NpcMamu':
+            npc['layoutConditions'].pop(0)
 
     oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Npc.gsheet', npcSheet)
 
@@ -1058,14 +1103,42 @@ def makeGeneralDatasheetChanges(placements, romPath, outdir):
     oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Items.gsheet', itemsSheet)
 
     #################################################################################################################################
-    ### Conditions datasheet: Change conditions on Marin being in the village, so the getting the pineapple won't send her to the beach.
+    ### Conditions datasheet
     conditionsSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Conditions.gsheet')
 
     for condition in conditionsSheet['values']:
+        # Make sure Marin always stays in the village even if you trade for the pineapple
         if condition['symbol'] == 'MarinVillageStay':
             condition['conditions'].pop(1)
 
+        # Make the shop not sell shields until you find one
+        if condition['symbol'] == 'ShopShieldCondition':
+            condition['conditions'][0] = {'category': 1, 'parameter': shieldFoundFlag}
+
+        # Make the animals in Animal village not be in the ring, which they would because of WalrusAwaked getting set
+        if condition['symbol'] == 'AnimalPop':
+            condition['conditions'][0] = {'category': 9, 'parameter': 'false'}
+
+        # Remove the condition for bombs in the shop if the unlocked-bombs setting is on
+        if condition['symbol'] == 'ShopBombCondition' and placements['settings']['unlocked-bombs']:
+            condition['conditions'][0] = {'category': 9, 'parameter': 'true'}
+
     oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Conditions.gsheet', conditionsSheet)
+
+    #################################################################################################################################
+    ### CranePrize datasheet
+    cranePrizeSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/CranePrize.gsheet')
+
+    for cranePrize in cranePrizeSheet['values']:
+        # SmallBowWow (Ciao Ciao): Remove the condition of HintYosshi. It's unnecessary and can lead to a softlock
+        if cranePrize['symbol'] == 'SmallBowWow':
+            cranePrize['layouts'][0]['conditions'].pop(0)
+
+        # BowWow: Remove the ShadowClear condition. This was stupid in vanill and it's even worse for rando.
+        if cranePrize['symbol'] == 'BowWow':
+            cranePrize['layouts'][0]['conditions'].pop(0)
+
+    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/CranePrize.gsheet', cranePrizeSheet)
 
 
 
