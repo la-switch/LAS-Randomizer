@@ -1,39 +1,10 @@
 import oead
 
-"""
-# Find a struct in a 
-def findStruct(sheet, field, value):
-	for struct in sheet.values:
-		if (field, value) in struct.items():
-			return struct
-
-	raise ValueError((field, value))
-
-
-# Returns the value of a field given the field name.
-def getFromStruct(struct, field):
-	for item in struct.items():
-		if item[0] == field:
-			return item[1]
-
-	raise ValueError(field)
-
-
-# Updates and returns a struct with the field:value pairs from newFields
-def updateStruct(struct, newFields):
-	structDict = {f: v for f, v in struct.items()}
-
-	for key, value in newFields.items():
-		structDict[key] = value
-
-	return oead.gsheet.Struct(structDict)
-"""
-
 def readSheet(sheetFile):
-    with open(sheetFile, 'rb') as file:
-        sheet = oead.gsheet.parse(oead.Bytes(file.read()))
+	with open(sheetFile, 'rb') as file:
+		sheet = oead.gsheet.parse(oead.Bytes(file.read()))
 
-    return {'alignment': sheet.alignment, 'hash': sheet.hash, 'name': sheet.name, 'root_fields': sheet.root_fields, 'values': sheet.values}
+	return {'alignment': sheet.alignment, 'hash': sheet.hash, 'name': sheet.name, 'root_fields': sheet.root_fields, 'values': sheet.values}
 
 
 def writeSheet(sheetFile, sheet):
@@ -50,14 +21,14 @@ def writeSheet(sheetFile, sheet):
 
 
 def parseStruct(struct):
-    result = {}
-    for k,v in struct.items():
-        if type(v) == oead.gsheet.Struct:
-            result[k] = parseStruct(v)
-        else:
-            result[k] = v
+	result = {}
+	for k,v in struct.items():
+		if type(v) == oead.gsheet.Struct:
+			result[k] = parseStruct(v)
+		else:
+			result[k] = v
 
-    return result
+	return result
 
 
 def dictToStruct(d):
@@ -66,3 +37,13 @@ def dictToStruct(d):
 			d[k] = dictToStruct(d[k])
 
 	return oead.gsheet.Struct(d)
+
+
+# Return and create an empty structure for an element in the Conditions datasheet
+# checks is a list of (category, paramter) tuples
+def createCondition(name, checks):
+	condition = {'symbol': name, 'conditions': oead.gsheet.StructArray()}
+	for category, parameter in checks:
+		condition['conditions'].append({'category': category, 'parameter': parameter})
+
+	return condition

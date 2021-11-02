@@ -351,7 +351,7 @@ mabe-well:
   region: mabe
   spoiler-region: mabe-village
   condition-basic: break-bush
-fishing-any:
+fishing-orange:
   type: item
   subtype: npc
   content: heart-piece
@@ -1005,7 +1005,7 @@ above-turtle-rock:
   index: 11
   region: taltal-west-2
   spoiler-region: taltal-mountains-west
-  condition-basic: D8-3C
+  condition-basic: D8-4C
 trendy-prize-1:
   type: item
   subtype: standing
@@ -1886,7 +1886,7 @@ D7-3ofakind-south:
   content: bomb
   region: eagle-tower
   spoiler-region: eagle-tower
-  condition-basic: D7-2D & hit-crystal-switch & bombs & kill-3-of-a-kind
+  condition-basic: D7-2D & hit-crystal-switch & bombs & kill-3-of-a-kind & hookshot
 D7-blue-pegs-chest:
   type: item
   subtype: chest
@@ -2208,7 +2208,7 @@ sale-house:
   condition-basic: (mabe | beach) & break-bush
 sign-maze:
   type: region
-  condition-basic: plains & hookshot
+  condition-basic: plains & (hookshot | rooster)
 swamp:
   type: region
   condition-basic: (woods & break-bush & (powder | feather | rooster)) | (wasteland & bracelet) | (mr-write-house & (feather | rooster | hookshot))
@@ -2416,9 +2416,6 @@ hit-color-dungeon-switch:
   type: interaction
   condition-basic: sword | shoot-arrows | bombs | hookshot | boomerang | rod
 
-D7-collapse:
-  type: interaction
-  condition-basic: D7-2B & D7-2C & D7-2D & D7-3B & D7-4B & hit-crystal-switch
 D0-clear:
   type: interaction
   condition-basic: D0-6D & kill-evil-orb & nightmare-key-D0 & key-D0:3 & hit-color-dungeon-switch

@@ -23,23 +23,23 @@ woodsLooseFlag     = 'unused0709'
 
 # Load the Items YAML. This is necessary to translate our naming conventions for the logic into the internal item names.
 with open("items.yml", 'r') as itemsFile:
-    itemDefs = yaml.safe_load(itemsFile)
+	itemDefs = yaml.safe_load(itemsFile)
 
 
 
 def makeMod(placements, romPath, outdir):
-    makeGeneralLEBChanges(placements, romPath, outdir)
-    makeGeneralEventChanges(placements, romPath, outdir)
-    makeGeneralDatasheetChanges(placements, romPath, outdir)
+	makeGeneralLEBChanges(placements, romPath, outdir)
+	makeGeneralEventChanges(placements, romPath, outdir)
+	makeGeneralDatasheetChanges(placements, romPath, outdir)
 
-    if placements['settings']['free-book']:
-        setFreeBook(romPath, outdir)
+	if placements['settings']['free-book']:
+		setFreeBook(romPath, outdir)
 
-    makeChestContentFixes(placements, romPath, outdir)
+	makeChestContentFixes(placements, romPath, outdir)
 
-    makeEventContentChanges(placements, romPath, outdir)
+	makeEventContentChanges(placements, romPath, outdir)
 
-    makeSmallKeyChanges(placements, romPath, outdir)
+	makeSmallKeyChanges(placements, romPath, outdir)
 
 
 # Patch LEB files of rooms with chests to update their contents
@@ -102,1128 +102,1202 @@ def makeChestContentFixes(placements, romPath, outdir):
 
 # Patch SmallKey event and LEB files for rooms with small key drops to change them into other items.
 def makeSmallKeyChanges(placements, romPath, outdir):
-    # Start by setting up the paths for the RomFS
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level')
+	# Start by setting up the paths for the RomFS
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level')
 
-    # Open up the SmallKey event to be ready to edit
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/SmallKey.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	# Open up the SmallKey event to be ready to edit
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/SmallKey.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    for room in smallKeyRooms:
-        dirname = re.match('(.+)_\\d\\d[A-P]', smallKeyRooms[room]).group(1)
-        if not os.path.exists(f'{outdir}/Romfs/region_common/level/{dirname}'):
-            os.makedirs(f'{outdir}/Romfs/region_common/level/{dirname}')
+	for room in smallKeyRooms:
+		dirname = re.match('(.+)_\\d\\d[A-P]', smallKeyRooms[room]).group(1)
+		if not os.path.exists(f'{outdir}/Romfs/region_common/level/{dirname}'):
+			os.makedirs(f'{outdir}/Romfs/region_common/level/{dirname}')
 
-        with open(f'{romPath}/region_common/level/{dirname}/{smallKeyRooms[room]}.leb', 'rb') as roomfile:
-            roomData = leb.Room(roomfile.read())
+		with open(f'{romPath}/region_common/level/{dirname}/{smallKeyRooms[room]}.leb', 'rb') as roomfile:
+			roomData = leb.Room(roomfile.read())
 
-        item = placements[room]
-        itemIndex = placements['indexes'][room] if room in placements['indexes'] else -1
+		item = placements[room]
+		itemIndex = placements['indexes'][room] if room in placements['indexes'] else -1
 
-        # Don't change anything if the item placed here is actually a small key. Just leave it as the vanilla ItemSmallKey actor.
-        if item[:3] == 'key':
-            roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], 'take')
-        else:
-            roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], smallKeyRooms[room])
+		# Don't change anything if the item placed here is actually a small key. Just leave it as the vanilla ItemSmallKey actor.
+		if item[:3] == 'key':
+			roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], 'take')
+		else:
+			roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], smallKeyRooms[room])
 
-            eventtools.addEntryPoint(flow.flowchart, smallKeyRooms[room])
-            
-            itemEvent = insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, None, None)
+			eventtools.addEntryPoint(flow.flowchart, smallKeyRooms[room])
+			
+			itemEvent = insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, None, None)
 
-            eventtools.createActionChain(flow.flowchart, smallKeyRooms[room], [
-                ('SmallKey', 'Deactivate', {}),
-                ('SmallKey', 'SetActorSwitch', {'value': True, 'switchIndex': 1}),
-                ('SmallKey', 'Destroy', {})
-                ], itemEvent)
-
-
-        with open(f'{outdir}/Romfs/region_common/level/{dirname}/{smallKeyRooms[room]}.leb', 'wb') as outfile:
-            outfile.write(roomData.repack())
-
-        if room == 'D4-sunken-item': # special case. need to write the same data in 06A
-            with open(f'{romPath}/region_common/level/Lv04AnglersTunnel/Lv04AnglersTunnel_06A.leb', 'rb') as roomfile:
-                roomData = leb.Room(roomfile.read())
-
-            # Don't change anything if the item placed here is actually a small key. Just leave it as the vanilla ItemSmallKey actor.
-            if item[:3] == 'key':
-                roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], 'take')
-            else:
-                roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], smallKeyRooms[room])
-
-            with open(f'{outdir}/Romfs/region_common/level/Lv04AnglersTunnel/Lv04AnglersTunnel_06A.leb', 'wb') as outfile:
-                outfile.write(roomData.repack())
+			eventtools.createActionChain(flow.flowchart, smallKeyRooms[room], [
+				('SmallKey', 'Deactivate', {}),
+				('SmallKey', 'SetActorSwitch', {'value': True, 'switchIndex': 1}),
+				('SmallKey', 'Destroy', {})
+				], itemEvent)
 
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SmallKey.bfevfl', flow)
+		with open(f'{outdir}/Romfs/region_common/level/{dirname}/{smallKeyRooms[room]}.leb', 'wb') as outfile:
+			outfile.write(roomData.repack())
+
+		if room == 'D4-sunken-item': # special case. need to write the same data in 06A
+			with open(f'{romPath}/region_common/level/Lv04AnglersTunnel/Lv04AnglersTunnel_06A.leb', 'rb') as roomfile:
+				roomData = leb.Room(roomfile.read())
+
+			# Don't change anything if the item placed here is actually a small key. Just leave it as the vanilla ItemSmallKey actor.
+			if item[:3] == 'key':
+				roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], 'take')
+			else:
+				roomData.setSmallKeyParams(itemDefs[item]['model-path'], itemDefs[item]['model-name'], smallKeyRooms[room])
+
+			with open(f'{outdir}/Romfs/region_common/level/Lv04AnglersTunnel/Lv04AnglersTunnel_06A.leb', 'wb') as outfile:
+				outfile.write(roomData.repack())
+
+
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SmallKey.bfevfl', flow)
 
 
 # Patch event flow files to change the items given by NPCs and other events
 def makeEventContentChanges(placements, romPath, outdir):
-    # Run through for every location that needs an event changed.
-    # Note that many of these require some extra fixes which will be handled here too.
-    tarinChanges(placements, romPath, outdir)
-    sinkingSwordChanges(placements, romPath, outdir)
-    walrusChanges(placements, romPath, outdir)
-    christineChanges(placements, romPath, outdir)
-    invisibleZoraChanges(placements, romPath, outdir)
-    marinChanges(placements, romPath, outdir)
-    ghostRewardChanges(placements, romPath, outdir)
-    clothesFairyChanges(placements, romPath, outdir)
-    goriyaChanges(placements, romPath, outdir)
-    manboChanges(placements, romPath, outdir)
-    mamuChanges(placements, romPath, outdir)
-    rapidsChanges(placements, romPath, outdir)
-    fishingChanges(placements, romPath, outdir)
-    trendyChanges(placements, romPath, outdir)
-    seashellMansionChanges(placements, romPath, outdir)
-    madBatterChanges(placements, romPath, outdir)
-    dampeChanges(placements, romPath, outdir)
-    moldormChanges(placements, romPath, outdir)
-    genieChanges(placements, romPath, outdir)
-    slimeEyeChanges(placements, romPath, outdir)
-    anglerChanges(placements, romPath, outdir)
-    slimeEelChanges(placements, romPath, outdir)
-    facadeChanges(placements, romPath, outdir)
-    eagleChanges(placements, romPath, outdir)
-    hotheadChanges(placements, romPath, outdir)
-    lanmolaChanges(placements, romPath, outdir)
-    armosKnightChanges(placements, romPath, outdir)
-    masterStalfosChanges(placements, romPath, outdir)
-    
+	# Run through for every location that needs an event changed.
+	# Note that many of these require some extra fixes which will be handled here too.
+	tarinChanges(placements, romPath, outdir)
+	sinkingSwordChanges(placements, romPath, outdir)
+	walrusChanges(placements, romPath, outdir)
+	christineChanges(placements, romPath, outdir)
+	invisibleZoraChanges(placements, romPath, outdir)
+	marinChanges(placements, romPath, outdir)
+	ghostRewardChanges(placements, romPath, outdir)
+	clothesFairyChanges(placements, romPath, outdir)
+	goriyaChanges(placements, romPath, outdir)
+	manboChanges(placements, romPath, outdir)
+	mamuChanges(placements, romPath, outdir)
+	rapidsChanges(placements, romPath, outdir)
+	fishingChanges(placements, romPath, outdir)
+	trendyChanges(placements, romPath, outdir)
+	seashellMansionChanges(placements, romPath, outdir)
+	madBatterChanges(placements, romPath, outdir)
+	dampeChanges(placements, romPath, outdir)
+	moldormChanges(placements, romPath, outdir)
+	genieChanges(placements, romPath, outdir)
+	slimeEyeChanges(placements, romPath, outdir)
+	anglerChanges(placements, romPath, outdir)
+	slimeEelChanges(placements, romPath, outdir)
+	facadeChanges(placements, romPath, outdir)
+	eagleChanges(placements, romPath, outdir)
+	hotheadChanges(placements, romPath, outdir)
+	lanmolaChanges(placements, romPath, outdir)
+	armosKnightChanges(placements, romPath, outdir)
+	masterStalfosChanges(placements, romPath, outdir)
+	
 
 def tarinChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Tarin.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Tarin.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['tarin'] if 'tarin' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['tarin']]['item-key'], itemIndex, 'Event52', 'Event31')
+	itemIndex = placements['indexes']['tarin'] if 'tarin' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['tarin']]['item-key'], itemIndex, 'Event52', 'Event31')
 
-    # If reduce-early-farming is on, and Tarin has boots, also give 20 bombs if Tarin has boots
-    if placements['tarin'] == 'boots' and placements['settings']['reduce-early-farming']:
-        eventtools.createActionChain(flow.flowchart, 'Event31', [
-            ('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 20, 'index': -1, 'autoEquip': False})
-            ], 'Event2')
+	# If reduce-farming is on, and Tarin has boots, also give 20 bombs if Tarin has boots
+	if placements['tarin'] == 'boots' and placements['settings']['reduce-farming']:
+		eventtools.createActionChain(flow.flowchart, 'Event31', [
+			('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 20, 'index': -1, 'autoEquip': False})
+			], 'Event2')
 
-    event0 = eventtools.findEvent(flow.flowchart, 'Event0')
-    event78 = eventtools.findEvent(flow.flowchart, 'Event78')
-    event0.data.actor = event78.data.actor
-    event0.data.actor_query = event78.data.actor_query
-    event0.data.params = event78.data.params
-    
-    """eventtools.createActionChain(flow.flowchart, 'Event36', [
-        ('Inventory', 'AddItemByKey', {'itemKey': 'SwordLv1', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Shield', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'PegasusBoots', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'PowerBraceletLv1', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'PowerBraceletLv2', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Song_Soul', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Song_WindFish', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Ocarina', 'count': 1, 'index': -1, 'autoEquip': True}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'RocsFeather', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'HookShot', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Boomerang', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Flippers', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'TailKey', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'FullMoonCello', 'count': 1, 'index': -1, 'autoEquip': False}),
-        #('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 30, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'MagicPowder', 'count': 10, 'index': -1, 'autoEquip': False}),
-        ('Inventory', 'AddItemByKey', {'itemKey': 'Rupee300', 'count': 1, 'index': -1, 'autoEquip': False}),
-        ('EventFlags', 'SetFlag', {'symbol': 'MamuMazeClear', 'value': True})
-        ], 'Event52')"""
+	event0 = eventtools.findEvent(flow.flowchart, 'Event0')
+	event78 = eventtools.findEvent(flow.flowchart, 'Event78')
+	event0.data.actor = event78.data.actor
+	event0.data.actor_query = event78.data.actor_query
+	event0.data.params = event78.data.params
+	
+	"""eventtools.createActionChain(flow.flowchart, 'Event36', [
+		('Inventory', 'AddItemByKey', {'itemKey': 'SwordLv1', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'Shield', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'PegasusBoots', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'PowerBraceletLv1', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'PowerBraceletLv2', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'Song_Soul', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'Song_WindFish', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'Ocarina', 'count': 1, 'index': -1, 'autoEquip': True}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'RocsFeather', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'HookShot', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'Boomerang', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'Flippers', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'TailKey', 'count': 1, 'index': -1, 'autoEquip': False}),
+		#('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 30, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'MagicPowder', 'count': 10, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'Rupee300', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('Inventory', 'AddItemByKey', {'itemKey': 'ShellRader', 'count': 1, 'index': -1, 'autoEquip': False}),
+		('EventFlags', 'SetFlag', {'symbol': 'MamuMazeClear', 'value': True})
+		], 'Event52')"""
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Tarin.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Tarin.bfevfl', flow)
 
 def sinkingSwordChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/SinkingSword.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/SinkingSword.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    # Beach
-    item = placements['washed-up']
-    itemIndex = placements['indexes']['washed-up'] if 'washed-up' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, 'Event5', 'Event8')
+	# Beach
+	item = placements['washed-up']
+	itemIndex = placements['indexes']['washed-up'] if 'washed-up' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, 'Event5', 'Event8')
 
-    fork = eventtools.findEvent(flow.flowchart, 'Event0')
-    fork.data.forks.pop(0)
-    eventtools.findEvent(flow.flowchart, 'Event1').data.params.data['itemType'] = -1
+	fork = eventtools.findEvent(flow.flowchart, 'Event0')
+	fork.data.forks.pop(0)
+	eventtools.findEvent(flow.flowchart, 'Event1').data.params.data['itemType'] = -1
 
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/Field'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/Field')
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level/Field'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level/Field')
 
-    with open(f'{romPath}/region_common/level/Field/Field_16C.leb', 'rb') as file:
-        room = leb.Room(file.read())
+	with open(f'{romPath}/region_common/level/Field/Field_16C.leb', 'rb') as file:
+		room = leb.Room(file.read())
 
-    # Keep the normal model if it's a sword
-    room.actors[4].parameters[0] = bytes('ObjSinkingSword.bfres' if item == 'sword' else itemDefs[item]['model-path'], 'utf-8')
-    room.actors[4].parameters[1] = bytes('SinkingSword' if item == 'sword' else itemDefs[item]['model-name'], 'utf-8')
-    room.actors[4].parameters[2] = bytes('examine', 'utf-8')
-    room.actors[4].parameters[3] = bytes('SwordGet', 'utf-8')
+	# Keep the normal model if it's a sword
+	room.actors[4].parameters[0] = bytes('ObjSinkingSword.bfres' if item == 'sword' else itemDefs[item]['model-path'], 'utf-8')
+	room.actors[4].parameters[1] = bytes('SinkingSword' if item == 'sword' else itemDefs[item]['model-name'], 'utf-8')
+	room.actors[4].parameters[2] = bytes('examine', 'utf-8')
+	room.actors[4].parameters[3] = bytes('SwordGet', 'utf-8')
 
-    with open(f'{outdir}/Romfs/region_common/level/Field/Field_16C.leb', 'wb') as file:
-        file.write(room.repack())
+	with open(f'{outdir}/Romfs/region_common/level/Field/Field_16C.leb', 'wb') as file:
+		file.write(room.repack())
 
-    # Rooster Cave (bird key)
-    eventtools.addEntryPoint(flow.flowchart, 'TalTal')
+	# Rooster Cave (bird key)
+	eventtools.addEntryPoint(flow.flowchart, 'TalTal')
 
-    item = placements['taltal-rooster-cave']
-    itemIndex = placements['indexes']['taltal-rooster-cave'] if 'taltal-rooster-cave' in placements['indexes'] else -1
-    birdKeyItemGet = insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, None, None)
+	item = placements['taltal-rooster-cave']
+	itemIndex = placements['indexes']['taltal-rooster-cave'] if 'taltal-rooster-cave' in placements['indexes'] else -1
+	birdKeyItemGet = insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, None, None)
 
-    eventtools.createActionChain(flow.flowchart, 'TalTal', [
-        ('SinkingSword', 'Destroy', {}),
-        ('EventFlags', 'SetFlag', {'symbol': roosterCaveFlag, 'value': True})
-        ], birdKeyItemGet)
+	eventtools.createActionChain(flow.flowchart, 'TalTal', [
+		('SinkingSword', 'Destroy', {}),
+		('EventFlags', 'SetFlag', {'symbol': roosterCaveFlag, 'value': True})
+		], birdKeyItemGet)
 
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/EagleKeyCave'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/EagleKeyCave')
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level/EagleKeyCave'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level/EagleKeyCave')
 
-    with open(f'{romPath}/region_common/level/EagleKeyCave/EagleKeyCave_01A.leb', 'rb') as file:
-        room = leb.Room(file.read())
+	with open(f'{romPath}/region_common/level/EagleKeyCave/EagleKeyCave_01A.leb', 'rb') as file:
+		room = leb.Room(file.read())
 
-    room.actors[0].type = 0x194
-    room.actors[0].parameters[0] = bytes(itemDefs[item]['model-path'], 'utf-8')
-    room.actors[0].parameters[1] = bytes(itemDefs[item]['model-name'], 'utf-8')
-    room.actors[0].parameters[2] = bytes('TalTal', 'utf-8')
-    room.actors[0].parameters[3] = bytes(roosterCaveFlag, 'utf-8')
+	room.actors[0].type = 0x194
+	room.actors[0].parameters[0] = bytes(itemDefs[item]['model-path'], 'utf-8')
+	room.actors[0].parameters[1] = bytes(itemDefs[item]['model-name'], 'utf-8')
+	room.actors[0].parameters[2] = bytes('TalTal', 'utf-8')
+	room.actors[0].parameters[3] = bytes(roosterCaveFlag, 'utf-8')
 
-    with open(f'{outdir}/Romfs/region_common/level/EagleKeyCave/EagleKeyCave_01A.leb', 'wb') as file:
-        file.write(room.repack())
+	with open(f'{outdir}/Romfs/region_common/level/EagleKeyCave/EagleKeyCave_01A.leb', 'wb') as file:
+		file.write(room.repack())
 
-    # Dream Shrine (ocarina)
-    eventtools.addEntryPoint(flow.flowchart, 'DreamShrine')
+	# Dream Shrine (ocarina)
+	eventtools.addEntryPoint(flow.flowchart, 'DreamShrine')
 
-    item = placements['dream-shrine-left']
-    itemIndex = placements['indexes']['dream-shrine-left'] if 'dream-shrine-left' in placements['indexes'] else -1
-    dreamShrineItemGet = insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, None, None)
+	item = placements['dream-shrine-left']
+	itemIndex = placements['indexes']['dream-shrine-left'] if 'dream-shrine-left' in placements['indexes'] else -1
+	dreamShrineItemGet = insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, None, None)
 
-    eventtools.createActionChain(flow.flowchart, 'DreamShrine', [
-        ('SinkingSword', 'Destroy', {}),
-        ('EventFlags', 'SetFlag', {'symbol': dreamShrineFlag, 'value': True})
-        ], dreamShrineItemGet)
+	eventtools.createActionChain(flow.flowchart, 'DreamShrine', [
+		('SinkingSword', 'Destroy', {}),
+		('EventFlags', 'SetFlag', {'symbol': dreamShrineFlag, 'value': True})
+		], dreamShrineItemGet)
 
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/DreamShrine'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/DreamShrine')
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level/DreamShrine'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level/DreamShrine')
 
-    with open(f'{romPath}/region_common/level/DreamShrine/DreamShrine_01A.leb', 'rb') as file:
-        room = leb.Room(file.read())
+	with open(f'{romPath}/region_common/level/DreamShrine/DreamShrine_01A.leb', 'rb') as file:
+		room = leb.Room(file.read())
 
-    room.actors[5].type = 0x194
-    room.actors[5].parameters[0] = bytes(itemDefs[item]['model-path'], 'utf-8')
-    room.actors[5].parameters[1] = bytes(itemDefs[item]['model-name'], 'utf-8')
-    room.actors[5].parameters[2] = bytes('DreamShrine', 'utf-8')
-    room.actors[5].parameters[3] = bytes(dreamShrineFlag, 'utf-8')
+	room.actors[5].type = 0x194
+	room.actors[5].parameters[0] = bytes(itemDefs[item]['model-path'], 'utf-8')
+	room.actors[5].parameters[1] = bytes(itemDefs[item]['model-name'], 'utf-8')
+	room.actors[5].parameters[2] = bytes('DreamShrine', 'utf-8')
+	room.actors[5].parameters[3] = bytes(dreamShrineFlag, 'utf-8')
 
-    with open(f'{outdir}/Romfs/region_common/level/DreamShrine/DreamShrine_01A.leb', 'wb') as file:
-        file.write(room.repack())
+	with open(f'{outdir}/Romfs/region_common/level/DreamShrine/DreamShrine_01A.leb', 'wb') as file:
+		file.write(room.repack())
 
-    # Woods (mushroom)
-    eventtools.addEntryPoint(flow.flowchart, 'Woods')
+	# Woods (mushroom)
+	eventtools.addEntryPoint(flow.flowchart, 'Woods')
 
-    item = placements['woods-loose']
-    itemIndex = placements['indexes']['woods-loose'] if 'woods-loose' in placements['indexes'] else -1
-    woodsItemGet = insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, None, None)
+	item = placements['woods-loose']
+	itemIndex = placements['indexes']['woods-loose'] if 'woods-loose' in placements['indexes'] else -1
+	woodsItemGet = insertItemGetEvent(flow.flowchart, itemDefs[item]['item-key'], itemIndex, None, None)
 
-    eventtools.createActionChain(flow.flowchart, 'Woods', [
-        ('SinkingSword', 'Destroy', {}),
-        ('EventFlags', 'SetFlag', {'symbol': woodsLooseFlag, 'value': True})
-        ], woodsItemGet)
+	eventtools.createActionChain(flow.flowchart, 'Woods', [
+		('SinkingSword', 'Destroy', {}),
+		('EventFlags', 'SetFlag', {'symbol': woodsLooseFlag, 'value': True})
+		], woodsItemGet)
 
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/Field'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/Field')
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level/Field'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level/Field')
 
-    with open(f'{romPath}/region_common/level/Field/Field_06A.leb', 'rb') as file:
-        room = leb.Room(file.read())
+	with open(f'{romPath}/region_common/level/Field/Field_06A.leb', 'rb') as file:
+		room = leb.Room(file.read())
 
-    room.actors[3].type = 0x194
-    room.actors[3].parameters[0] = bytes(itemDefs[item]['model-path'], 'utf-8')
-    room.actors[3].parameters[1] = bytes(itemDefs[item]['model-name'], 'utf-8')
-    room.actors[3].parameters[2] = bytes('Woods', 'utf-8')
-    room.actors[3].parameters[3] = bytes(woodsLooseFlag, 'utf-8')
+	room.actors[3].type = 0x194
+	room.actors[3].parameters[0] = bytes(itemDefs[item]['model-path'], 'utf-8')
+	room.actors[3].parameters[1] = bytes(itemDefs[item]['model-name'], 'utf-8')
+	room.actors[3].parameters[2] = bytes('Woods', 'utf-8')
+	room.actors[3].parameters[3] = bytes(woodsLooseFlag, 'utf-8')
 
-    with open(f'{outdir}/Romfs/region_common/level/Field/Field_06A.leb', 'wb') as file:
-        file.write(room.repack())
+	with open(f'{outdir}/Romfs/region_common/level/Field/Field_06A.leb', 'wb') as file:
+		file.write(room.repack())
 
-    # Done!
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SinkingSword.bfevfl', flow)
+	# Done!
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SinkingSword.bfevfl', flow)
 
 def walrusChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Walrus.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Walrus.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['walrus'] if 'walrus' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['walrus']]['item-key'], itemIndex, 'Event53', 'Event110')
+	itemIndex = placements['indexes']['walrus'] if 'walrus' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['walrus']]['item-key'], itemIndex, 'Event53', 'Event110')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Walrus.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Walrus.bfevfl', flow)
 
 def christineChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Christine.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Christine.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['christine-grateful'] if 'christine-grateful' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['christine-grateful']]['item-key'], itemIndex, 'Event44', 'Event36')
+	itemIndex = placements['indexes']['christine-grateful'] if 'christine-grateful' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['christine-grateful']]['item-key'], itemIndex, 'Event44', 'Event36')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Christine.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Christine.bfevfl', flow)
 
 def invisibleZoraChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/SecretZora.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/SecretZora.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['invisible-zora'] if 'invisible-zora' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['invisible-zora']]['item-key'], itemIndex, 'Event23', 'Event27')
+	itemIndex = placements['indexes']['invisible-zora'] if 'invisible-zora' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['invisible-zora']]['item-key'], itemIndex, 'Event23', 'Event27')
 
-    eventtools.insertEventAfter(flow.flowchart, 'Event32', 'Event23')
+	eventtools.insertEventAfter(flow.flowchart, 'Event32', 'Event23')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SecretZora.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SecretZora.bfevfl', flow)
 
 def marinChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Marin.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Marin.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['marin'] if 'marin' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['marin']]['item-key'], itemIndex, 'Event246', 'Event666')
+	itemIndex = placements['indexes']['marin'] if 'marin' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['marin']]['item-key'], itemIndex, 'Event246', 'Event666')
 
-    fork = eventtools.findEvent(flow.flowchart, 'Event249')
-    fork.data.forks.pop(0)
-    eventtools.insertEventAfter(flow.flowchart, 'Event27', 'Event249')
-    event20 = eventtools.findEvent(flow.flowchart, 'Event20')
-    event160 = eventtools.findEvent(flow.flowchart, 'Event160')
-    event676 = eventtools.findEvent(flow.flowchart, 'Event676')
-    event160.data.actor = event20.data.actor
-    event676.data.actor = event20.data.actor
-    event160.data.actor_query = event20.data.actor_query
-    event676.data.actor_query = event20.data.actor_query
-    event160.data.params.data['symbol'] = 'MarinsongGet'
-    event676.data.params.data['symbol'] = 'MarinsongGet'
+	fork = eventtools.findEvent(flow.flowchart, 'Event249')
+	fork.data.forks.pop(0)
+	eventtools.insertEventAfter(flow.flowchart, 'Event27', 'Event249')
+	event20 = eventtools.findEvent(flow.flowchart, 'Event20')
+	event160 = eventtools.findEvent(flow.flowchart, 'Event160')
+	event676 = eventtools.findEvent(flow.flowchart, 'Event676')
+	event160.data.actor = event20.data.actor
+	event676.data.actor = event20.data.actor
+	event160.data.actor_query = event20.data.actor_query
+	event676.data.actor_query = event20.data.actor_query
+	event160.data.params.data['symbol'] = 'MarinsongGet'
+	event676.data.params.data['symbol'] = 'MarinsongGet'
 
-    # Make Marin not do beach_talk under any circumstance
-    eventtools.setSwitchEventCase(flow.flowchart, 'Event21', 0, 'Event674')
+	# Make Marin not do beach_talk under any circumstance
+	eventtools.setSwitchEventCase(flow.flowchart, 'Event21', 0, 'Event674')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Marin.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Marin.bfevfl', flow)
 
 def ghostRewardChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Owl.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Owl.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    new = eventtools.createActionEvent(flow.flowchart, 'Owl', 'Destroy', {})
+	new = eventtools.createActionEvent(flow.flowchart, 'Owl', 'Destroy', {})
 
-    itemIndex = placements['indexes']['ghost-reward'] if 'ghost-reward' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['ghost-reward']]['item-key'], itemIndex, 'Event34', new)
+	itemIndex = placements['indexes']['ghost-reward'] if 'ghost-reward' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['ghost-reward']]['item-key'], itemIndex, 'Event34', new)
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Owl.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Owl.bfevfl', flow)
 
 def clothesFairyChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/FairyQueen.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/FairyQueen.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D0-fairy-2'] if 'D0-fairy-2' in placements['indexes'] else -1
-    item2 = insertItemGetEvent(flow.flowchart, itemDefs[placements['D0-fairy-2']]['item-key'], itemIndex, 'Event0', 'Event180')
+	itemIndex = placements['indexes']['D0-fairy-2'] if 'D0-fairy-2' in placements['indexes'] else -1
+	item2 = insertItemGetEvent(flow.flowchart, itemDefs[placements['D0-fairy-2']]['item-key'], itemIndex, 'Event0', 'Event180')
 
-    itemIndex = placements['indexes']['D0-fairy-1'] if 'D0-fairy-1' in placements['indexes'] else -1
-    item1 = insertItemGetEvent(flow.flowchart, itemDefs[placements['D0-fairy-1']]['item-key'], itemIndex, 'Event0', item2)
+	itemIndex = placements['indexes']['D0-fairy-1'] if 'D0-fairy-1' in placements['indexes'] else -1
+	item1 = insertItemGetEvent(flow.flowchart, itemDefs[placements['D0-fairy-1']]['item-key'], itemIndex, 'Event0', item2)
 
-    eventtools.insertEventAfter(flow.flowchart, 'Event128', 'Event58')
+	eventtools.insertEventAfter(flow.flowchart, 'Event128', 'Event58')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/FairyQueen.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/FairyQueen.bfevfl', flow)
 
 def goriyaChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Goriya.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Goriya.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    flagEvent = eventtools.createActionEvent(flow.flowchart, 'EventFlags', 'SetFlag', {'symbol': goriyaFlag, 'value': True}, 'Event4')
+	flagEvent = eventtools.createActionEvent(flow.flowchart, 'EventFlags', 'SetFlag', {'symbol': goriyaFlag, 'value': True}, 'Event4')
 
-    itemIndex = placements['indexes']['goriya-trader'] if 'goriya-trader' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['goriya-trader']]['item-key'], itemIndex, 'Event87', flagEvent)
+	itemIndex = placements['indexes']['goriya-trader'] if 'goriya-trader' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['goriya-trader']]['item-key'], itemIndex, 'Event87', flagEvent)
 
-    flagCheck = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': goriyaFlag}, {0: 'Event7', 1: 'Event15'})
-    eventtools.insertEventAfter(flow.flowchart, 'Event24', flagCheck)
+	flagCheck = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': goriyaFlag}, {0: 'Event7', 1: 'Event15'})
+	eventtools.insertEventAfter(flow.flowchart, 'Event24', flagCheck)
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Goriya.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Goriya.bfevfl', flow)
 
 def manboChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/ManboTamegoro.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/ManboTamegoro.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    flagEvent = eventtools.createActionEvent(flow.flowchart, 'EventFlags', 'SetFlag', {'symbol': manboFlag, 'value': True}, 'Event13')
+	flagEvent = eventtools.createActionEvent(flow.flowchart, 'EventFlags', 'SetFlag', {'symbol': manboFlag, 'value': True}, 'Event13')
 
-    itemIndex = placements['indexes']['manbo'] if 'manbo' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['manbo']]['item-key'], itemIndex, 'Event31', flagEvent)
+	itemIndex = placements['indexes']['manbo'] if 'manbo' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['manbo']]['item-key'], itemIndex, 'Event31', flagEvent)
 
-    flagCheck = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': manboFlag}, {0: 'Event37', 1: 'Event35'})
-    eventtools.insertEventAfter(flow.flowchart, 'Event9', flagCheck)
+	flagCheck = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': manboFlag}, {0: 'Event37', 1: 'Event35'})
+	eventtools.insertEventAfter(flow.flowchart, 'Event9', flagCheck)
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/ManboTamegoro.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/ManboTamegoro.bfevfl', flow)
 
 def mamuChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Mamu.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Mamu.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    flagEvent = eventtools.createActionEvent(flow.flowchart, 'EventFlags', 'SetFlag', {'symbol': mamuFlag, 'value': True}, 'Event40')
+	flagEvent = eventtools.createActionEvent(flow.flowchart, 'EventFlags', 'SetFlag', {'symbol': mamuFlag, 'value': True}, 'Event40')
 
-    itemIndex = placements['indexes']['mamu'] if 'mamu' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['mamu']]['item-key'], itemIndex, 'Event85', flagEvent)
+	itemIndex = placements['indexes']['mamu'] if 'mamu' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['mamu']]['item-key'], itemIndex, 'Event85', flagEvent)
 
-    flagCheck = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': mamuFlag}, {0: 'Event14', 1: 'Event98'})
-    eventtools.insertEventAfter(flow.flowchart, 'Event10', flagCheck)
+	flagCheck = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': mamuFlag}, {0: 'Event14', 1: 'Event98'})
+	eventtools.insertEventAfter(flow.flowchart, 'Event10', flagCheck)
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Mamu.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Mamu.bfevfl', flow)
 
 def rapidsChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/RaftShopMan.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/RaftShopMan.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['rapids-race-45'] if 'rapids-race-45' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['rapids-race-45']]['item-key'], itemIndex, 'Event42', 'Event88')
+	itemIndex = placements['indexes']['rapids-race-45'] if 'rapids-race-45' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['rapids-race-45']]['item-key'], itemIndex, 'Event42', 'Event88')
 
-    itemIndex = placements['indexes']['rapids-race-35'] if 'rapids-race-35' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['rapids-race-35']]['item-key'], itemIndex, 'Event40', 'Event86')
+	itemIndex = placements['indexes']['rapids-race-35'] if 'rapids-race-35' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['rapids-race-35']]['item-key'], itemIndex, 'Event40', 'Event86')
 
-    itemIndex = placements['indexes']['rapids-race-30'] if 'rapids-race-30' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['rapids-race-30']]['item-key'], itemIndex, 'Event38', 'Event85')
+	itemIndex = placements['indexes']['rapids-race-30'] if 'rapids-race-30' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['rapids-race-30']]['item-key'], itemIndex, 'Event38', 'Event85')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/RaftShopMan.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/RaftShopMan.bfevfl', flow)
 
 def fishingChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Fisherman.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Fisherman.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    changeDefs = [
-        ('fishing-any', 'Event113', 'Event212'),
-        ('fishing-cheep-cheep', 'Event3', 'Event10'),
-        ('fishing-ol-baron', 'Event133', 'Event140'),
-        ('fishing-50', 'Event182', 'Event240'),
-        ('fishing-100', 'Event191', 'Event247'),
-        ('fishing-150', 'Event193', 'Event255'),
-        ('fishing-loose', 'Event264', 'Event265')
-    ]
+	changeDefs = [
+		('fishing-orange', 'Event113', 'Event212'),
+		('fishing-cheep-cheep', 'Event3', 'Event10'),
+		('fishing-ol-baron', 'Event133', 'Event140'),
+		('fishing-50', 'Event182', 'Event240'),
+		('fishing-100', 'Event191', 'Event247'),
+		('fishing-150', 'Event193', 'Event255'),
+		('fishing-loose', 'Event264', 'Event265')
+	]
 
-    for defs in changeDefs:
-        itemIndex = placements['indexes'][defs[0]] if defs[0] in placements['indexes'] else -1
-        insertItemGetEvent(flow.flowchart, itemDefs[placements[defs[0]]]['item-key'], itemIndex, defs[1], defs[2])
+	for defs in changeDefs:
+		itemIndex = placements['indexes'][defs[0]] if defs[0] in placements['indexes'] else -1
+		insertItemGetEvent(flow.flowchart, itemDefs[placements[defs[0]]]['item-key'], itemIndex, defs[1], defs[2])
 
-    eventtools.insertEventAfter(flow.flowchart, 'Event20', 'Event3')
-    eventtools.insertEventAfter(flow.flowchart, 'Event18', 'Event133')
-    eventtools.insertEventAfter(flow.flowchart, 'Event24', 'Event191')
-    eventtools.insertEventAfter(flow.flowchart, 'FishingGetBottle', 'Event264')
+	eventtools.insertEventAfter(flow.flowchart, 'Event20', 'Event3')
+	eventtools.insertEventAfter(flow.flowchart, 'Event18', 'Event133')
+	eventtools.insertEventAfter(flow.flowchart, 'Event24', 'Event191')
+	eventtools.insertEventAfter(flow.flowchart, 'FishingGetBottle', 'Event264')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Fisherman.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Fisherman.bfevfl', flow)
 
 def trendyChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/GameShopOwner.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/GameShopOwner.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['trendy-prize-final'] if 'trendy-prize-final' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['trendy-prize-final']]['item-key'], itemIndex, 'Event112', 'Event239')
+	itemIndex = placements['indexes']['trendy-prize-final'] if 'trendy-prize-final' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['trendy-prize-final']]['item-key'], itemIndex, 'Event112', 'Event239')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/GameShopOwner.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/GameShopOwner.bfevfl', flow)
 
 def seashellMansionChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/ShellMansionMaster.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/ShellMansionMaster.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['5-seashell-reward'] if '5-seashell-reward' in placements['indexes'] else -1
-    eventtools.findEvent(flow.flowchart, 'Event36').data.params.data = {'pointIndex': 0, 'itemKey': itemDefs[placements['5-seashell-reward']]['item-key'], 'itemIndex': itemIndex, 'flag': 'GetSeashell10'}
+	itemIndex = placements['indexes']['5-seashell-reward'] if '5-seashell-reward' in placements['indexes'] else -1
+	eventtools.findEvent(flow.flowchart, 'Event36').data.params.data = {'pointIndex': 0, 'itemKey': itemDefs[placements['5-seashell-reward']]['item-key'], 'itemIndex': itemIndex, 'flag': 'GetSeashell10'}
 
-    itemIndex = placements['indexes']['15-seashell-reward'] if '15-seashell-reward' in placements['indexes'] else -1
-    eventtools.findEvent(flow.flowchart, 'Event10').data.params.data = {'pointIndex': 0, 'itemKey': itemDefs[placements['15-seashell-reward']]['item-key'], 'itemIndex': itemIndex, 'flag': 'GetSeashell20'}
+	itemIndex = placements['indexes']['15-seashell-reward'] if '15-seashell-reward' in placements['indexes'] else -1
+	eventtools.findEvent(flow.flowchart, 'Event10').data.params.data = {'pointIndex': 0, 'itemKey': itemDefs[placements['15-seashell-reward']]['item-key'], 'itemIndex': itemIndex, 'flag': 'GetSeashell20'}
 
-    itemIndex = placements['indexes']['30-seashell-reward'] if '30-seashell-reward' in placements['indexes'] else -1
-    eventtools.findEvent(flow.flowchart, 'Event11').data.params.data = {'pointIndex': 0, 'itemKey': itemDefs[placements['30-seashell-reward']]['item-key'], 'itemIndex': itemIndex, 'flag': 'GetSeashell30'}
+	itemIndex = placements['indexes']['30-seashell-reward'] if '30-seashell-reward' in placements['indexes'] else -1
+	eventtools.findEvent(flow.flowchart, 'Event11').data.params.data = {'pointIndex': 0, 'itemKey': itemDefs[placements['30-seashell-reward']]['item-key'], 'itemIndex': itemIndex, 'flag': 'GetSeashell30'}
 
-    itemIndex = placements['indexes']['50-seashell-reward'] if '50-seashell-reward' in placements['indexes'] else -1
-    eventtools.findEvent(flow.flowchart, 'Event13').data.params.data = {'pointIndex': 0, 'itemKey': itemDefs[placements['50-seashell-reward']]['item-key'], 'itemIndex': itemIndex, 'flag': 'GetSeashell50'}
+	itemIndex = placements['indexes']['50-seashell-reward'] if '50-seashell-reward' in placements['indexes'] else -1
+	eventtools.findEvent(flow.flowchart, 'Event13').data.params.data = {'pointIndex': 0, 'itemKey': itemDefs[placements['50-seashell-reward']]['item-key'], 'itemIndex': itemIndex, 'flag': 'GetSeashell50'}
 
-    # 40 shells, doesn't use a present box
-    eventtools.findEvent(flow.flowchart, 'Event65').data.forks.pop(0)
+	# 40 shells, doesn't use a present box
+	eventtools.findEvent(flow.flowchart, 'Event65').data.forks.pop(0)
 
-    eventtools.insertEventAfter(flow.flowchart, 'Event64', 'Event65')
+	eventtools.insertEventAfter(flow.flowchart, 'Event64', 'Event65')
 
-    # Remove the thing to show Link's sword because it will show L1 sword if he has none. 
-    swordCheck1 = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': swordFoundFlag}, {0: 'Event65', 1: 'Event64'})
-    eventtools.insertEventAfter(flow.flowchart, 'Event80', swordCheck1)
+	# Remove the thing to show Link's sword because it will show L1 sword if he has none. 
+	swordCheck1 = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': swordFoundFlag}, {0: 'Event65', 1: 'Event64'})
+	eventtools.insertEventAfter(flow.flowchart, 'Event80', swordCheck1)
 
-    # However, leave it the 2nd time if he's going to get one here.
-    if placements['40-seashell-reward'] != 'sword':
-        swordCheck2 = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': swordFoundFlag}, {0: 'Event48', 1: 'Event47'})
-        eventtools.insertEventAfter(flow.flowchart, 'Event54', swordCheck2)
+	# However, leave it the 2nd time if he's going to get one here.
+	if placements['40-seashell-reward'] != 'sword':
+		swordCheck2 = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': swordFoundFlag}, {0: 'Event48', 1: 'Event47'})
+		eventtools.insertEventAfter(flow.flowchart, 'Event54', swordCheck2)
 
-    itemIndex = placements['indexes']['40-seashell-reward'] if '40-seashell-reward' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['40-seashell-reward']]['item-key'], itemIndex, 'Event91', 'Event79')
+	itemIndex = placements['indexes']['40-seashell-reward'] if '40-seashell-reward' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['40-seashell-reward']]['item-key'], itemIndex, 'Event91', 'Event79')
 
-    # Special case, if there is a sword here, then actually give them item before the end of the animation so it looks like the vanilla cutscene :)
-    if placements['40-seashell-reward'] == 'sword':
-        earlyGiveSword1 = eventtools.createActionEvent(flow.flowchart, 'Inventory', 'AddItemByKey', {'itemKey': 'SwordLv1', 'count': 1, 'index': -1, 'autoEquip': False}, 'Event19')
-        earlyGiveSword2 = eventtools.createActionEvent(flow.flowchart, 'Inventory', 'AddItemByKey', {'itemKey': 'SwordLv2', 'count': 1, 'index': -1, 'autoEquip': False}, 'Event19')
-        swordCheck3 = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': swordFoundFlag}, {0: earlyGiveSword1, 1: earlyGiveSword2})
-        eventtools.insertEventAfter(flow.flowchart, 'Event74', swordCheck3)
-    else:
-        eventtools.insertEventAfter(flow.flowchart, 'Event74', 'Event19')
+	# Special case, if there is a sword here, then actually give them item before the end of the animation so it looks like the vanilla cutscene :)
+	if placements['40-seashell-reward'] == 'sword':
+		earlyGiveSword1 = eventtools.createActionEvent(flow.flowchart, 'Inventory', 'AddItemByKey', {'itemKey': 'SwordLv1', 'count': 1, 'index': -1, 'autoEquip': False}, 'Event19')
+		earlyGiveSword2 = eventtools.createActionEvent(flow.flowchart, 'Inventory', 'AddItemByKey', {'itemKey': 'SwordLv2', 'count': 1, 'index': -1, 'autoEquip': False}, 'Event19')
+		swordCheck3 = eventtools.createSwitchEvent(flow.flowchart, 'EventFlags', 'CheckFlag', {'symbol': swordFoundFlag}, {0: earlyGiveSword1, 1: earlyGiveSword2})
+		eventtools.insertEventAfter(flow.flowchart, 'Event74', swordCheck3)
+	else:
+		eventtools.insertEventAfter(flow.flowchart, 'Event74', 'Event19')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/ShellMansionMaster.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/ShellMansionMaster.bfevfl', flow)
 
 def madBatterChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/MadBatter.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/MadBatter.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    # Combine Talk and End entry points into one flow, cutting out the normal choose your upgrade dialogue.
-    eventtools.insertEventAfter(flow.flowchart, 'Event19', 'Event13')
+	# Combine Talk and End entry points into one flow, cutting out the normal choose your upgrade dialogue.
+	eventtools.insertEventAfter(flow.flowchart, 'Event19', 'Event13')
 
-    ## Mad Batter A (bay)
-    eventtools.addEntryPoint(flow.flowchart, 'BatterA')
-    subflowA = eventtools.createSubFlowEvent(flow.flowchart, '', 'talk2', {})
+	## Mad Batter A (bay)
+	eventtools.addEntryPoint(flow.flowchart, 'BatterA')
+	subflowA = eventtools.createSubFlowEvent(flow.flowchart, '', 'talk2', {})
 
-    eventtools.insertEventAfter(flow.flowchart, 'BatterA', subflowA)
+	eventtools.insertEventAfter(flow.flowchart, 'BatterA', subflowA)
 
-    itemIndex = placements['indexes']['mad-batter-bay'] if 'mad-batter-bay' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['mad-batter-bay']]['item-key'], itemIndex, subflowA, 'Event23')
+	itemIndex = placements['indexes']['mad-batter-bay'] if 'mad-batter-bay' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['mad-batter-bay']]['item-key'], itemIndex, subflowA, 'Event23')
 
-    ## Mad Batter B (woods)
-    eventtools.addEntryPoint(flow.flowchart, 'BatterB')
-    subflowB = eventtools.createSubFlowEvent(flow.flowchart, '', 'talk2', {})
+	## Mad Batter B (woods)
+	eventtools.addEntryPoint(flow.flowchart, 'BatterB')
+	subflowB = eventtools.createSubFlowEvent(flow.flowchart, '', 'talk2', {})
 
-    eventtools.insertEventAfter(flow.flowchart, 'BatterB', subflowB)
+	eventtools.insertEventAfter(flow.flowchart, 'BatterB', subflowB)
 
-    itemIndex = placements['indexes']['mad-batter-woods'] if 'mad-batter-woods' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['mad-batter-woods']]['item-key'], itemIndex, subflowB, 'Event23')
+	itemIndex = placements['indexes']['mad-batter-woods'] if 'mad-batter-woods' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['mad-batter-woods']]['item-key'], itemIndex, subflowB, 'Event23')
 
-    ## Mad Batter C (mountain)
-    eventtools.addEntryPoint(flow.flowchart, 'BatterC')
-    subflowC = eventtools.createSubFlowEvent(flow.flowchart, '', 'talk2', {})
+	## Mad Batter C (mountain)
+	eventtools.addEntryPoint(flow.flowchart, 'BatterC')
+	subflowC = eventtools.createSubFlowEvent(flow.flowchart, '', 'talk2', {})
 
-    eventtools.insertEventAfter(flow.flowchart, 'BatterC', subflowC)
+	eventtools.insertEventAfter(flow.flowchart, 'BatterC', subflowC)
 
-    itemIndex = placements['indexes']['mad-batter-taltal'] if 'mad-batter-taltal' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['mad-batter-taltal']]['item-key'], itemIndex, subflowC, 'Event23')
+	itemIndex = placements['indexes']['mad-batter-taltal'] if 'mad-batter-taltal' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['mad-batter-taltal']]['item-key'], itemIndex, subflowC, 'Event23')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MadBatter.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MadBatter.bfevfl', flow)
 
 def dampeChanges(placements, romPath, outdir):
-    sheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/MapPieceClearReward.gsheet')
+	sheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/MapPieceClearReward.gsheet')
 
-    # Page 1 reward
-    itemIndex = placements['indexes']['dampe-page-1'] if 'dampe-page-1' in placements['indexes'] else -1
-    sheet['values'][3]['mRewardItem'] = itemDefs[placements['dampe-page-1']]['item-key']
-    sheet['values'][3]['mRewardItemEventEntry'] = itemDefs[placements['dampe-page-1']]['item-key']
-    sheet['values'][3]['mRewardItemIndex'] = itemIndex
+	# Page 1 reward
+	itemIndex = placements['indexes']['dampe-page-1'] if 'dampe-page-1' in placements['indexes'] else -1
+	sheet['values'][3]['mRewardItem'] = itemDefs[placements['dampe-page-1']]['item-key']
+	sheet['values'][3]['mRewardItemEventEntry'] = itemDefs[placements['dampe-page-1']]['item-key']
+	sheet['values'][3]['mRewardItemIndex'] = itemIndex
 
-    # Page 2 reward
-    itemIndex = placements['indexes']['dampe-page-2'] if 'dampe-page-2' in placements['indexes'] else -1
-    sheet['values'][7]['mRewardItem'] = itemDefs[placements['dampe-page-2']]['item-key']
-    sheet['values'][7]['mRewardItemEventEntry'] = itemDefs[placements['dampe-page-2']]['item-key']
-    sheet['values'][7]['mRewardItemIndex'] = itemIndex
+	# Page 2 reward
+	itemIndex = placements['indexes']['dampe-page-2'] if 'dampe-page-2' in placements['indexes'] else -1
+	sheet['values'][7]['mRewardItem'] = itemDefs[placements['dampe-page-2']]['item-key']
+	sheet['values'][7]['mRewardItemEventEntry'] = itemDefs[placements['dampe-page-2']]['item-key']
+	sheet['values'][7]['mRewardItemIndex'] = itemIndex
 
-    # FInal reward
-    itemIndex = placements['indexes']['dampe-final'] if 'dampe-final' in placements['indexes'] else -1
-    sheet['values'][12]['mRewardItem'] = itemDefs[placements['dampe-final']]['item-key']
-    sheet['values'][12]['mRewardItemEventEntry'] = itemDefs[placements['dampe-final']]['item-key']
-    sheet['values'][12]['mRewardItemIndex'] = itemIndex
+	# FInal reward
+	itemIndex = placements['indexes']['dampe-final'] if 'dampe-final' in placements['indexes'] else -1
+	sheet['values'][12]['mRewardItem'] = itemDefs[placements['dampe-final']]['item-key']
+	sheet['values'][12]['mRewardItemEventEntry'] = itemDefs[placements['dampe-final']]['item-key']
+	sheet['values'][12]['mRewardItemIndex'] = itemIndex
 
-    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/MapPieceClearReward.gsheet', sheet)
+	oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/MapPieceClearReward.gsheet', sheet)
 
-    #######
+	#######
 
-    sheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/MapPieceTheme.gsheet')
+	sheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/MapPieceTheme.gsheet')
 
-    # 1-4 reward
-    itemIndex = placements['indexes']['dampe-heart-challenge'] if 'dampe-heart-challenge' in placements['indexes'] else -1
-    sheet['values'][3]['mRewardItem'] = itemDefs[placements['dampe-heart-challenge']]['item-key']
-    sheet['values'][3]['mRewardItemEventEntry'] = itemDefs[placements['dampe-heart-challenge']]['item-key']
-    sheet['values'][3]['mRewardItemIndex'] = itemIndex
+	# 1-4 reward
+	itemIndex = placements['indexes']['dampe-heart-challenge'] if 'dampe-heart-challenge' in placements['indexes'] else -1
+	sheet['values'][3]['mRewardItem'] = itemDefs[placements['dampe-heart-challenge']]['item-key']
+	sheet['values'][3]['mRewardItemEventEntry'] = itemDefs[placements['dampe-heart-challenge']]['item-key']
+	sheet['values'][3]['mRewardItemIndex'] = itemIndex
 
-    # 3-2 reward
-    itemIndex = placements['indexes']['dampe-bottle-challenge'] if 'dampe-bottle-challenge' in placements['indexes'] else -1
-    sheet['values'][9]['mRewardItem'] = itemDefs[placements['dampe-bottle-challenge']]['item-key']
-    sheet['values'][9]['mRewardItemEventEntry'] = itemDefs[placements['dampe-bottle-challenge']]['item-key']
-    sheet['values'][9]['mRewardItemIndex'] = itemIndex
+	# 3-2 reward
+	itemIndex = placements['indexes']['dampe-bottle-challenge'] if 'dampe-bottle-challenge' in placements['indexes'] else -1
+	sheet['values'][9]['mRewardItem'] = itemDefs[placements['dampe-bottle-challenge']]['item-key']
+	sheet['values'][9]['mRewardItemEventEntry'] = itemDefs[placements['dampe-bottle-challenge']]['item-key']
+	sheet['values'][9]['mRewardItemIndex'] = itemIndex
 
-    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/MapPieceTheme.gsheet', sheet)
+	oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/MapPieceTheme.gsheet', sheet)
 
 def moldormChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/DeguTail.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/DeguTail.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D1-moldorm'] if 'D1-moldorm' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D1-moldorm']]['item-key'], itemIndex, 'Event8', 'Event45')
+	itemIndex = placements['indexes']['D1-moldorm'] if 'D1-moldorm' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['D1-moldorm']]['item-key'], itemIndex, 'Event8', 'Event45')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/DeguTail.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/DeguTail.bfevfl', flow)
 
 def genieChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/PotDemonKing.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/PotDemonKing.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D2-genie'] if 'D2-genie' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D2-genie']]['item-key'], itemIndex, 'Event29', 'Event56')
+	itemIndex = placements['indexes']['D2-genie'] if 'D2-genie' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['D2-genie']]['item-key'], itemIndex, 'Event29', 'Event56')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PotDemonKing.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PotDemonKing.bfevfl', flow)
 
 def slimeEyeChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/DeguZol.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/DeguZol.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D3-slime-eye'] if 'D3-slime-eye' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D3-slime-eye']]['item-key'], itemIndex, 'Event29', 'Event43')
+	itemIndex = placements['indexes']['D3-slime-eye'] if 'D3-slime-eye' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['D3-slime-eye']]['item-key'], itemIndex, 'Event29', 'Event43')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/DeguZol.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/DeguZol.bfevfl', flow)
 
 def anglerChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Angler.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Angler.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D4-angler'] if 'D4-angler' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D4-angler']]['item-key'], itemIndex, 'Event25', 'Event50')
+	itemIndex = placements['indexes']['D4-angler'] if 'D4-angler' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['D4-angler']]['item-key'], itemIndex, 'Event25', 'Event50')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Angler.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Angler.bfevfl', flow)
 
 def slimeEelChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Hooker.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Hooker.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D5-slime-eel'] if 'D5-slime-eel' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D5-slime-eel']]['item-key'], itemIndex, 'Event28', 'Event13')
+	itemIndex = placements['indexes']['D5-slime-eel'] if 'D5-slime-eel' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['D5-slime-eel']]['item-key'], itemIndex, 'Event28', 'Event13')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Hooker.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Hooker.bfevfl', flow)
 
 def facadeChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/MatFace.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/MatFace.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D6-facade'] if 'D6-facade' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D6-facade']]['item-key'], itemIndex, 'Event8', 'Event35')
+	itemIndex = placements['indexes']['D6-facade'] if 'D6-facade' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['D6-facade']]['item-key'], itemIndex, 'Event8', 'Event35')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MatFace.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MatFace.bfevfl', flow)
 
 def eagleChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Albatoss.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Albatoss.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D7-eagle'] if 'D7-eagle' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D7-eagle']]['item-key'], itemIndex, 'Event40', 'Event51')
+	itemIndex = placements['indexes']['D7-eagle'] if 'D7-eagle' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['D7-eagle']]['item-key'], itemIndex, 'Event40', 'Event51')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Albatoss.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Albatoss.bfevfl', flow)
 
 def hotheadChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/DeguFlame.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/DeguFlame.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D8-hothead'] if 'D8-hothead' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D8-hothead']]['item-key'], itemIndex, 'Event13', 'Event15')
+	itemIndex = placements['indexes']['D8-hothead'] if 'D8-hothead' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['D8-hothead']]['item-key'], itemIndex, 'Event13', 'Event15')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/DeguFlame.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/DeguFlame.bfevfl', flow)
 
 def lanmolaChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/Lanmola.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/Lanmola.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['lanmola'] if 'lanmola' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['lanmola']]['item-key'], itemIndex, 'Event34', 'Event9')
+	itemIndex = placements['indexes']['lanmola'] if 'lanmola' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['lanmola']]['item-key'], itemIndex, 'Event34', 'Event9')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Lanmola.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Lanmola.bfevfl', flow)
 
 def armosKnightChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/DeguArmos.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/DeguArmos.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['armos-knight'] if 'armos-knight' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['armos-knight']]['item-key'], itemIndex, 'Event2', 'Event8')
+	itemIndex = placements['indexes']['armos-knight'] if 'armos-knight' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['armos-knight']]['item-key'], itemIndex, 'Event2', 'Event8')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/DeguArmos.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/DeguArmos.bfevfl', flow)
 
 def masterStalfosChanges(placements, romPath, outdir):
-    flow = eventtools.readFlow(f'{romPath}/region_common/event/MasterStalfon.bfevfl')
-    addNeededActors(flow.flowchart, romPath)
+	flow = eventtools.readFlow(f'{romPath}/region_common/event/MasterStalfon.bfevfl')
+	addNeededActors(flow.flowchart, romPath)
 
-    itemIndex = placements['indexes']['D5-master-stalfos'] if 'D5-master-stalfos' in placements['indexes'] else -1
-    insertItemGetEvent(flow.flowchart, itemDefs[placements['D5-master-stalfos']]['item-key'], itemIndex, 'Event37', 'Event194')
+	itemIndex = placements['indexes']['D5-master-stalfos'] if 'D5-master-stalfos' in placements['indexes'] else -1
+	insertItemGetEvent(flow.flowchart, itemDefs[placements['D5-master-stalfos']]['item-key'], itemIndex, 'Event37', 'Event194')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MasterStalfon.bfevfl', flow)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MasterStalfon.bfevfl', flow)
 
 
 # Fix some LEB files in ways that are always done, regardless of placements.
 def makeGeneralLEBChanges(placements, romPath, outdir):
-    ### MarinTarin house: weird hacky thing to make it not detain you on leaving the house.
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/MarinTarinHouse'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/MarinTarinHouse')
+	### Entrance to Mysterious Forest: Set the owl to 0 instead of 1, prevents the cutscene from triggering in some circumstances.
+	# For all other owls, setting the flags is sufficient but this one sucks.
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level/Field'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level/Field')
 
-    with open(f'{romPath}/region_common/level/MarinTarinHouse/MarinTarinHouse_01A.leb', 'rb') as file:
-        room = leb.Room(file.read())
+	with open(f'{romPath}/region_common/level/Field/Field_09A.leb', 'rb') as file:
+		room = leb.Room(file.read())
 
-    room.actors.append(room.actors.pop(3))
+	room.actors[1].parameters[0] = 0
 
-    room.actors.insert(3, copy.deepcopy(room.actors[6]))
-    room.actors[3].X += 0xB000000
-    room.actors[3].Y += 0xB000000
+	with open(f'{outdir}/Romfs/region_common/level/Field/Field_09A.leb', 'wb') as file:
+		file.write(room.repack())
 
-    with open(f'{outdir}/Romfs/region_common/level/MarinTarinHouse/MarinTarinHouse_01A.leb', 'wb') as file:
-        file.write(room.repack())
+	### Mad Batters: Give the batters a 3rd parameter for the event entry point to run
+	# A: Bay
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level/MadBattersWell01'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level/MadBattersWell01')
 
-    ### Entrance to Mysterious Forest: Set the owl to 0 instead of 1, prevents the cutscene from triggering in some circumstances.
-    # For all other owls, setting the flags is sufficient but this one sucks.
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/Field'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/Field')
+	with open(f'{romPath}/region_common/level/MadBattersWell01/MadBattersWell01_01A.leb', 'rb') as roomfile:
+		roomData = leb.Room(roomfile.read())
 
-    with open(f'{romPath}/region_common/level/Field/Field_09A.leb', 'rb') as file:
-        room = leb.Room(file.read())
+	roomData.actors[2].parameters[2] = b'BatterA'
 
-    room.actors[1].parameters[0] = 0
+	with open(f'{outdir}/Romfs/region_common/level/MadBattersWell01/MadBattersWell01_01A.leb', 'wb') as outfile:
+		outfile.write(roomData.repack())
 
-    with open(f'{outdir}/Romfs/region_common/level/Field/Field_09A.leb', 'wb') as file:
-        file.write(room.repack())
+	# B: Woods
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level/MadBattersWell02'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level/MadBattersWell02')
 
-    ### Mad Batters: Give the batters a 3rd parameter for the event entry point to run
-    # A: Bay
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/MadBattersWell01'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/MadBattersWell01')
+	with open(f'{romPath}/region_common/level/MadBattersWell02/MadBattersWell02_01A.leb', 'rb') as roomfile:
+		roomData = leb.Room(roomfile.read())
 
-    with open(f'{romPath}/region_common/level/MadBattersWell01/MadBattersWell01_01A.leb', 'rb') as roomfile:
-        roomData = leb.Room(roomfile.read())
+	roomData.actors[6].parameters[2] = b'BatterB'
 
-    roomData.actors[2].parameters[2] = b'BatterA'
+	with open(f'{outdir}/Romfs/region_common/level/MadBattersWell02/MadBattersWell02_01A.leb', 'wb') as outfile:
+		outfile.write(roomData.repack())
 
-    with open(f'{outdir}/Romfs/region_common/level/MadBattersWell01/MadBattersWell01_01A.leb', 'wb') as outfile:
-        outfile.write(roomData.repack())
+	# C: Mountain
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level/MadBattersWell03'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level/MadBattersWell03')
 
-    # B: Woods
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/MadBattersWell02'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/MadBattersWell02')
+	with open(f'{romPath}/region_common/level/MadBattersWell03/MadBattersWell03_01A.leb', 'rb') as roomfile:
+		roomData = leb.Room(roomfile.read())
 
-    with open(f'{romPath}/region_common/level/MadBattersWell02/MadBattersWell02_01A.leb', 'rb') as roomfile:
-        roomData = leb.Room(roomfile.read())
+	roomData.actors[0].parameters[2] = b'BatterC'
 
-    roomData.actors[6].parameters[2] = b'BatterB'
+	with open(f'{outdir}/Romfs/region_common/level/MadBattersWell03/MadBattersWell03_01A.leb', 'wb') as outfile:
+		outfile.write(roomData.repack())
 
-    with open(f'{outdir}/Romfs/region_common/level/MadBattersWell02/MadBattersWell02_01A.leb', 'wb') as outfile:
-        outfile.write(roomData.repack())
+	### Lanmola Cave: Remove the AnglerKey actor
+	if not os.path.exists(f'{outdir}/Romfs/region_common/level/LanmolaCave'):
+		os.makedirs(f'{outdir}/Romfs/region_common/level/LanmolaCave')
 
-    # C: Mountain
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/MadBattersWell03'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/MadBattersWell03')
+	with open(f'{romPath}/region_common/level/LanmolaCave/LanmolaCave_02A.leb', 'rb') as roomfile:
+		roomData = leb.Room(roomfile.read())
 
-    with open(f'{romPath}/region_common/level/MadBattersWell03/MadBattersWell03_01A.leb', 'rb') as roomfile:
-        roomData = leb.Room(roomfile.read())
+	roomData.actors.pop(5) # remove angler key
 
-    roomData.actors[0].parameters[2] = b'BatterC'
-
-    with open(f'{outdir}/Romfs/region_common/level/MadBattersWell03/MadBattersWell03_01A.leb', 'wb') as outfile:
-        outfile.write(roomData.repack())
-
-    ### Lanmola Cave: Remove the AnglerKey actor
-    if not os.path.exists(f'{outdir}/Romfs/region_common/level/LanmolaCave'):
-        os.makedirs(f'{outdir}/Romfs/region_common/level/LanmolaCave')
-
-    with open(f'{romPath}/region_common/level/LanmolaCave/LanmolaCave_02A.leb', 'rb') as roomfile:
-        roomData = leb.Room(roomfile.read())
-
-    roomData.actors.pop(5) # remove angler key
-
-    with open(f'{outdir}/Romfs/region_common/level/LanmolaCave/LanmolaCave_02A.leb', 'wb') as outfile:
-        outfile.write(roomData.repack())
+	with open(f'{outdir}/Romfs/region_common/level/LanmolaCave/LanmolaCave_02A.leb', 'wb') as outfile:
+		outfile.write(roomData.repack())
 
 
 # Make changes to some events that should be in every seed, e.g. setting flags for having watched cutscenes
 def makeGeneralEventChanges(placements, romPath, outdir):
-    if not os.path.exists(f'{outdir}/Romfs/region_common/event'):
-        os.makedirs(f'{outdir}/Romfs/region_common/event')
+	if not os.path.exists(f'{outdir}/Romfs/region_common/event'):
+		os.makedirs(f'{outdir}/Romfs/region_common/event')
 
-    #################################################################################################################################
-    ### PlayerStart event: Sets a bunch of flags for cutscenes being watched/triggered to prevent them from ever happening.
-    ### First check if ShieldGet flag was set, to only do this after getting the item from Tarin
-    playerStart = eventtools.readFlow(f'{romPath}/region_common/event/PlayerStart.bfevfl')
-    eventFlagsActor = eventtools.findActor(playerStart.flowchart, 'EventFlags') # Store this actor for later to add it to other event flows.
+	#################################################################################################################################
+	### PlayerStart event: Sets a bunch of flags for cutscenes being watched/triggered to prevent them from ever happening.
+	### First check if FirstClear is already set, to not do the work more than once and slightly slow down loading zones.
+	playerStart = eventtools.readFlow(f'{romPath}/region_common/event/PlayerStart.bfevfl')
+	eventFlagsActor = eventtools.findActor(playerStart.flowchart, 'EventFlags') # Store this actor for later to add it to other event flows.
 
-    playerStartFlagsFirstEvent = eventtools.createActionEvent(playerStart.flowchart, 'EventFlags', 'SetFlag', {'symbol': 'FirstClear', 'value': True})
-    playerStartShieldGetCheckEvent = eventtools.createSwitchEvent(playerStart.flowchart, 'EventFlags', 'CheckFlag', {'symbol': 'ShieldGet'}, {0: None, 1: playerStartFlagsFirstEvent})
+	playerStartFlagsFirstEvent = eventtools.createActionEvent(playerStart.flowchart, 'EventFlags', 'SetFlag', {'symbol': 'FirstClear', 'value': True})
+	playerStartFlagCheckEvent = eventtools.createSwitchEvent(playerStart.flowchart, 'EventFlags', 'CheckFlag', {'symbol': 'FirstClear'}, {0: playerStartFlagsFirstEvent, 1: None})
 
-    eventtools.insertEventAfter(playerStart.flowchart, 'Event558', playerStartShieldGetCheckEvent)
+	eventtools.insertEventAfter(playerStart.flowchart, 'Event558', playerStartFlagCheckEvent)
 
-    eventtools.createActionChain(playerStart.flowchart, playerStartFlagsFirstEvent, [
-        ('EventFlags', 'SetFlag', {'symbol': 'SecondClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'ThirdClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'FourthClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'FifthClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'SixthClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'SeventhClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'NinthClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'TenthClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'EleventhClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'TwelveClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'ThirteenClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'FourteenClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'FiveteenClear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'WalrusAwaked', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'MarinRescueClear', 'value': True})
-        ])
+	eventtools.createActionChain(playerStart.flowchart, playerStartFlagsFirstEvent, [
+		('EventFlags', 'SetFlag', {'symbol': 'SecondClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'ThirdClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'FourthClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'FifthClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'SixthClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'SeventhClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'NinthClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'TenthClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'EleventhClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'TwelveClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'ThirteenClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'FourteenClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'FiveteenClear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'WalrusAwaked', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'MarinRescueClear', 'value': True})
+		])
 
-    # Remove the part that kills the rooster after D7 in Level7DungeonIn_FlyingCucco
-    eventtools.insertEventAfter(playerStart.flowchart, 'Level7DungeonIn_FlyingCucco', 'Event476')
+	# Remove the part that kills the rooster after D7 in Level7DungeonIn_FlyingCucco
+	eventtools.insertEventAfter(playerStart.flowchart, 'Level7DungeonIn_FlyingCucco', 'Event476')
 
-    if placements['settings']['fast-stealing']:
-        # Remove the flag that says you stole so that the shopkeeper won't kill you
-        eventtools.createActionChain(playerStart.flowchart, 'Event774', [
-            ('EventFlags', 'SetFlag', {'symbol': 'StealSuccess', 'value': False})
-            ])
+	if placements['settings']['fast-stealing']:
+		# Remove the flag that says you stole so that the shopkeeper won't kill you
+		eventtools.createActionChain(playerStart.flowchart, 'Event774', [
+			('EventFlags', 'SetFlag', {'symbol': 'StealSuccess', 'value': False})
+			])
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PlayerStart.bfevfl', playerStart)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PlayerStart.bfevfl', playerStart)
 
-    #################################################################################################################################
-    ### TreasureBox event: Adds in events to make certain items be progressive.
-    treasureBox = eventtools.readFlow(f'{romPath}/region_common/event/TreasureBox.bfevfl')
+	#################################################################################################################################
+	### TreasureBox event: Adds in events to make certain items be progressive.
+	treasureBox = eventtools.readFlow(f'{romPath}/region_common/event/TreasureBox.bfevfl')
 
-    # Add the EventFlags actor and the AddItem action to the Inventory actor.
-    treasureBox.flowchart.actors.append(eventFlagsActor)
-    eventtools.addActorAction(eventtools.findActor(treasureBox.flowchart, 'Inventory'), 'AddItem')
-    inventoryActor = eventtools.findActor(treasureBox.flowchart, 'Inventory') # Store this actor to add to another flow.
-    flowControlActor = eventtools.findActor(treasureBox.flowchart, 'FlowControl')
+	# Add the EventFlags actor and the AddItem action to the Inventory actor.
+	treasureBox.flowchart.actors.append(eventFlagsActor)
+	eventtools.addActorAction(eventtools.findActor(treasureBox.flowchart, 'Inventory'), 'AddItem')
+	inventoryActor = eventtools.findActor(treasureBox.flowchart, 'Inventory') # Store this actor to add to another flow.
+	flowControlActor = eventtools.findActor(treasureBox.flowchart, 'FlowControl')
 
-    swordFlagCheckEvent = eventtools.createProgressiveItemSwitch(treasureBox.flowchart, 'SwordLv1', 'SwordLv2', swordFoundFlag)
-    swordContentCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'SwordLv1'}, {0: swordFlagCheckEvent, 1: 'Event33'})
-    
-    shieldFlagCheckEvent = eventtools.createProgressiveItemSwitch(treasureBox.flowchart, 'Shield', 'MirrorShield', shieldFoundFlag)
-    shieldContentCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Shield'}, {0: shieldFlagCheckEvent, 1: swordContentCheckEvent})
+	swordFlagCheckEvent = eventtools.createProgressiveItemSwitch(treasureBox.flowchart, 'SwordLv1', 'SwordLv2', swordFoundFlag)
+	swordContentCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'SwordLv1'}, {0: swordFlagCheckEvent, 1: 'Event33'})
+	
+	shieldFlagCheckEvent = eventtools.createProgressiveItemSwitch(treasureBox.flowchart, 'Shield', 'MirrorShield', shieldFoundFlag)
+	shieldContentCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Shield'}, {0: shieldFlagCheckEvent, 1: swordContentCheckEvent})
 
-    braceletFlagCheckEvent = eventtools.createProgressiveItemSwitch(treasureBox.flowchart, 'PowerBraceletLv1', 'PowerBraceletLv2', braceletFoundFlag)
-    braceletContentCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'PowerBraceletLv1'}, {0: braceletFlagCheckEvent, 1: shieldContentCheckEvent})
+	braceletFlagCheckEvent = eventtools.createProgressiveItemSwitch(treasureBox.flowchart, 'PowerBraceletLv1', 'PowerBraceletLv2', braceletFoundFlag)
+	braceletContentCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'PowerBraceletLv1'}, {0: braceletFlagCheckEvent, 1: shieldContentCheckEvent})
 
-    powderCapacityGetEvent = insertItemGetEvent(treasureBox.flowchart, 'MagicPowder_MaxUp', -1, None, None)
-    powderCapacityCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'MagicPowder_MaxUp'}, {0: powderCapacityGetEvent, 1: braceletContentCheckEvent})
+	powderCapacityGetEvent = insertItemGetEvent(treasureBox.flowchart, 'MagicPowder_MaxUp', -1, None, None)
+	powderCapacityCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'MagicPowder_MaxUp'}, {0: powderCapacityGetEvent, 1: braceletContentCheckEvent})
 
-    bombCapacityGetEvent = insertItemGetEvent(treasureBox.flowchart, 'Bomb_MaxUp', -1, None, None)
-    bombCapacityCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Bomb_MaxUp'}, {0: bombCapacityGetEvent, 1: powderCapacityCheckEvent})
+	bombCapacityGetEvent = insertItemGetEvent(treasureBox.flowchart, 'Bomb_MaxUp', -1, None, None)
+	bombCapacityCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Bomb_MaxUp'}, {0: bombCapacityGetEvent, 1: powderCapacityCheckEvent})
 
-    arrowCapacityGetEvent = insertItemGetEvent(treasureBox.flowchart, 'Arrow_MaxUp', -1, None, None)
-    arrowCapacityCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Arrow_MaxUp'}, {0: arrowCapacityGetEvent, 1: bombCapacityCheckEvent})
+	arrowCapacityGetEvent = insertItemGetEvent(treasureBox.flowchart, 'Arrow_MaxUp', -1, None, None)
+	arrowCapacityCheckEvent = eventtools.createSwitchEvent(treasureBox.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Arrow_MaxUp'}, {0: arrowCapacityGetEvent, 1: bombCapacityCheckEvent})
 
-    eventtools.insertEventAfter(treasureBox.flowchart, 'Event32', arrowCapacityCheckEvent)
+	eventtools.insertEventAfter(treasureBox.flowchart, 'Event32', arrowCapacityCheckEvent)
 
-    # Sets the events to give you the item before the item get sequence, mainly for red/blue tunic. Can be changed back when those get their own event chains
-    eventtools.setSwitchEventCase(treasureBox.flowchart, 'Event33', 1, 'Event5')
-    eventtools.setSwitchEventCase(treasureBox.flowchart, 'Event39', 0, 'Event5')
-    eventtools.insertEventAfter(treasureBox.flowchart, 'Event5', 'Event0')
-    eventtools.insertEventAfter(treasureBox.flowchart, 'Event0', None)
+	# Sets the events to give you the item before the item get sequence, mainly for red/blue tunic. Can be changed back when those get their own event chains
+	eventtools.setSwitchEventCase(treasureBox.flowchart, 'Event33', 1, 'Event5')
+	eventtools.setSwitchEventCase(treasureBox.flowchart, 'Event39', 0, 'Event5')
+	eventtools.insertEventAfter(treasureBox.flowchart, 'Event5', 'Event0')
+	eventtools.insertEventAfter(treasureBox.flowchart, 'Event0', None)
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/TreasureBox.bfevfl', treasureBox)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/TreasureBox.bfevfl', treasureBox)
 
-    #################################################################################################################################
-    ### ShellMansionPresent event: Similar to TreasureBox, must make some items progressive.
-    shellPresent = eventtools.readFlow(f'{romPath}/region_common/event/ShellMansionPresent.bfevfl')
+	#################################################################################################################################
+	### ShellMansionPresent event: Similar to TreasureBox, must make some items progressive.
+	shellPresent = eventtools.readFlow(f'{romPath}/region_common/event/ShellMansionPresent.bfevfl')
 
-    # Add the EventFlags actor and the AddItem action to the Inventory actor.
-    shellPresent.flowchart.actors.append(eventFlagsActor)
-    eventtools.addActorAction(eventtools.findActor(shellPresent.flowchart, 'Inventory'), 'AddItem')
-    shellPresent.flowchart.actors.append(flowControlActor)
+	# Add the EventFlags actor and the AddItem action to the Inventory actor.
+	shellPresent.flowchart.actors.append(eventFlagsActor)
+	eventtools.addActorAction(eventtools.findActor(shellPresent.flowchart, 'Inventory'), 'AddItem')
+	shellPresent.flowchart.actors.append(flowControlActor)
 
-    swordFlagCheckEvent = eventtools.createProgressiveItemSwitch(shellPresent.flowchart, 'SwordLv1', 'SwordLv2', swordFoundFlag, None, 'Event0')
-    swordContentCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'SwordLv1'}, {0: swordFlagCheckEvent, 1: 'Event3'})
-    
-    shieldFlagCheckEvent = eventtools.createProgressiveItemSwitch(shellPresent.flowchart, 'Shield', 'MirrorShield', shieldFoundFlag, None, 'Event0')
-    shieldContentCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Shield'}, {0: shieldFlagCheckEvent, 1: swordContentCheckEvent})
+	swordFlagCheckEvent = eventtools.createProgressiveItemSwitch(shellPresent.flowchart, 'SwordLv1', 'SwordLv2', swordFoundFlag, None, 'Event0')
+	swordContentCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'SwordLv1'}, {0: swordFlagCheckEvent, 1: 'Event3'})
+	
+	shieldFlagCheckEvent = eventtools.createProgressiveItemSwitch(shellPresent.flowchart, 'Shield', 'MirrorShield', shieldFoundFlag, None, 'Event0')
+	shieldContentCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Shield'}, {0: shieldFlagCheckEvent, 1: swordContentCheckEvent})
 
-    braceletFlagCheckEvent = eventtools.createProgressiveItemSwitch(shellPresent.flowchart, 'PowerBraceletLv1', 'PowerBraceletLv2', braceletFoundFlag, None, 'Event0')
-    braceletContentCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'PowerBraceletLv1'}, {0: braceletFlagCheckEvent, 1: shieldContentCheckEvent})
+	braceletFlagCheckEvent = eventtools.createProgressiveItemSwitch(shellPresent.flowchart, 'PowerBraceletLv1', 'PowerBraceletLv2', braceletFoundFlag, None, 'Event0')
+	braceletContentCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'PowerBraceletLv1'}, {0: braceletFlagCheckEvent, 1: shieldContentCheckEvent})
 
-    powderCapacityGetEvent = insertItemGetEvent(shellPresent.flowchart, 'MagicPowder_MaxUp', -1, None, 'Event0')
-    powderCapacityCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'MagicPowder_MaxUp'}, {0: powderCapacityGetEvent, 1: braceletContentCheckEvent})
+	powderCapacityGetEvent = insertItemGetEvent(shellPresent.flowchart, 'MagicPowder_MaxUp', -1, None, 'Event0')
+	powderCapacityCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'MagicPowder_MaxUp'}, {0: powderCapacityGetEvent, 1: braceletContentCheckEvent})
 
-    bombCapacityGetEvent = insertItemGetEvent(shellPresent.flowchart, 'Bomb_MaxUp', -1, None, 'Event0')
-    bombCapacityCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Bomb_MaxUp'}, {0: bombCapacityGetEvent, 1: powderCapacityCheckEvent})
+	bombCapacityGetEvent = insertItemGetEvent(shellPresent.flowchart, 'Bomb_MaxUp', -1, None, 'Event0')
+	bombCapacityCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Bomb_MaxUp'}, {0: bombCapacityGetEvent, 1: powderCapacityCheckEvent})
 
-    arrowCapacityGetEvent = insertItemGetEvent(shellPresent.flowchart, 'Arrow_MaxUp', -1, None, 'Event0')
-    arrowCapacityCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Arrow_MaxUp'}, {0: arrowCapacityGetEvent, 1: bombCapacityCheckEvent})
+	arrowCapacityGetEvent = insertItemGetEvent(shellPresent.flowchart, 'Arrow_MaxUp', -1, None, 'Event0')
+	arrowCapacityCheckEvent = eventtools.createSwitchEvent(shellPresent.flowchart, 'FlowControl', 'CompareString', {'value1': eventtools.findEvent(treasureBox.flowchart, 'Event33').data.params.data['value1'], 'value2': 'Arrow_MaxUp'}, {0: arrowCapacityGetEvent, 1: bombCapacityCheckEvent})
 
-    eventtools.insertEventAfter(shellPresent.flowchart, 'Event3', 'Event4')
-    eventtools.insertEventAfter(shellPresent.flowchart, 'Event4', 'Event14')
-    eventtools.insertEventAfter(shellPresent.flowchart, 'Event14', 'Event0')
-    eventtools.insertEventAfter(shellPresent.flowchart, 'Event25', arrowCapacityCheckEvent)
+	eventtools.insertEventAfter(shellPresent.flowchart, 'Event3', 'Event4')
+	eventtools.insertEventAfter(shellPresent.flowchart, 'Event4', 'Event14')
+	eventtools.insertEventAfter(shellPresent.flowchart, 'Event14', 'Event0')
+	eventtools.insertEventAfter(shellPresent.flowchart, 'Event25', arrowCapacityCheckEvent)
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/ShellMansionPresent.bfevfl', shellPresent)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/ShellMansionPresent.bfevfl', shellPresent)
 
-    #################################################################################################################################
-    ### MusicalInstrument event: Set ghost clear flags if you got the Surf Harp.
-    musicalInstrument = eventtools.readFlow(f'{romPath}/region_common/event/MusicalInstrument.bfevfl')
+	#################################################################################################################################
+	### MusicalInstrument event: Set ghost clear flags if you got the Surf Harp.
+	musicalInstrument = eventtools.readFlow(f'{romPath}/region_common/event/MusicalInstrument.bfevfl')
 
-    musicalInstrument.flowchart.actors.append(eventFlagsActor)
-    eventtools.addActorQuery(eventtools.findActor(musicalInstrument.flowchart, 'Inventory'), 'HasItem')
+	musicalInstrument.flowchart.actors.append(eventFlagsActor)
+	eventtools.addActorQuery(eventtools.findActor(musicalInstrument.flowchart, 'Inventory'), 'HasItem')
 
-    ghostFlagsSetEvent = eventtools.createActionEvent(musicalInstrument.flowchart, 'EventFlags', 'SetFlag', {'symbol': 'GhostClear1', 'value': True})
+	ghostFlagsSetEvent = eventtools.createActionEvent(musicalInstrument.flowchart, 'EventFlags', 'SetFlag', {'symbol': 'GhostClear1', 'value': True})
 
-    eventtools.insertEventAfter(musicalInstrument.flowchart, 'Event52', eventtools.createSwitchEvent(musicalInstrument.flowchart, 'Inventory', 'HasItem', {'itemType': 48, 'count': 1}, {0: 'Event0', 1: ghostFlagsSetEvent}))
+	eventtools.insertEventAfter(musicalInstrument.flowchart, 'Event52', eventtools.createSwitchEvent(musicalInstrument.flowchart, 'Inventory', 'HasItem', {'itemType': 48, 'count': 1}, {0: 'Event0', 1: ghostFlagsSetEvent}))
 
-    eventtools.createActionChain(musicalInstrument.flowchart, ghostFlagsSetEvent, [
-        ('EventFlags', 'SetFlag', {'symbol': 'Ghost2_Clear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'Ghost3_Clear', 'value': True}),
-        ('EventFlags', 'SetFlag', {'symbol': 'Ghost4_Clear', 'value': True})
-        ], 'Event0')
+	eventtools.createActionChain(musicalInstrument.flowchart, ghostFlagsSetEvent, [
+		('EventFlags', 'SetFlag', {'symbol': 'Ghost2_Clear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'Ghost3_Clear', 'value': True}),
+		('EventFlags', 'SetFlag', {'symbol': 'Ghost4_Clear', 'value': True})
+		], 'Event0')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MusicalInstrument.bfevfl', musicalInstrument)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MusicalInstrument.bfevfl', musicalInstrument)
 
-    #################################################################################################################################
-    ### Item: Add and fix some entry points for the ItemGetSequence for capcity upgrades and tunics.
-    item = eventtools.readFlow(f'{romPath}/region_common/event/Item.bfevfl')
+	#################################################################################################################################
+	### Item: Add and fix some entry points for the ItemGetSequence for capcity upgrades and tunics.
+	item = eventtools.readFlow(f'{romPath}/region_common/event/Item.bfevfl')
 
-    """eventtools.addEntryPoint(item.flowchart, 'MagicPowder_MaxUp')
-    eventtools.createActionChain(item.flowchart, 'MagicPowder_MaxUp', [
-        ('Dialog', 'Show', {'message': 'Scenario:Lv1GetShield'})
-        ])"""
+	"""eventtools.addEntryPoint(item.flowchart, 'MagicPowder_MaxUp')
+	eventtools.createActionChain(item.flowchart, 'MagicPowder_MaxUp', [
+		('Dialog', 'Show', {'message': 'Scenario:Lv1GetShield'})
+		])"""
 
-    eventtools.findEntryPoint(item.flowchart, 'RedClothes').name = 'ClothesRed'
-    eventtools.findEntryPoint(item.flowchart, 'BlueClothes').name = 'ClothesBlue'
+	eventtools.findEntryPoint(item.flowchart, 'RedClothes').name = 'ClothesRed'
+	eventtools.findEntryPoint(item.flowchart, 'BlueClothes').name = 'ClothesBlue'
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Item.bfevfl', item)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Item.bfevfl', item)
 
-    #################################################################################################################################
-    ### MadamMeowMeow: Change her behaviour to always take back BowWow if you have him, and not do anything based on having the Horn
-    madam = eventtools.readFlow(f'{romPath}/region_common/event/MadamMeowMeow.bfevfl')
+	#################################################################################################################################
+	### MadamMeowMeow: Change her behaviour to always take back BowWow if you have him, and not do anything based on having the Horn
+	madam = eventtools.readFlow(f'{romPath}/region_common/event/MadamMeowMeow.bfevfl')
 
-    # Removes BowWowClear flag being set
-    eventtools.insertEventAfter(madam.flowchart, 'Event69', 'Event18')
+	# Removes BowWowClear flag being set
+	eventtools.insertEventAfter(madam.flowchart, 'Event69', 'Event18')
 
-    # Rearranging her dialogue conditions
-    eventtools.insertEventAfter(madam.flowchart, 'Event22', 'Event5')
-    eventtools.setSwitchEventCase(madam.flowchart, 'Event5', 0, 'Event0')
-    eventtools.setSwitchEventCase(madam.flowchart, 'Event5', 1, 'Event52')
-    eventtools.setSwitchEventCase(madam.flowchart, 'Event0', 0, 'Event40')
-    eventtools.setSwitchEventCase(madam.flowchart, 'Event0', 1, 'Event21')
-    eventtools.setSwitchEventCase(madam.flowchart, 'Event21', 0, 'Event80')
-    eventtools.findEvent(madam.flowchart, 'Event21').data.params.data['symbol'] = 'BowWowJoin'
+	# Rearranging her dialogue conditions
+	eventtools.insertEventAfter(madam.flowchart, 'Event22', 'Event5')
+	eventtools.setSwitchEventCase(madam.flowchart, 'Event5', 0, 'Event0')
+	eventtools.setSwitchEventCase(madam.flowchart, 'Event5', 1, 'Event52')
+	eventtools.setSwitchEventCase(madam.flowchart, 'Event0', 0, 'Event40')
+	eventtools.setSwitchEventCase(madam.flowchart, 'Event0', 1, 'Event21')
+	eventtools.setSwitchEventCase(madam.flowchart, 'Event21', 0, 'Event80')
+	eventtools.findEvent(madam.flowchart, 'Event21').data.params.data['symbol'] = 'BowWowJoin'
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MadamMeowMeow.bfevfl', madam)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/MadamMeowMeow.bfevfl', madam)
 
-    #################################################################################################################################
-    ### WindFishsEgg: Add and fix some entry points for the ItemGetSequence for capcity upgrades and tunics.
-    egg = eventtools.readFlow(f'{romPath}/region_common/event/WindFishsEgg.bfevfl')
+	#################################################################################################################################
+	### WindFishsEgg: Add and fix some entry points for the ItemGetSequence for capcity upgrades and tunics.
+	egg = eventtools.readFlow(f'{romPath}/region_common/event/WindFishsEgg.bfevfl')
 
-    eventtools.insertEventAfter(egg.flowchart, 'Event142', None)
+	eventtools.insertEventAfter(egg.flowchart, 'Event142', None)
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/WindFishsEgg.bfevfl', egg)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/WindFishsEgg.bfevfl', egg)
 
-    #################################################################################################################################
-    ### SkeletalGuardBlue: Make him sell 20 bombs in addition to the 20 powder.
-    if placements['settings']['reduce-early-farming']:
-        skeleton = eventtools.readFlow(f'{romPath}/region_common/event/SkeletalGuardBlue.bfevfl')
+	#################################################################################################################################
+	### SkeletalGuardBlue: Make him sell 20 bombs in addition to the 20 powder.
+	if placements['settings']['reduce-farming']:
+		skeleton = eventtools.readFlow(f'{romPath}/region_common/event/SkeletalGuardBlue.bfevfl')
 
-        bombAddEvent = eventtools.createActionEvent(skeleton.flowchart, 'Inventory', 'AddItem', {'itemType': 4, 'count': 20, 'autoEquip': False})
-        powderAddEvent = eventtools.createActionEvent(skeleton.flowchart, 'Inventory', 'AddItem', {'itemType': 12, 'count': 20, 'autoEquip': False})
+		eventtools.createActionChain(skeleton.flowchart, 'Event19', [
+			('Inventory', 'AddItem', {'itemType': 4, 'count': 20, 'autoEquip': False})
+			])
 
-        bombCheckEvent = eventtools.createSwitchEvent(skeleton.flowchart, 'Inventory', 'HasItem', {'itemType': 4, 'count': 1}, {0: bombAddEvent, 1: None})
-        powderCheckEvent = eventtools.createSwitchEvent(skeleton.flowchart, 'Inventory', 'HasItem', {'itemType': 12, 'count': 1}, {0: powderAddEvent, 1: bombCheckEvent})
+		eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SkeletalGuardBlue.bfevfl', skeleton)
 
-        eventtools.insertEventAfter(skeleton.flowchart, powderAddEvent, bombCheckEvent)
-        eventtools.insertEventAfter(skeleton.flowchart, 'Event2', powderCheckEvent)
+	#################################################################################################################################
+	### PrizeCommon: Change the figure to look for when the fast-trendy setting is on
+	if placements['settings']['fast-trendy']:
+		prize = eventtools.readFlow(f'{romPath}/region_common/event/PrizeCommon.bfevfl')
 
-        eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/SkeletalGuardBlue.bfevfl', skeleton)
+		eventtools.findEvent(prize.flowchart, 'Event5').data.params.data['prizeType'] = 10
 
-    #################################################################################################################################
-    ### PrizeCommon: Change the figure to look for when the fast-trendy setting is on
-    if placements['settings']['fast-trendy']:
-        prize = eventtools.readFlow(f'{romPath}/region_common/event/PrizeCommon.bfevfl')
-
-        eventtools.findEvent(prize.flowchart, 'Event5').data.params.data['prizeType'] = 10
-
-        eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PrizeCommon.bfevfl', prize)
+		eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/PrizeCommon.bfevfl', prize)
 
 
 # Make changes to some datasheets that are general in nature and not tied to specific item placements.
 def makeGeneralDatasheetChanges(placements, romPath, outdir):
-    if not os.path.exists(f'{outdir}/Romfs/region_common/datasheets'):
-        os.makedirs(f'{outdir}/Romfs/region_common/datasheets')
+	if not os.path.exists(f'{outdir}/Romfs/region_common/datasheets'):
+		os.makedirs(f'{outdir}/Romfs/region_common/datasheets')
 
-    #################################################################################################################################
-    ### Npc datasheet: Change MadBatter to use actor parameter $2 as its event entry point.
-    ### Also change ItemSmallKey and ObjSinkingSword to use custom models/entry points.
-    ### Change ItemClothesGreen to have the small key model, which we'll kinda hack in the Items datasheet so small keys are visible 
-    ### in the GenericItemGetSequence.
-    ### Make Papahl appear in the mountains after trading for the pineapple instead of the getting the Bell
-    npcSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Npc.gsheet')
+	#################################################################################################################################
+	### Npc datasheet: Change MadBatter to use actor parameter $2 as its event entry point.
+	### Also change ItemSmallKey and ObjSinkingSword to use custom models/entry points.
+	### Change ItemClothesGreen to have the small key model, which we'll kinda hack in the Items datasheet so small keys are visible 
+	### in the GenericItemGetSequence.
+	### Make Papahl appear in the mountains after trading for the pineapple instead of the getting the Bell
+	npcSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Npc.gsheet')
 
-    for npc in npcSheet['values']:
-        if npc['symbol'] == 'NpcMadBatter':
-            npc['eventTriggers'][0]['entryPoint'] = '$2'
-            npc['layoutConditions'].pop(1)
-        if npc['symbol'] == 'ItemSmallKey':
-            npc['graphics']['path'] = '$1'
-            npc['graphics']['model'] = '$2'
-            npc['eventTriggers'][2]['entryPoint'] = '$3'
-        if npc['symbol'] == 'ItemClothesGreen':
-            npc['graphics']['path'] = 'ItemSmallKey.bfres'
-            npc['graphics']['model'] = 'SmallKey'
-        """if npc['symbol'] == 'NpcPapahl':
-            npc['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 2}
-        if npc['symbol'] == 'ObjClothBag':
-            npc['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 0}
-        if npc['symbol'] == 'NpcGrandmaUlrira':
-            npc['layoutConditions'][1] = {'category': 2, 'parameter': 'Broom', 'layoutID': 4}"""
-        if npc['symbol'] == 'ObjSinkingSword':
-            npc['graphics']['path'] = '$0'
-            npc['graphics']['model'] = '$1'
-            npc['eventTriggers'][0]['entryPoint'] = '$2'
-            npc['layoutConditions'][0]['parameter'] = '$3'
-        if npc['symbol'] == 'ObjRoosterBones':
-            npc['layoutConditions'].pop(0)
-        if npc['symbol'] == 'NpcBowWow':
-            npc['layoutConditions'][2] = {'category': 3, 'parameter': 'BowWow', 'layoutID': -1}
-        if npc['symbol'] == 'NpcMadamMeowMeow':
-            npc['layoutConditions'][2] = {'category': 1, 'parameter': 'BowWowJoin', 'layoutID': 3}
-            npc['layoutConditions'].pop(1)
-        if npc['symbol'] == 'NpcMamu':
-            npc['layoutConditions'].pop(0)
+	for npc in npcSheet['values']:
+		if npc['symbol'] == 'NpcMadBatter':
+			npc['eventTriggers'][0]['entryPoint'] = '$2'
+			npc['layoutConditions'].pop(1)
+		if npc['symbol'] == 'ItemSmallKey':
+			npc['graphics']['path'] = '$1'
+			npc['graphics']['model'] = '$2'
+			npc['eventTriggers'][2]['entryPoint'] = '$3'
+		if npc['symbol'] == 'ItemClothesGreen':
+			npc['graphics']['path'] = 'ItemSmallKey.bfres'
+			npc['graphics']['model'] = 'SmallKey'
+		"""if npc['symbol'] == 'NpcPapahl':
+			npc['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 2}
+		if npc['symbol'] == 'ObjClothBag':
+			npc['layoutConditions'][1] = {'category': 1, 'parameter': 'PineappleGet', 'layoutID': 0}
+		if npc['symbol'] == 'NpcGrandmaUlrira':
+			npc['layoutConditions'][1] = {'category': 2, 'parameter': 'Broom', 'layoutID': 4}"""
+		if npc['symbol'] == 'ObjSinkingSword':
+			npc['graphics']['path'] = '$0'
+			npc['graphics']['model'] = '$1'
+			npc['eventTriggers'][0]['entryPoint'] = '$2'
+			npc['layoutConditions'][0]['parameter'] = '$3'
+		if npc['symbol'] == 'ObjRoosterBones':
+			npc['layoutConditions'].pop(0)
+		if npc['symbol'] == 'NpcBowWow':
+			npc['layoutConditions'][2] = {'category': 3, 'parameter': 'BowWow', 'layoutID': -1}
+		if npc['symbol'] == 'NpcMadamMeowMeow':
+			npc['layoutConditions'][2] = {'category': 1, 'parameter': 'BowWowJoin', 'layoutID': 3}
+			npc['layoutConditions'].pop(1)
+		if npc['symbol'] == 'NpcChorusFrog':
+			npc['layoutConditions'].pop(0)
 
-    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Npc.gsheet', npcSheet)
+		# Adjustments for NPCs that can have seashells, to make the sensor work properly
+		if npc['symbol'] == 'NpcChristine':
+			npc['shellSensor'].pop()
+			if placements['christine-grateful'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['christine-grateful']}"})
+		if npc['symbol'] == 'NpcTarin':
+			npc['eventTriggers'][5]['additionalConditions'][0] = {'category': 1, 'parameter': '!ShieldGet'} # Make Tarin detain based on talking to him, not having Shield
+			if placements['tarin'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['tarin']}"})
+		if npc['symbol'] == 'NpcMarin':
+			npc['shellSensor'].append({'category': 4, 'parameter': '2'}) # Only the instance of Marin in Mabe should ring the sensor
+			if placements['marin'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['marin']}"})
+		if npc['symbol'] == 'NpcSecretZora':
+			npc['shellSensor'].pop()
+			if placements['invisible-zora'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['invisible-zora']}"})
+		if npc['symbol'] == 'NpcGoriya':
+			if placements['goriya-trader'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['goriya-trader']}"})
+		if npc['symbol'] == 'ObjGhostsGrave':
+			if placements['ghost-reward'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['ghost-reward']}"})
+		if npc['symbol'] == 'NpcWalrus':
+			npc['shellSensor'].pop()
+			if placements['walrus'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['walrus']}"})
+		if npc['symbol'] == 'NpcFairyQueen':
+			if placements['D0-fairy-1'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['D0-fairy-1']}"})
+			if placements['D0-fairy-2'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['D0-fairy-2']}"})
+		if npc['symbol'] == 'NpcManboTamegoro':
+			if placements['manbo'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['manbo']}"})
+		if npc['symbol'] == 'NpcMamu':
+			npc['layoutConditions'].pop(0) # removes the frog's song layout condition so he's always there
+			if placements['mamu'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['mamu']}"})
+		if npc['symbol'] == 'NpcGameShopOwner':
+			if placements['trendy-prize-final'] == 'seashell':
+				npc['shellSensor'].append({'category': 2, 'parameter': f"!Seashell:{placements['indexes']['trendy-prize-final']}"})
+		if npc['symbol'] == 'NpcDanpei':
+			npc['shellSensor'].append({'category': 9, 'parameter': '!DampeShellsComplete'})
+		if npc['symbol'] == 'NpcRaftShopMan':
+			npc['shellSensor'].append({'category': 9, 'parameter': '!RapidsShellsComplete'})
+		if npc['symbol'] == 'NpcFisherman':
+			npc['shellSensor'].append({'category': 9, 'parameter': '!FishingShellsComplete'})
+		if npc['symbol'] == 'NpcShellMansionMaster':
+			npc['shellSensor'].append({'category': 9, 'parameter': '!MansionShellsComplete'})
 
-    #################################################################################################################################
-    ### ItemDrop datasheet: remove HeartContainer drops 0-7, HookShot drop, AnglerKey and FaceKey drops.
-    itemDropSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/ItemDrop.gsheet')
+	oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Npc.gsheet', npcSheet)
 
-    for i in range(len(itemDropSheet['values'])):
-        if itemDropSheet['values'][i]['mKey'] == 'HeartContainer0':
-            firstHeartIndex = i
-        elif itemDropSheet['values'][i]['mKey'] == 'AnglerKey':
-            itemDropSheet['values'][i]['mLotTable'][0]['mType'] = ''
-        elif itemDropSheet['values'][i]['mKey'] == 'FaceKey':
-            itemDropSheet['values'][i]['mLotTable'][0]['mType'] = ''
-        elif itemDropSheet['values'][i]['mKey'] == 'HookShot':
-            itemDropSheet['values'][i]['mLotTable'][0]['mType'] = ''
+	#################################################################################################################################
+	### ItemDrop datasheet: remove HeartContainer drops 0-7, HookShot drop, AnglerKey and FaceKey drops.
+	itemDropSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/ItemDrop.gsheet')
 
-    for i in range(8):
-        itemDropSheet['values'][firstHeartIndex+i]['mLotTable'][0]['mType'] = ''
+	for i in range(len(itemDropSheet['values'])):
+		if itemDropSheet['values'][i]['mKey'] == 'HeartContainer0':
+			firstHeartIndex = i
+		if itemDropSheet['values'][i]['mKey'] == 'AnglerKey':
+			itemDropSheet['values'][i]['mLotTable'][0]['mType'] = ''
+		if itemDropSheet['values'][i]['mKey'] == 'FaceKey':
+			itemDropSheet['values'][i]['mLotTable'][0]['mType'] = ''
+		if itemDropSheet['values'][i]['mKey'] == 'HookShot':
+			itemDropSheet['values'][i]['mLotTable'][0]['mType'] = ''
+		if itemDropSheet['values'][i]['mKey'] == 'Bomb' and placements['settings']['reduce-farming']:
+			itemDropSheet['values'][i]['mLotTable'][0]['mCookie'] = 3
+		if itemDropSheet['values'][i]['mKey'] == 'Arrow' and placements['settings']['reduce-farming']:
+			itemDropSheet['values'][i]['mLotTable'][0]['mCookie'] = 3
+		if itemDropSheet['values'][i]['mKey'] == 'MagicPowder' and placements['settings']['reduce-farming']:
+			itemDropSheet['values'][i]['mLotTable'][0]['mCookie'] = 3
+		if itemDropSheet['values'][i]['mKey'] == 'Grass' and placements['settings']['reduce-farming']:
+			itemDropSheet['values'][i]['mLotTable'][1]['mWeight'] = 18
+			itemDropSheet['values'][i]['mLotTable'][2]['mWeight'] = 3
+			itemDropSheet['values'][i]['mLotTable'][3]['mWeight'] = 71
 
-    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/ItemDrop.gsheet', itemDropSheet)
 
-    #################################################################################################################################
-    ### Items datasheet: Set actor IDs for the capacity upgrades so they show something when you get them.
-    itemsSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Items.gsheet')
+	for i in range(8):
+		itemDropSheet['values'][firstHeartIndex+i]['mLotTable'][0]['mType'] = ''
 
-    for item in itemsSheet['values']:
-        if item['symbol'] == 'MagicPowder_MaxUp':
-            item['actorID'] = 124
-        if item['symbol'] == 'Bomb_MaxUp':
-            item['actorID'] = 117
-        if item['symbol'] == 'Arrow_MaxUp':
-            item['actorID'] = 180
-        if item['symbol'] == 'SmallKey':
-            item['npcKey'] = 'ItemClothesGreen'
+	oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/ItemDrop.gsheet', itemDropSheet)
 
-    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Items.gsheet', itemsSheet)
+	#################################################################################################################################
+	### Items datasheet: Set actor IDs for the capacity upgrades so they show something when you get them.
+	itemsSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Items.gsheet')
 
-    #################################################################################################################################
-    ### Conditions datasheet
-    conditionsSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Conditions.gsheet')
+	for item in itemsSheet['values']:
+		if item['symbol'] == 'MagicPowder_MaxUp':
+			item['actorID'] = 124
+		if item['symbol'] == 'Bomb_MaxUp':
+			item['actorID'] = 117
+		if item['symbol'] == 'Arrow_MaxUp':
+			item['actorID'] = 180
+		if item['symbol'] == 'SmallKey':
+			item['npcKey'] = 'ItemClothesGreen'
 
-    for condition in conditionsSheet['values']:
-        # Make sure Marin always stays in the village even if you trade for the pineapple
-        if condition['symbol'] == 'MarinVillageStay':
-            condition['conditions'].pop(1)
+	oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Items.gsheet', itemsSheet)
 
-        # Make the shop not sell shields until you find one
-        if condition['symbol'] == 'ShopShieldCondition':
-            condition['conditions'][0] = {'category': 1, 'parameter': shieldFoundFlag}
+	#################################################################################################################################
+	### Conditions datasheet
+	conditionsSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/Conditions.gsheet')
 
-        # Make the animals in Animal village not be in the ring, which they would because of WalrusAwaked getting set
-        if condition['symbol'] == 'AnimalPop':
-            condition['conditions'][0] = {'category': 9, 'parameter': 'false'}
+	for condition in conditionsSheet['values']:
+		# Make sure Marin always stays in the village even if you trade for the pineapple
+		if condition['symbol'] == 'MarinVillageStay':
+			condition['conditions'].pop(1)
 
-        # Remove the condition for bombs in the shop if the unlocked-bombs setting is on
-        if condition['symbol'] == 'ShopBombCondition' and placements['settings']['unlocked-bombs']:
-            condition['conditions'][0] = {'category': 9, 'parameter': 'true'}
+		# Make the shop not sell shields until you find one
+		if condition['symbol'] == 'ShopShieldCondition':
+			condition['conditions'][0] = {'category': 1, 'parameter': shieldFoundFlag}
 
-    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Conditions.gsheet', conditionsSheet)
+		# Make the animals in Animal village not be in the ring, which they would because of WalrusAwaked getting set
+		if condition['symbol'] == 'AnimalPop':
+			condition['conditions'][0] = {'category': 9, 'parameter': 'false'}
 
-    #################################################################################################################################
-    ### CranePrize datasheet
-    cranePrizeSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/CranePrize.gsheet')
+		# Remove the condition for bombs in the shop if the unlocked-bombs setting is on
+		if condition['symbol'] == 'ShopBombCondition' and placements['settings']['unlocked-bombs']:
+			condition['conditions'][0] = {'category': 9, 'parameter': 'true'}
 
-    for cranePrize in cranePrizeSheet['values']:
-        # SmallBowWow (Ciao Ciao): Remove the condition of HintYosshi. It's unnecessary and can lead to a softlock
-        if cranePrize['symbol'] == 'SmallBowWow':
-            cranePrize['layouts'][0]['conditions'].pop(0)
+	# Create new condition sets for the seashell sensor to work with Dampe, Rapids guy, Fishing Guy, and Seashell mansion
+	dampeCondition = oeadtools.createCondition('DampeShellsComplete', [(9, 'true')])
+	dampeLocations = ['dampe-page-1', 'dampe-heart-challenge', 'dampe-page-2', 'dampe-bottle-challenge', 'dampe-final']
+	for location in dampeLocations:
+		if placements[location] == 'seashell':
+			dampeCondition['conditions'].append({'category': 2, 'parameter': f"Seashell:{placements['indexes'][location]}"})
+	conditionsSheet['values'].append(dampeCondition)
 
-        # BowWow: Remove the ShadowClear condition. This was stupid in vanill and it's even worse for rando.
-        if cranePrize['symbol'] == 'BowWow':
-            cranePrize['layouts'][0]['conditions'].pop(0)
+	rapidsCondition = oeadtools.createCondition('RapidsShellsComplete', [(9, 'true')])
+	rapidsLocations = ['rapids-race-30', 'rapids-race-35', 'rapids-race-45']
+	for location in rapidsLocations:
+		if placements[location] == 'seashell':
+			rapidsCondition['conditions'].append({'category': 2, 'parameter': f"Seashell:{placements['indexes'][location]}"})
+	conditionsSheet['values'].append(rapidsCondition)
 
-    oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/CranePrize.gsheet', cranePrizeSheet)
+	fishingCondition = oeadtools.createCondition('FishingShellsComplete', [(9, 'true')])
+	fishingLocations = ['fishing-orange', 'fishing-cheep-cheep', 'fishing-ol-baron', 'fishing-loose', 'fishing-50', 'fishing-100', 'fishing-150']
+	for location in fishingLocations:
+		if placements[location] == 'seashell':
+			fishingCondition['conditions'].append({'category': 2, 'parameter': f"Seashell:{placements['indexes'][location]}"})
+	conditionsSheet['values'].append(fishingCondition)
+
+	mansionCondition = oeadtools.createCondition('MansionShellsComplete', [(9, 'true')])
+	mansionLocations = ['5-seashell-reward', '15-seashell-reward', '30-seashell-reward', '40-seashell-reward', '50-seashell-reward']
+	for location in mansionLocations:
+		if placements[location] == 'seashell':
+			mansionCondition['conditions'].append({'category': 2, 'parameter': f"Seashell:{placements['indexes'][location]}"})
+	conditionsSheet['values'].append(mansionCondition)
+
+	oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/Conditions.gsheet', conditionsSheet)
+
+	#################################################################################################################################
+	### CranePrize datasheet
+	cranePrizeSheet = oeadtools.readSheet(f'{romPath}/region_common/datasheets/CranePrize.gsheet')
+
+	for cranePrize in cranePrizeSheet['values']:
+		# Shield should not be obtainable until you find your first shield
+		if cranePrize['symbol'] == 'Shield':
+			cranePrize['layouts'][0]['conditions'].append({'category': 1, 'parameter': shieldFoundFlag})
+
+		# SmallBowWow (Ciao Ciao): Remove the condition of HintYosshi. It's unnecessary and can lead to a softlock
+		if cranePrize['symbol'] == 'SmallBowWow':
+			cranePrize['layouts'][0]['conditions'].pop(0)
+
+		# BowWow: Remove the ShadowClear condition. This was stupid in vanill and it's even worse for rando.
+		if cranePrize['symbol'] == 'BowWow':
+			cranePrize['layouts'][0]['conditions'].pop(0)
+
+	oeadtools.writeSheet(f'{outdir}/Romfs/region_common/datasheets/CranePrize.gsheet', cranePrizeSheet)
 
 
 
 # Ensure that the flowchart has the AddItemByKey and GenericItemGetSequenceByKey actions, and the EventFlags actor
 # with the SetFlag and CheckFlag action/query.
 def addNeededActors(flowchart, romPath):
-    try:
-        eventtools.findActor(flowchart, 'Inventory')
-    except ValueError:
-        inventoryActor = eventtools.findActor(eventtools.readFlow(f'{romPath}/region_common/event/Tarin.bfevfl').flowchart, 'Inventory')
-        flowchart.actors.append(inventoryActor)
+	try:
+		eventtools.findActor(flowchart, 'Inventory')
+	except ValueError:
+		inventoryActor = eventtools.findActor(eventtools.readFlow(f'{romPath}/region_common/event/Tarin.bfevfl').flowchart, 'Inventory')
+		flowchart.actors.append(inventoryActor)
 
-    try:
-        eventtools.findActor(flowchart, 'Inventory').find_action('AddItemByKey')
-    except ValueError:
-        eventtools.addActorAction(eventtools.findActor(flowchart, 'Inventory'), 'AddItemByKey')
+	try:
+		eventtools.findActor(flowchart, 'Inventory').find_action('AddItemByKey')
+	except ValueError:
+		eventtools.addActorAction(eventtools.findActor(flowchart, 'Inventory'), 'AddItemByKey')
 
-    try:
-        eventtools.findActor(flowchart, 'Link').find_action('GenericItemGetSequenceByKey')
-    except ValueError:
-        eventtools.addActorAction(eventtools.findActor(flowchart, 'Link'), 'GenericItemGetSequenceByKey')
+	try:
+		eventtools.findActor(flowchart, 'Link').find_action('GenericItemGetSequenceByKey')
+	except ValueError:
+		eventtools.addActorAction(eventtools.findActor(flowchart, 'Link'), 'GenericItemGetSequenceByKey')
 
-    try:
-        eventtools.findActor(flowchart, 'EventFlags')
-    except ValueError:
-        eventFlagsActor = eventtools.findActor(eventtools.readFlow(f'{romPath}/region_common/event/PlayerStart.bfevfl').flowchart, 'EventFlags')
-        flowchart.actors.append(eventFlagsActor)
+	try:
+		eventtools.findActor(flowchart, 'EventFlags')
+	except ValueError:
+		eventFlagsActor = eventtools.findActor(eventtools.readFlow(f'{romPath}/region_common/event/PlayerStart.bfevfl').flowchart, 'EventFlags')
+		flowchart.actors.append(eventFlagsActor)
 
-    try:
-        eventtools.findActor(flowchart, 'EventFlags').find_action('SetFlag')
-    except ValueError:
-        eventtools.addActorAction(eventtools.findActor(flowchart, 'EventFlags'), 'SetFlag')
+	try:
+		eventtools.findActor(flowchart, 'EventFlags').find_action('SetFlag')
+	except ValueError:
+		eventtools.addActorAction(eventtools.findActor(flowchart, 'EventFlags'), 'SetFlag')
 
-    try:
-        eventtools.findActor(flowchart, 'EventFlags').find_query('CheckFlag')
-    except ValueError:
-        eventtools.addActorQuery(eventtools.findActor(flowchart, 'EventFlags'), 'CheckFlag')
+	try:
+		eventtools.findActor(flowchart, 'EventFlags').find_query('CheckFlag')
+	except ValueError:
+		eventtools.addActorQuery(eventtools.findActor(flowchart, 'EventFlags'), 'CheckFlag')
 
 
 # Inserts an AddItemByKey and a GenericItemGetSequenceByKey, or a progressive item switch (depending on the item).
 # It goes after 'before' and before 'after'. Return the name of the first event in the sequence.
 def insertItemGetEvent(flowchart, item, index, before, after=None):
-    if item == 'PowerBraceletLv1':
-        return eventtools.createProgressiveItemSwitch(flowchart, 'PowerBraceletLv1', 'PowerBraceletLv2', braceletFoundFlag, before, after)
+	if item == 'PowerBraceletLv1':
+		return eventtools.createProgressiveItemSwitch(flowchart, 'PowerBraceletLv1', 'PowerBraceletLv2', braceletFoundFlag, before, after)
 
-    if item == 'SwordLv1':
-        return eventtools.createProgressiveItemSwitch(flowchart, 'SwordLv1', 'SwordLv2', swordFoundFlag, before, after)
+	if item == 'SwordLv1':
+		return eventtools.createProgressiveItemSwitch(flowchart, 'SwordLv1', 'SwordLv2', swordFoundFlag, before, after)
 
-    if item == 'Shield':
-        return eventtools.createProgressiveItemSwitch(flowchart, 'Shield', 'MirrorShield', shieldFoundFlag, before, after)
+	if item == 'Shield':
+		return eventtools.createProgressiveItemSwitch(flowchart, 'Shield', 'MirrorShield', shieldFoundFlag, before, after)
 
-    if item == 'MagicPowder_MaxUp':
-        return eventtools.createActionChain(flowchart, before, [
-            ('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
-            ('Inventory', 'AddItemByKey', {'itemKey': 'MagicPowder', 'count': 40, 'index': -1, 'autoEquip': False}),
-            ('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
-            ], after)
+	if item == 'MagicPowder_MaxUp':
+		return eventtools.createActionChain(flowchart, before, [
+			('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
+			('Inventory', 'AddItemByKey', {'itemKey': 'MagicPowder', 'count': 40, 'index': -1, 'autoEquip': False}),
+			('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
+			], after)
 
-    if item == 'Bomb_MaxUp':
-        return eventtools.createActionChain(flowchart, before, [
-            ('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
-            ('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 60, 'index': -1, 'autoEquip': False}),
-            ('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
-            ], after)
+	if item == 'Bomb_MaxUp':
+		return eventtools.createActionChain(flowchart, before, [
+			('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
+			('Inventory', 'AddItemByKey', {'itemKey': 'Bomb', 'count': 60, 'index': -1, 'autoEquip': False}),
+			('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
+			], after)
 
-    if item == 'Arrow_MaxUp':
-        return eventtools.createActionChain(flowchart, before, [
-            ('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
-            ('Inventory', 'AddItemByKey', {'itemKey': 'Arrow', 'count': 60, 'index': -1, 'autoEquip': False}),
-            ('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
-            ], after)
+	if item == 'Arrow_MaxUp':
+		return eventtools.createActionChain(flowchart, before, [
+			('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
+			('Inventory', 'AddItemByKey', {'itemKey': 'Arrow', 'count': 60, 'index': -1, 'autoEquip': False}),
+			('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
+			], after)
 
-    return eventtools.createActionChain(flowchart, before, [
-        ('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
-        ('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
-        ], after)
+	return eventtools.createActionChain(flowchart, before, [
+		('Inventory', 'AddItemByKey', {'itemKey': item, 'count': 1, 'index': index, 'autoEquip': False}),
+		('Link', 'GenericItemGetSequenceByKey', {'itemKey': item, 'keepCarry': False, 'messageEntry': ''})
+		], after)
 
 
 # Set the event for the book of dark secrets to reveal the egg path without having the magnifying lens
 def setFreeBook(romPath, outdir):
-    book = eventtools.readFlow(f'{romPath}/region_common/event/Book.bfevfl')
+	book = eventtools.readFlow(f'{romPath}/region_common/event/Book.bfevfl')
 
-    eventtools.insertEventAfter(book.flowchart, 'Event18', 'Event73')
+	eventtools.insertEventAfter(book.flowchart, 'Event18', 'Event73')
 
-    eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Book.bfevfl', book)
+	eventtools.writeFlow(f'{outdir}/Romfs/region_common/event/Book.bfevfl', book)
 
 
 chestRooms = {

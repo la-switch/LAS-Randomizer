@@ -177,7 +177,14 @@ class Actor:
 			else:
 				self.parameters.append(param)
 
-		self.x78 = data[0x78:]
+		self.switches = [
+			(readBytes(data, 0x78, 1), readBytes(data, 0x7C, 2)),
+			(readBytes(data, 0x79, 1), readBytes(data, 0x7E, 2)),
+			(readBytes(data, 0x7A, 1), readBytes(data, 0x80, 2)),
+			(readBytes(data, 0x7B, 1), readBytes(data, 0x82, 2))
+			]
+
+		self.x84 = data[0x84:]
 
 	def __repr__(self):
 		return f'Actor: {self.name}'
@@ -210,7 +217,13 @@ class Actor:
 				packed += param.to_bytes(4, 'little')
 				packed += (3).to_bytes(4, 'little')
 
-		packed += self.x78
+		switches = b''
+		for i in range(4):
+			packed += self.switches[i][0].to_bytes(1, 'little')
+			switches += self.switches[i][1].to_bytes(2, 'little')
+		packed += switches
+
+		packed += self.x84
 
 		return packed
 

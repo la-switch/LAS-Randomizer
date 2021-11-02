@@ -4,7 +4,7 @@ unlocked-bombs: False
 fast-trendy: False
 fast-stealing: False
 assured-sword-shield: False
-reduce-early-farming: True
+reduce-farming: True
 
 excluded-locations:
   - trendy-prize-final
